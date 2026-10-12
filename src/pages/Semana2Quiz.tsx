@@ -3,13 +3,11 @@ import { QUIZ_QUESTIONS, type Question } from '../data/quizData';
 import { SuccessModal } from '../components/SuccessModal';
 import { sound } from '../utils/sound';
 import { 
-  CheckCircle, 
+  CheckCircle2, 
   XCircle, 
   ArrowRight, 
   RotateCcw, 
-  HelpCircle, 
-  Sparkles,
-  Award,
+  HelpCircle,
   BookOpen
 } from 'lucide-react';
 
@@ -26,9 +24,8 @@ export const Semana2Quiz: React.FC = () => {
   const totalQuestions = QUIZ_QUESTIONS.length;
   const progressPercent = ((currentIndex + 1) / totalQuestions) * 100;
 
-  // Handle option selection
   const handleSelectOption = (index: number) => {
-    if (showExplanation) return; // Prevent changing after confirmed
+    if (showExplanation) return;
     setSelectedOption(index);
     setShowExplanation(true);
     setUserAnswers((prev) => ({ ...prev, [currentIndex]: index }));
@@ -41,7 +38,6 @@ export const Semana2Quiz: React.FC = () => {
     }
   };
 
-  // Continue to next question or finish
   const handleNext = () => {
     sound.click();
     if (currentIndex < totalQuestions - 1) {
@@ -50,7 +46,6 @@ export const Semana2Quiz: React.FC = () => {
       setShowExplanation(false);
     } else {
       setIsFinished(true);
-      // Open celebration modal if score is satisfactory
       const score = calculateScore();
       if (score.correct >= 7) {
         setIsSuccessModalOpen(true);
@@ -58,7 +53,6 @@ export const Semana2Quiz: React.FC = () => {
     }
   };
 
-  // Calculate results
   const calculateScore = () => {
     let correct = 0;
     QUIZ_QUESTIONS.forEach((q, idx) => {
@@ -70,7 +64,6 @@ export const Semana2Quiz: React.FC = () => {
     return { correct, percentage };
   };
 
-  // Restart quiz
   const handleRestart = () => {
     sound.click();
     setCurrentIndex(0);
@@ -89,114 +82,95 @@ export const Semana2Quiz: React.FC = () => {
     const { correct, percentage } = calculateScore();
     let feedback = '';
     if (percentage >= 90) {
-      feedback = '¡Excelente comprensión! Demuestras un dominio profundo de los principios de la evaluación por competencias.';
+      feedback = 'Excelente comprensión de los principios de evaluación por competencias.';
     } else if (percentage >= 70) {
-      feedback = '¡Muy buen trabajo! Tienes claros los fundamentos de las competencias y su aplicación formativa.';
+      feedback = 'Buen trabajo. Tienes claros los fundamentos y su aplicación formativa.';
     } else {
-      feedback = 'Buen esfuerzo. Te recomendamos repasar los conceptos de evidencias y estándares para afianzar tus respuestas.';
+      feedback = 'Te recomendamos repasar los conceptos de evidencias y estándares.';
     }
 
     return (
-      <div style={{ maxWidth: '680px', margin: '20px auto 60px', padding: '0 16px' }}>
-        <div 
-          className="liquid-glass animate-fade-in"
-          style={{ padding: '40px 32px', textAlign: 'center' }}
-        >
+      <div className="ios-animate-enter" style={{ padding: '20px 16px 40px' }}>
+        <div className="ios-card" style={{ padding: '28px 20px', textAlign: 'center' }}>
           <div style={{
-            width: '64px',
-            height: '64px',
+            width: '56px',
+            height: '56px',
             borderRadius: '50%',
-            margin: '0 auto 16px',
-            background: 'linear-gradient(135deg, rgba(197, 161, 90, 0.2), rgba(40, 92, 74, 0.15))',
-            border: '1.5px solid var(--dorado-elegante)',
+            margin: '0 auto 14px',
+            background: 'var(--apple-blue-tint)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--dorado-elegante)'
+            color: 'var(--apple-blue)'
           }}>
-            <Award size={32} />
+            <CheckCircle2 size={30} strokeWidth={2.2} />
           </div>
 
-          <h2 className="font-editorial" style={{
-            fontSize: '28px',
-            fontWeight: 700,
-            color: 'var(--verde-oscuro)',
-            marginBottom: '8px'
-          }}>
-            Resultados del Cuestionario
+          <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
+            Resultados
           </h2>
-
-          <p style={{ fontSize: '14px', color: 'var(--gris-neutro)', marginBottom: '24px' }}>
-            Evaluación desde el enfoque por competencias
+          <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+            Enfoque por competencias
           </p>
 
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '20px',
-            marginBottom: '24px'
-          }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
             <div style={{
-              padding: '16px 24px',
+              flex: 1,
+              padding: '14px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(18, 61, 50, 0.05)',
-              border: '1px solid rgba(18, 61, 50, 0.08)'
+              background: 'var(--surface-secondary)'
             }}>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--verde-oscuro)' }}>
-                {correct} / {totalQuestions}
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {correct}/{totalQuestions}
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--gris-neutro)' }}>
-                Respuestas correctas
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                Aciertos
               </div>
             </div>
 
             <div style={{
-              padding: '16px 24px',
+              flex: 1,
+              padding: '14px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(197, 161, 90, 0.12)',
-              border: '1px solid rgba(197, 161, 90, 0.3)'
+              background: 'var(--apple-blue-tint)'
             }}>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--dorado-elegante)' }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--apple-blue)' }}>
                 {percentage}%
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--gris-neutro)' }}>
-                Eficacia lograda
+              <div style={{ fontSize: '11px', color: 'var(--apple-blue)' }}>
+                Precisión
               </div>
             </div>
           </div>
 
           <p style={{
-            fontSize: '14px',
-            color: 'var(--gris-oscuro)',
-            lineHeight: 1.5,
-            maxWidth: '520px',
-            margin: '0 auto 28px',
-            padding: '12px 18px',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(255, 255, 255, 0.7)'
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.45,
+            marginBottom: '24px'
           }}>
             {feedback}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
               onClick={() => {
                 sound.click();
                 setReviewMode(true);
               }}
-              className="apple-button apple-button-primary"
-              style={{ width: '100%', padding: '14px' }}
+              className="ios-button ios-button-primary"
+              style={{ width: '100%', padding: '13px' }}
             >
               <BookOpen size={16} />
-              <span>Revisar respuestas y explicaciones</span>
+              <span>Revisar respuestas</span>
             </button>
 
             <button
               onClick={handleRestart}
-              className="apple-button apple-button-secondary"
+              className="ios-button ios-button-secondary"
               style={{ width: '100%', padding: '12px' }}
             >
-              <RotateCcw size={16} />
+              <RotateCcw size={15} />
               <span>Volver a intentar</span>
             </button>
           </div>
@@ -208,79 +182,85 @@ export const Semana2Quiz: React.FC = () => {
   // Review Mode Screen
   if (reviewMode) {
     return (
-      <div style={{ maxWidth: '780px', margin: '20px auto 60px', padding: '0 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+      <div className="ios-animate-enter" style={{ padding: '16px 14px 40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div>
-            <h2 className="font-editorial" style={{ fontSize: '24px', fontWeight: 700, color: 'var(--verde-oscuro)' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Revisión de Respuestas
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--gris-neutro)' }}>
-              Analiza los fundamentos pedagógicos de cada pregunta
-            </p>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              {totalQuestions} preguntas respondidas
+            </span>
           </div>
           <button
             onClick={() => {
               sound.click();
               setReviewMode(false);
             }}
-            className="apple-button apple-button-secondary"
-            style={{ padding: '8px 16px', fontSize: '13px' }}
+            className="ios-button ios-button-secondary"
+            style={{ padding: '6px 12px', fontSize: '12px' }}
           >
-            Volver al resumen
+            Cerrar
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {QUIZ_QUESTIONS.map((q, idx) => {
             const chosen = userAnswers[idx];
             const isRight = chosen === q.correctIndex;
+
             return (
-              <div key={q.id} className="liquid-glass" style={{ padding: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <div key={q.id} className="ios-card" style={{ padding: '16px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                   {isRight ? (
-                    <CheckCircle size={18} color="var(--verde-exito)" />
+                    <CheckCircle2 size={16} color="var(--apple-green)" strokeWidth={2.5} />
                   ) : (
-                    <XCircle size={18} color="var(--rojo-error)" />
+                    <XCircle size={16} color="var(--apple-red)" strokeWidth={2.5} />
                   )}
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--verde-oscuro)' }}>
-                    Pregunta {idx + 1} de {totalQuestions} • {q.topic}
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    Pregunta {idx + 1} • {q.topic}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--gris-oscuro)', marginBottom: '12px', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px', lineHeight: 1.35 }}>
                   {q.question}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px' }}>
                   {q.options.map((opt, oIdx) => {
                     const isTarget = oIdx === q.correctIndex;
                     const isChosen = oIdx === chosen;
-                    let border = '1px solid rgba(18, 61, 50, 0.08)';
-                    let bg = 'rgba(255, 255, 255, 0.6)';
+
+                    let bg = 'var(--surface-secondary)';
+                    let color = 'var(--text-primary)';
+                    let border = '1px solid transparent';
 
                     if (isTarget) {
-                      border = '1px solid var(--verde-exito)';
-                      bg = 'rgba(45, 138, 91, 0.12)';
+                      bg = 'var(--apple-green-tint)';
+                      color = 'var(--apple-green)';
+                      border = '1px solid var(--apple-green)';
                     } else if (isChosen && !isTarget) {
-                      border = '1px solid var(--rojo-error)';
-                      bg = 'rgba(184, 58, 75, 0.1)';
+                      bg = 'var(--apple-red-tint)';
+                      color = 'var(--apple-red)';
+                      border = '1px solid var(--apple-red)';
                     }
 
                     return (
                       <div
                         key={oIdx}
                         style={{
-                          padding: '10px 12px',
+                          padding: '8px 10px',
                           borderRadius: 'var(--radius-sm)',
-                          border,
                           background: bg,
-                          fontSize: '13px',
+                          border,
+                          fontSize: '12px',
+                          fontWeight: isTarget ? 600 : 400,
+                          color,
                           display: 'flex',
-                          gap: '8px',
-                          alignItems: 'baseline'
+                          gap: '6px'
                         }}
                       >
-                        <span style={{ fontWeight: 700 }}>{letters[oIdx]})</span>
+                        <span style={{ fontWeight: 700 }}>{letters[oIdx]}.</span>
                         <span>{opt}</span>
                       </div>
                     );
@@ -288,15 +268,14 @@ export const Semana2Quiz: React.FC = () => {
                 </div>
 
                 <div style={{
-                  padding: '10px 14px',
+                  padding: '8px 10px',
                   borderRadius: 'var(--radius-sm)',
-                  background: 'rgba(197, 161, 90, 0.1)',
-                  border: '1px solid rgba(197, 161, 90, 0.3)',
-                  fontSize: '12px',
-                  color: 'var(--verde-oscuro)',
-                  lineHeight: 1.45
+                  background: 'var(--surface-secondary)',
+                  fontSize: '11.5px',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.4
                 }}>
-                  <span style={{ fontWeight: 700 }}>Explicación: </span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Explicación: </span>
                   {q.explanation}
                 </div>
               </div>
@@ -309,109 +288,78 @@ export const Semana2Quiz: React.FC = () => {
 
   // Active Quiz View (1 question per screen)
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '16px 16px 60px' }}>
-      {/* Header Info & Progress Bar */}
-      <div style={{ marginBottom: '24px' }}>
+    <div className="ios-animate-enter" style={{ padding: '12px 14px 40px' }}>
+      {/* Progress Line */}
+      <div style={{
+        width: '100%',
+        height: '4px',
+        background: 'var(--separator)',
+        borderRadius: '2px',
+        overflow: 'hidden',
+        marginBottom: '12px'
+      }}>
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '10px'
-        }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 12px',
-            background: 'rgba(18, 61, 50, 0.06)',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: '12px',
-            fontWeight: 700,
-            color: 'var(--verde-oscuro)'
-          }}>
-            <Sparkles size={12} color="var(--dorado-elegante)" />
-            <span>Semana 2 • Cuestionario Interactivo</span>
-          </div>
+          width: `${progressPercent}%`,
+          height: '100%',
+          background: 'var(--apple-blue)',
+          borderRadius: '2px',
+          transition: 'width 0.25s ease'
+        }} />
+      </div>
 
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--dorado-elegante)' }}>
-            Pregunta {currentIndex + 1} de {totalQuestions}
-          </span>
-        </div>
-
-        {/* Apple Segmented Progress Bar */}
-        <div style={{
-          width: '100%',
-          height: '6px',
-          background: 'rgba(18, 61, 50, 0.1)',
-          borderRadius: 'var(--radius-pill)',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            width: `${progressPercent}%`,
-            height: '100%',
-            background: 'linear-gradient(90deg, var(--verde-oscuro), var(--dorado-elegante))',
-            borderRadius: 'var(--radius-pill)',
-            transition: 'width 0.3s var(--ease-apple)'
-          }} />
-        </div>
+      {/* Question Counter & Topic */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--apple-blue)', textTransform: 'uppercase' }}>
+          {currentQ.topic}
+        </span>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          {currentIndex + 1} de {totalQuestions}
+        </span>
       </div>
 
       {/* Main Question Card */}
-      <div 
-        key={currentQ.id}
-        className="liquid-glass animate-fade-in"
-        style={{ padding: '32px 28px', marginBottom: '20px' }}
-      >
-        {/* Topic Tag */}
-        <div style={{
-          display: 'inline-block',
-          fontSize: '12px',
-          fontWeight: 700,
-          color: 'var(--dorado-elegante)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
-          marginBottom: '8px'
-        }}>
-          {currentQ.topic}
-        </div>
-
-        {/* Question Text */}
-        <h2 className="font-editorial" style={{
-          fontSize: 'clamp(18px, 3.2vw, 22px)',
-          fontWeight: 700,
-          color: 'var(--verde-oscuro)',
-          lineHeight: 1.35,
-          marginBottom: '24px'
+      <div className="ios-card" style={{ padding: '20px 16px', marginBottom: '16px' }}>
+        <h2 style={{
+          fontSize: '16.5px',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          lineHeight: 1.4,
+          marginBottom: '20px'
         }}>
           {currentQ.question}
         </h2>
 
-        {/* Options (A, B, C, D) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
-          {currentQ.options.map((optionText, idx) => {
+        {/* 4 Options in Apple List Cell Style */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {currentQ.options.map((opt, idx) => {
             const isChosen = selectedOption === idx;
             const isTarget = idx === currentQ.correctIndex;
-            
-            let bg = 'rgba(255, 255, 255, 0.8)';
-            let borderColor = 'rgba(18, 61, 50, 0.12)';
-            let letterBg = 'rgba(18, 61, 50, 0.08)';
-            let letterColor = 'var(--verde-oscuro)';
+
+            let bg = 'var(--surface-secondary)';
+            let border = '1px solid transparent';
+            let textColor = 'var(--text-primary)';
+            let pillBg = '#FFFFFF';
+            let pillColor = 'var(--text-secondary)';
 
             if (showExplanation) {
               if (isTarget) {
-                bg = 'rgba(45, 138, 91, 0.15)';
-                borderColor = 'var(--verde-exito)';
-                letterBg = 'var(--verde-exito)';
-                letterColor = '#FFFFFF';
+                bg = 'var(--apple-green-tint)';
+                border = '1px solid var(--apple-green)';
+                textColor = 'var(--text-primary)';
+                pillBg = 'var(--apple-green)';
+                pillColor = '#FFFFFF';
               } else if (isChosen && !isTarget) {
-                bg = 'rgba(184, 58, 75, 0.12)';
-                borderColor = 'var(--rojo-error)';
-                letterBg = 'var(--rojo-error)';
-                letterColor = '#FFFFFF';
+                bg = 'var(--apple-red-tint)';
+                border = '1px solid var(--apple-red)';
+                textColor = 'var(--text-primary)';
+                pillBg = 'var(--apple-red)';
+                pillColor = '#FFFFFF';
               }
             } else if (isChosen) {
-              bg = 'rgba(197, 161, 90, 0.2)';
-              borderColor = 'var(--dorado-elegante)';
+              bg = 'var(--apple-blue-tint)';
+              border = '1px solid var(--apple-blue)';
+              pillBg = 'var(--apple-blue)';
+              pillColor = '#FFFFFF';
             }
 
             return (
@@ -419,118 +367,97 @@ export const Semana2Quiz: React.FC = () => {
                 key={idx}
                 onClick={() => handleSelectOption(idx)}
                 disabled={showExplanation}
-                className="apple-button"
+                className="ios-button"
                 style={{
                   width: '100%',
-                  padding: '16px 18px',
+                  padding: '12px 14px',
                   borderRadius: 'var(--radius-md)',
                   background: bg,
-                  border: `1.5px solid ${borderColor}`,
+                  border,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'flex-start',
                   textAlign: 'left',
-                  gap: '14px',
-                  cursor: showExplanation ? 'default' : 'pointer',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
-                  transition: 'all 0.18s var(--ease-apple)'
+                  gap: '12px',
+                  cursor: showExplanation ? 'default' : 'pointer'
                 }}
               >
-                {/* Letter Pill (A, B, C, D) */}
                 <div style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '26px',
+                  height: '26px',
                   borderRadius: '50%',
-                  background: letterBg,
-                  color: letterColor,
+                  background: pillBg,
+                  color: pillColor,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 700,
-                  fontSize: '14px',
-                  flexShrink: 0,
-                  transition: 'all 0.18s var(--ease-apple)'
+                  fontSize: '12px',
+                  flexShrink: 0
                 }}>
                   {letters[idx]}
                 </div>
 
-                {/* Option Content */}
                 <div style={{
                   flex: 1,
-                  fontSize: '14.5px',
+                  fontSize: '14px',
                   fontWeight: 500,
-                  color: 'var(--gris-oscuro)',
-                  lineHeight: 1.45
+                  color: textColor,
+                  lineHeight: 1.35
                 }}>
-                  {optionText}
+                  {opt}
                 </div>
-
-                {/* Feedback Icons */}
-                {showExplanation && isTarget && (
-                  <CheckCircle size={20} color="var(--verde-exito)" style={{ flexShrink: 0 }} />
-                )}
-                {showExplanation && isChosen && !isTarget && (
-                  <XCircle size={20} color="var(--rojo-error)" style={{ flexShrink: 0 }} />
-                )}
               </button>
             );
           })}
         </div>
-
-        {/* Pedagogical Explanation Drawer */}
-        {showExplanation && (
-          <div 
-            className="animate-fade-in"
-            style={{
-              padding: '16px 20px',
-              borderRadius: 'var(--radius-sm)',
-              background: selectedOption === currentQ.correctIndex
-                ? 'rgba(45, 138, 91, 0.08)'
-                : 'rgba(184, 58, 75, 0.08)',
-              border: `1px solid ${selectedOption === currentQ.correctIndex ? 'rgba(45, 138, 91, 0.25)' : 'rgba(184, 58, 75, 0.25)'}`,
-              marginBottom: '20px'
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '13px',
-              fontWeight: 700,
-              color: selectedOption === currentQ.correctIndex ? 'var(--verde-exito)' : 'var(--rojo-error)',
-              marginBottom: '4px'
-            }}>
-              <HelpCircle size={15} />
-              <span>
-                {selectedOption === currentQ.correctIndex ? '¡Respuesta correcta!' : 'Explicación formativa'}
-              </span>
-            </div>
-            <p style={{ fontSize: '13.5px', color: 'var(--gris-oscuro)', lineHeight: 1.5 }}>
-              {currentQ.explanation}
-            </p>
-          </div>
-        )}
-
-        {/* Continue Button */}
-        {showExplanation && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button
-              onClick={handleNext}
-              className="apple-button apple-button-primary"
-              style={{ padding: '12px 28px', fontSize: '15px' }}
-            >
-              <span>{currentIndex < totalQuestions - 1 ? 'Siguiente pregunta' : 'Ver resultados'}</span>
-              <ArrowRight size={17} />
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* Completion Modal */}
+      {/* Explanation Box */}
+      {showExplanation && (
+        <div 
+          className="ios-card ios-animate-enter"
+          style={{
+            padding: '14px 16px',
+            marginBottom: '16px',
+            background: selectedOption === currentQ.correctIndex ? 'var(--apple-green-tint)' : 'var(--apple-red-tint)',
+            border: `1px solid ${selectedOption === currentQ.correctIndex ? 'var(--apple-green)' : 'var(--apple-red)'}`
+          }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12.5px',
+            fontWeight: 700,
+            color: selectedOption === currentQ.correctIndex ? 'var(--apple-green)' : 'var(--apple-red)',
+            marginBottom: '4px'
+          }}>
+            <HelpCircle size={14} />
+            <span>{selectedOption === currentQ.correctIndex ? '¡Correcto!' : 'Explicación:'}</span>
+          </div>
+          <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.4 }}>
+            {currentQ.explanation}
+          </p>
+        </div>
+      )}
+
+      {/* Continue Button */}
+      {showExplanation && (
+        <button
+          onClick={handleNext}
+          className="ios-button ios-button-primary"
+          style={{ width: '100%', padding: '14px', fontSize: '15px' }}
+        >
+          <span>{currentIndex < totalQuestions - 1 ? 'Siguiente pregunta' : 'Ver resultados'}</span>
+          <ArrowRight size={16} />
+        </button>
+      )}
+
       <SuccessModal
         isOpen={isSuccessModalOpen}
-        title="¡Felicitaciones! Has completado el cuestionario."
-        subtitle="Has demostrado gran destreza en los conceptos de evaluación por competencias."
+        title="¡Completado!"
+        subtitle="Has respondido el cuestionario sobre enfoque por competencias."
         weekNumber={2}
         scoreText={`${calculateScore().correct} de ${totalQuestions} respuestas correctas`}
         onRetry={handleRestart}

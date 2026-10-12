@@ -1,10 +1,9 @@
-// Subtle Apple-style procedural audio feedback using Web Audio API
+// Ultra-subtle Apple-style procedural haptic audio feedback
 class AudioFeedback {
   private ctx: AudioContext | null = null;
   private enabled: boolean = true;
 
   constructor() {
-    // Restore sound preference from localStorage
     const saved = localStorage.getItem('sound_enabled');
     if (saved !== null) {
       this.enabled = saved === 'true';
@@ -32,7 +31,7 @@ class AudioFeedback {
     localStorage.setItem('sound_enabled', String(val));
   }
 
-  // Gentle tactile click for taps and keyboard
+  // Apple discrete keyboard/tap tick
   public click() {
     if (!this.enabled) return;
     try {
@@ -41,20 +40,20 @@ class AudioFeedback {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+      osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.025);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.04);
+      osc.stop(this.ctx.currentTime + 0.025);
     } catch {
-      // Ignore audio context errors
+      // Ignore
     }
   }
 
-  // Satisfying soft pop for card selections and tile insertions
+  // Soft haptic pop (for selecting cards or chips)
   public pop() {
     if (!this.enabled) return;
     try {
@@ -63,45 +62,45 @@ class AudioFeedback {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(320, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(840, this.ctx.currentTime + 0.06);
-      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+      osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.06);
+      osc.stop(this.ctx.currentTime + 0.04);
     } catch {
       // Ignore
     }
   }
 
-  // Positive gentle chime for correct answer
+  // Apple success chime
   public success() {
     if (!this.enabled) return;
     try {
       this.initCtx();
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
-      [523.25, 659.25, 783.99].forEach((freq, i) => {
+      [587.33, 880].forEach((freq, i) => {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + i * 0.07);
-        gain.gain.setValueAtTime(0.1, now + i * 0.07);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
+        osc.frequency.setValueAtTime(freq, now + i * 0.06);
+        gain.gain.setValueAtTime(0.07, now + i * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.2);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-        osc.start(now + i * 0.07);
-        osc.stop(now + i * 0.07 + 0.25);
+        osc.start(now + i * 0.06);
+        osc.stop(now + i * 0.06 + 0.2);
       });
     } catch {
       // Ignore
     }
   }
 
-  // Gentle low tone for incorrect attempt
+  // Soft low buzz for incorrect tap
   public error() {
     if (!this.enabled) return;
     try {
@@ -111,20 +110,20 @@ class AudioFeedback {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(240, now);
-      osc.frequency.exponentialRampToValueAtTime(160, now + 0.15);
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.1);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.15);
+      osc.stop(now + 0.1);
     } catch {
       // Ignore
     }
   }
 
-  // Grand celebration chime for activity completion
+  // Completion fanfare
   public fanfare() {
     if (!this.enabled) return;
     try {
@@ -137,13 +136,13 @@ class AudioFeedback {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-        gain.gain.setValueAtTime(0.12, now + idx * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.6);
+        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gain.gain.setValueAtTime(0.08, now + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.5);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-        osc.start(now + idx * 0.08);
-        osc.stop(now + idx * 0.08 + 0.6);
+        osc.start(now + idx * 0.07);
+        osc.stop(now + idx * 0.07 + 0.5);
       });
     } catch {
       // Ignore

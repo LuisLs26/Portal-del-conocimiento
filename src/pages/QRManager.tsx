@@ -9,7 +9,6 @@ import {
   Globe, 
   Printer, 
   FileArchive, 
-  Sparkles,
   ExternalLink
 } from 'lucide-react';
 
@@ -24,37 +23,36 @@ const ACTIVITIES_QR: ActivityQRInfo[] = [
   {
     week: 1,
     name: 'Crucigrama',
-    topic: 'Fundamentos de la evaluación de los aprendizajes',
+    topic: 'Fundamentos de la evaluación',
     path: '/semana/1'
   },
   {
     week: 2,
-    name: 'Pon a prueba tus conocimientos',
-    topic: 'Evaluación desde el enfoque por competencias',
+    name: 'Cuestionario',
+    topic: 'Enfoque por competencias',
     path: '/semana/2'
   },
   {
     week: 3,
-    name: 'Relaciona los conceptos',
-    topic: 'Propósitos y criterios de evaluación',
+    name: 'Relacionar conceptos',
+    topic: 'Propósitos y criterios',
     path: '/semana/3'
   },
   {
     week: 4,
-    name: 'Completa el aprendizaje',
-    topic: 'Repaso integrador por competencias',
+    name: 'Completar espacios',
+    topic: 'Repaso integrador',
     path: '/semana/4'
   },
   {
     week: 5,
     name: 'Sopa de letras',
-    topic: 'Situaciones significativas, criterios y evidencias',
+    topic: 'Situaciones y evidencias',
     path: '/semana/5'
   }
 ];
 
 export const QRManager: React.FC = () => {
-  // Domain state: default to production pages.dev or current origin if not localhost
   const [domain, setDomain] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
@@ -63,7 +61,7 @@ export const QRManager: React.FC = () => {
       }
     }
     const saved = localStorage.getItem('cf_custom_domain');
-    return saved || 'https://evaluacion-aprendizajes.pages.dev';
+    return saved || 'https://portal-del-conocimiento.pages.dev';
   });
 
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
@@ -71,22 +69,18 @@ export const QRManager: React.FC = () => {
   const [qrSvgMap, setQrSvgMap] = useState<{ [week: number]: string }>({});
   const canvasRefs = useRef<{ [week: number]: HTMLCanvasElement | null }>({});
 
-  // Save custom domain
   const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.trim();
+    const val = e.target.value.trim();
     setDomain(val);
     localStorage.setItem('cf_custom_domain', val);
   };
 
-  // Clean formatted domain URL
   const cleanBaseUrl = domain.replace(/\/+$/, '');
 
-  // Generate QR codes for all 5 activities
   useEffect(() => {
     ACTIVITIES_QR.forEach(async (act) => {
       const fullUrl = `${cleanBaseUrl}${act.path}`;
 
-      // Render to hidden high-res canvas (1000x1000px)
       const canvas = canvasRefs.current[act.week];
       if (canvas) {
         try {
@@ -104,7 +98,6 @@ export const QRManager: React.FC = () => {
         }
       }
 
-      // Generate SVG string
       try {
         const svgString = await QRCode.toString(fullUrl, {
           type: 'svg',
@@ -122,7 +115,6 @@ export const QRManager: React.FC = () => {
     });
   }, [cleanBaseUrl]);
 
-  // Copy link to clipboard
   const handleCopyLink = async (week: number, fullUrl: string) => {
     sound.click();
     try {
@@ -134,7 +126,6 @@ export const QRManager: React.FC = () => {
     }
   };
 
-  // Download high-resolution PNG (1000x1000px)
   const handleDownloadPNG = (act: ActivityQRInfo) => {
     sound.click();
     const canvas = canvasRefs.current[act.week];
@@ -149,7 +140,6 @@ export const QRManager: React.FC = () => {
     document.body.removeChild(a);
   };
 
-  // Download vector SVG
   const handleDownloadSVG = (act: ActivityQRInfo) => {
     sound.click();
     const svgStr = qrSvgMap[act.week];
@@ -166,7 +156,6 @@ export const QRManager: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Download all 5 QR codes as a ZIP package
   const handleDownloadZIP = async () => {
     sound.click();
     setIsZipping(true);
@@ -176,7 +165,6 @@ export const QRManager: React.FC = () => {
       const folderSvg = zip.folder('QR_SVG_Vector');
 
       for (const act of ACTIVITIES_QR) {
-        // Add PNG
         const canvas = canvasRefs.current[act.week];
         if (canvas && folderPng) {
           const dataUrl = canvas.toDataURL('image/png');
@@ -184,14 +172,12 @@ export const QRManager: React.FC = () => {
           folderPng.file(`Semana_${act.week}_${act.name.replace(/\s+/g, '_')}.png`, base64Data, { base64: true });
         }
 
-        // Add SVG
         const svgStr = qrSvgMap[act.week];
         if (svgStr && folderSvg) {
           folderSvg.file(`Semana_${act.week}_${act.name.replace(/\s+/g, '_')}.svg`, svgStr);
         }
       }
 
-      // Add a text file with links manifest
       const manifest = ACTIVITIES_QR.map(
         (a) => `Semana ${a.week}: ${a.name} -> ${cleanBaseUrl}${a.path}`
       ).join('\n');
@@ -201,7 +187,7 @@ export const QRManager: React.FC = () => {
       const url = URL.createObjectURL(content);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Codigos_QR_Libro_Evaluacion_Aprendizajes.zip';
+      a.download = 'Codigos_QR_Libro_Evaluacion.zip';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -213,123 +199,77 @@ export const QRManager: React.FC = () => {
     }
   };
 
-  // Trigger A4 Print layout
-  const handlePrintA4 = () => {
-    sound.click();
-    window.print();
-  };
-
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '16px 16px 80px' }}>
-      {/* Screen Presentation (Hidden during print) */}
+    <div className="ios-animate-enter" style={{ padding: '16px 14px 60px' }}>
       <div className="no-print">
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 14px',
-            background: 'rgba(18, 61, 50, 0.08)',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: '12px',
-            fontWeight: 700,
-            color: 'var(--verde-oscuro)',
-            marginBottom: '10px'
-          }}>
-            <Sparkles size={13} color="var(--dorado-elegante)" />
-            <span>Centro de Códigos QR para Impresión Editorial</span>
-          </div>
-
-          <h1 className="font-editorial" style={{
-            fontSize: 'clamp(26px, 4vw, 36px)',
-            fontWeight: 700,
-            color: 'var(--verde-oscuro)',
-            lineHeight: 1.2,
-            marginBottom: '6px'
-          }}>
-            Códigos QR del Libro Físico
+        <div style={{ marginBottom: '16px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--apple-blue)', textTransform: 'uppercase' }}>
+            Impresión Editorial
+          </span>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
+            Códigos QR del Libro
           </h1>
-
-          <p style={{ fontSize: '14px', color: 'var(--gris-neutro)', maxWidth: '680px', margin: '0 auto' }}>
-            Genera, previsualiza y descarga los códigos QR en alta resolución (1000x1000px) y vectores SVG listos para maquetar en las páginas del libro.
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+            Cada código abre directamente su actividad (sin pasar por el inicio).
           </p>
         </div>
 
-        {/* Cloudflare Pages Public Domain Configuration Card */}
-        <div 
-          className="liquid-glass animate-fade-in"
-          style={{ padding: '24px 28px', marginBottom: '32px' }}
-        >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            fontSize: '15px',
-            fontWeight: 700,
-            color: 'var(--verde-oscuro)',
-            marginBottom: '8px'
-          }}>
-            <Globe size={18} color="var(--dorado-elegante)" />
-            <span>Configuración del Dominio Público (Cloudflare Pages)</span>
+        {/* Domain Configuration Card */}
+        <div className="ios-card" style={{ padding: '16px 14px', marginBottom: '18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+            <Globe size={16} color="var(--apple-blue)" />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              Dominio Público en Cloudflare
+            </span>
           </div>
 
-          <p style={{ fontSize: '13px', color: 'var(--gris-neutro)', marginBottom: '14px', lineHeight: 1.5 }}>
-            Ingresa la URL definitiva de tu despliegue en Cloudflare Pages o tu dominio personalizado. Todos los códigos QR y enlaces se actualizarán en tiempo real para apuntar a la dirección web correcta:
-          </p>
+          <input
+            type="url"
+            value={domain}
+            onChange={handleDomainChange}
+            placeholder="https://tu-proyecto.pages.dev"
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid var(--separator-dark)',
+              background: 'var(--surface-secondary)',
+              color: 'var(--text-primary)',
+              fontSize: '13px',
+              fontWeight: 500,
+              outline: 'none',
+              marginBottom: '10px'
+            }}
+          />
 
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            flexWrap: 'wrap',
-            alignItems: 'center'
-          }}>
-            <input
-              type="url"
-              value={domain}
-              onChange={handleDomainChange}
-              placeholder="https://tu-proyecto.pages.dev"
-              style={{
-                flex: 1,
-                minWidth: '280px',
-                padding: '12px 18px',
-                borderRadius: 'var(--radius-pill)',
-                border: '1.5px solid rgba(18, 61, 50, 0.15)',
-                background: '#FFFFFF',
-                color: 'var(--gris-oscuro)',
-                fontWeight: 600,
-                outline: 'none',
-                boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.04)'
-              }}
-            />
-
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={handleDownloadZIP}
               disabled={isZipping}
-              className="apple-button apple-button-primary"
-              style={{ padding: '12px 22px' }}
+              className="ios-button ios-button-primary"
+              style={{ flex: 1, padding: '10px', fontSize: '13px' }}
             >
-              <FileArchive size={16} />
-              <span>{isZipping ? 'Generando ZIP...' : 'Descargar los 5 QR en ZIP'}</span>
+              <FileArchive size={14} />
+              <span>{isZipping ? 'Generando...' : 'Descargar ZIP (5 QR)'}</span>
             </button>
 
             <button
-              onClick={handlePrintA4}
-              className="apple-button apple-button-secondary"
-              style={{ padding: '12px 20px' }}
+              onClick={() => {
+                sound.click();
+                window.print();
+              }}
+              className="ios-button ios-button-secondary"
+              style={{ padding: '10px 14px', fontSize: '13px' }}
             >
-              <Printer size={16} />
-              <span>Imprimir Hoja A4</span>
+              <Printer size={14} />
+              <span>A4</span>
             </button>
           </div>
         </div>
 
-        {/* 5 Individual QR Cards Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '24px'
-        }}>
+        {/* 5 QR Cards List */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {ACTIVITIES_QR.map((act) => {
             const fullUrl = `${cleanBaseUrl}${act.path}`;
             const isCopied = copiedWeek === act.week;
@@ -337,138 +277,114 @@ export const QRManager: React.FC = () => {
             return (
               <div
                 key={act.week}
-                className="liquid-glass"
+                className="ios-card"
                 style={{
-                  padding: '24px',
+                  padding: '16px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center'
                 }}
               >
-                {/* Week & Activity Tag */}
                 <div style={{
                   display: 'inline-block',
-                  padding: '4px 12px',
+                  padding: '2px 8px',
                   borderRadius: 'var(--radius-pill)',
-                  background: 'rgba(18, 61, 50, 0.07)',
+                  background: 'var(--apple-blue-tint)',
                   fontSize: '11px',
                   fontWeight: 700,
-                  color: 'var(--verde-oscuro)',
-                  marginBottom: '10px'
+                  color: 'var(--apple-blue)',
+                  marginBottom: '6px'
                 }}>
                   SEMANA {act.week}
                 </div>
 
-                <h3 className="font-editorial" style={{
-                  fontSize: '20px',
-                  fontWeight: 700,
-                  color: 'var(--verde-oscuro)',
-                  marginBottom: '4px'
-                }}>
+                <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {act.name}
-                </h3>
-
-                <p style={{
-                  fontSize: '12px',
-                  color: 'var(--dorado-elegante)',
-                  fontWeight: 600,
-                  marginBottom: '16px'
-                }}>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                   {act.topic}
-                </p>
+                </div>
 
-                {/* QR Display Card (Black on White for guaranteed print quality) */}
+                {/* QR Canvas Box */}
                 <div style={{
-                  padding: '14px',
+                  padding: '10px',
                   background: '#FFFFFF',
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)',
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  marginBottom: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  borderRadius: '12px',
+                  boxShadow: 'var(--shadow-subtle)',
+                  border: '1px solid var(--separator)',
+                  marginBottom: '12px'
                 }}>
-                  {/* Canvas hidden off-screen or rendered */}
                   <canvas
                     ref={(el) => { canvasRefs.current[act.week] = el; }}
                     style={{
-                      width: '200px',
-                      height: '200px',
+                      width: '160px',
+                      height: '160px',
                       display: 'block'
                     }}
                   />
                 </div>
 
-                {/* Full Link with Copy action */}
+                {/* URL Bar */}
                 <div style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '6px 10px',
                   borderRadius: 'var(--radius-sm)',
-                  background: 'rgba(18, 61, 50, 0.04)',
-                  border: '1px solid rgba(18, 61, 50, 0.08)',
+                  background: 'var(--surface-secondary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  gap: '8px',
-                  marginBottom: '16px'
+                  gap: '6px',
+                  marginBottom: '12px'
                 }}>
                   <span style={{
-                    fontSize: '11.5px',
-                    fontWeight: 500,
-                    color: 'var(--gris-oscuro)',
+                    fontSize: '11px',
+                    color: 'var(--text-secondary)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    textAlign: 'left'
+                    whiteSpace: 'nowrap'
                   }}>
                     {fullUrl}
                   </span>
 
                   <button
                     onClick={() => handleCopyLink(act.week, fullUrl)}
-                    className="apple-button"
+                    className="ios-button"
                     style={{
                       padding: '4px 8px',
                       fontSize: '11px',
-                      fontWeight: 600,
-                      background: isCopied ? 'var(--verde-exito)' : 'rgba(18, 61, 50, 0.08)',
-                      color: isCopied ? '#FFFFFF' : 'var(--verde-oscuro)',
+                      background: isCopied ? 'var(--apple-green)' : 'var(--surface)',
+                      color: isCopied ? '#FFFFFF' : 'var(--text-primary)',
                       borderRadius: 'var(--radius-pill)',
                       flexShrink: 0
                     }}
-                    title="Copiar enlace"
                   >
-                    {isCopied ? <Check size={12} /> : <Copy size={12} />}
+                    {isCopied ? <Check size={11} /> : <Copy size={11} />}
                     <span>{isCopied ? 'Copiado' : 'Copiar'}</span>
                   </button>
                 </div>
 
-                {/* Download Actions (PNG & SVG) */}
-                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                {/* Download Actions */}
+                <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
                   <button
                     onClick={() => handleDownloadPNG(act)}
-                    className="apple-button apple-button-secondary"
-                    style={{ flex: 1, padding: '10px 8px', fontSize: '12px' }}
-                    title="Descargar imagen PNG en resolución 1000x1000px"
+                    className="ios-button ios-button-secondary"
+                    style={{ flex: 1, padding: '8px', fontSize: '12px' }}
                   >
-                    <Download size={13} />
+                    <Download size={12} />
                     <span>PNG (1000px)</span>
                   </button>
 
                   <button
                     onClick={() => handleDownloadSVG(act)}
-                    className="apple-button apple-button-secondary"
-                    style={{ flex: 1, padding: '10px 8px', fontSize: '12px' }}
-                    title="Descargar gráfico vectorial SVG"
+                    className="ios-button ios-button-secondary"
+                    style={{ flex: 1, padding: '8px', fontSize: '12px' }}
                   >
-                    <Download size={13} />
-                    <span>SVG Vector</span>
+                    <Download size={12} />
+                    <span>SVG</span>
                   </button>
                 </div>
 
-                {/* Direct Test Link */}
                 <a
                   href={fullUrl}
                   target="_blank"
@@ -477,15 +393,15 @@ export const QRManager: React.FC = () => {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '4px',
-                    fontSize: '11px',
-                    color: 'var(--dorado-elegante)',
+                    fontSize: '11.5px',
+                    color: 'var(--apple-blue)',
                     textDecoration: 'none',
                     fontWeight: 600,
-                    marginTop: '12px'
+                    marginTop: '8px'
                   }}
                 >
-                  <span>Probar enlace en nueva pestaña</span>
-                  <ExternalLink size={11} />
+                  <span>Abrir actividad</span>
+                  <ExternalLink size={10} />
                 </a>
               </div>
             );
@@ -493,39 +409,28 @@ export const QRManager: React.FC = () => {
         </div>
       </div>
 
-      {/* Printable A4 Sheet Section (Visible only when printing) */}
+      {/* Printable Sheet */}
       <div className="print-only" style={{ display: 'none' }}>
         <style>{`
           @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            header, footer { display: none !important; }
+            header { display: none !important; }
             body { background: #FFFFFF !important; color: #000000 !important; }
-            @page {
-              size: A4 portrait;
-              margin: 1.2cm;
-            }
+            @page { size: A4 portrait; margin: 1cm; }
           }
         `}</style>
 
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <h1 style={{ fontSize: '22pt', fontFamily: 'Georgia, serif', color: '#123D32', marginBottom: '4pt' }}>
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '18pt', fontWeight: 'bold', marginBottom: '2pt' }}>
             Evaluación de los aprendizajes
           </h1>
-          <p style={{ fontSize: '12pt', color: '#C5A15A', fontStyle: 'italic', marginBottom: '4pt' }}>
-            Códigos QR para las actividades formativas del libro impreso
-          </p>
-          <p style={{ fontSize: '9pt', color: '#666666' }}>
-            Dominio base: {cleanBaseUrl}
+          <p style={{ fontSize: '11pt', color: '#666666' }}>
+            Códigos QR de Acceso Directo por Semana
           </p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '20px',
-          alignItems: 'start'
-        }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
           {ACTIVITIES_QR.map((act) => {
             const svgContent = qrSvgMap[act.week];
             return (
@@ -533,24 +438,22 @@ export const QRManager: React.FC = () => {
                 key={act.week}
                 style={{
                   border: '1px dashed #CCCCCC',
-                  padding: '16px',
+                  padding: '12px',
                   textAlign: 'center',
                   pageBreakInside: 'avoid'
                 }}
               >
-                <div style={{ fontSize: '11pt', fontWeight: 'bold', color: '#123D32', marginBottom: '2pt' }}>
-                  SEMANA {act.week} — {act.name.toUpperCase()}
+                <div style={{ fontSize: '11pt', fontWeight: 'bold' }}>
+                  Semana {act.week}: {act.name}
                 </div>
-                <div style={{ fontSize: '8.5pt', color: '#555555', marginBottom: '10pt' }}>
+                <div style={{ fontSize: '8pt', color: '#666666', marginBottom: '8pt' }}>
                   {act.topic}
                 </div>
-
                 <div 
-                  style={{ width: '160px', height: '160px', margin: '0 auto 8pt' }}
+                  style={{ width: '150px', height: '150px', margin: '0 auto 6pt' }}
                   dangerouslySetInnerHTML={{ __html: svgContent || '' }}
                 />
-
-                <div style={{ fontSize: '7.5pt', color: '#333333', wordBreak: 'break-all' }}>
+                <div style={{ fontSize: '7pt', color: '#333333' }}>
                   {cleanBaseUrl}{act.path}
                 </div>
               </div>
