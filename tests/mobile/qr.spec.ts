@@ -17,7 +17,7 @@ test('QR: enlaces codificados, cambio de dominio, ZIP e impresión', async ({ pa
     const canvas = page.locator(`[data-qr-week="${week}"]`);
     const encoded = await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL('image/png'));
     const image = PNG.sync.read(Buffer.from(encoded.split(',')[1], 'base64'));
-    expect(jsQR(new Uint8ClampedArray(image.data), image.width, image.height)?.data).toBe(`http://127.0.0.1:4173/semana/${week}?modo=actividad`);
+    expect(jsQR(new Uint8ClampedArray(image.data), image.width, image.height)?.data).toBe(`http://127.0.0.1:4173/semana/${week}`);
   }
   const downloadPromise = page.waitForEvent('download'); await zipButton.tap();
   const download = await downloadPromise;
@@ -31,11 +31,11 @@ test('QR: enlaces codificados, cambio de dominio, ZIP e impresión', async ({ pa
   await page.emulateMedia({ media: 'screen' });
   await page.reload(); await expect(domain).toHaveValue('http://127.0.0.1:4173');
   for (let week = 1; week <= 5; week++) {
-    const response = await page.goto(`/semana/${week}?modo=actividad`);
+    const response = await page.goto(`/semana/${week}`);
     expect(response?.ok()).toBe(true); await page.reload();
     await expect(page.locator('main')).toBeVisible();
-    await expect(page.getByRole('banner')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Salir de la actividad' })).toBeVisible();
+    await expect(page.getByRole('banner')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Salir de la actividad' })).toHaveCount(0);
     await expect(page.locator('main')).not.toContainText('Cargando...');
   }
 });

@@ -6,7 +6,7 @@ import { WORD_BANK } from '../../src/data/clozeData';
 import { WORD_SEARCH_WORDS } from '../../src/data/wordSearchData';
 
 async function open(page: Page, week: number) {
-  await page.goto(`/semana/${week}?modo=actividad`);
+  await page.goto(`/semana/${week}`);
   await page.reload();
   await expect(page.locator('main')).toBeVisible();
   await expect(page.locator('main')).not.toContainText('Cargando...');

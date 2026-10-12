@@ -2,19 +2,8 @@
 class AudioFeedback {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
-  private enabled = true;
   private lastTap = 0;
-  constructor() {
-    try { this.enabled = localStorage.getItem('sound_enabled') !== 'false'; } catch { /* Storage may be unavailable. */ }
-  }
-  isEnabled() { return this.enabled; }
-  setEnabled(value: boolean) {
-    this.enabled = value;
-    try { localStorage.setItem('sound_enabled', String(value)); } catch { /* Keep the session setting. */ }
-    if (this.ctx && this.master) this.master.gain.setValueAtTime(value ? 1 : 0, this.ctx.currentTime);
-  }
   private tone(frequency: number, duration: number, offset = 0, end = frequency, type: OscillatorType = 'sine') {
-    if (!this.enabled) return;
     try {
       if (!this.ctx) {
         const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;

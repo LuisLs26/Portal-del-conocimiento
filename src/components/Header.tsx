@@ -1,24 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Volume2, VolumeX, QrCode } from 'lucide-react';
+import { ChevronLeft, QrCode } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 export const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [soundActive, setSoundActive] = useState<boolean>(sound.isEnabled());
-
-  useEffect(() => {
-    setSoundActive(sound.isEnabled());
-  }, []);
-
-  const toggleSound = () => {
-    const next = !soundActive;
-    sound.setEnabled(next);
-    setSoundActive(next);
-    if (next) sound.click();
-  };
-
   const isHome = location.pathname === '/';
   const isQR = location.pathname === '/qr';
   
@@ -101,23 +88,8 @@ export const Header: React.FC = () => {
         )}
       </div>
 
-      {/* Right Actions: Sound & QR */}
+      {/* Right Action: QR */}
       <div style={{ width: '80px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
-        <button
-          onClick={toggleSound}
-          className="ios-button"
-          style={{
-            width: '36px',
-            height: '36px',
-            padding: 0,
-            background: 'transparent',
-            color: soundActive ? 'var(--apple-blue)' : 'var(--text-tertiary)'
-          }}
-          title={soundActive ? 'Silenciar' : 'Activar sonido'}
-        >
-          {soundActive ? <Volume2 size={18} strokeWidth={2} /> : <VolumeX size={18} strokeWidth={2} />}
-        </button>
-
         {!isQR && (
           <button
             onClick={() => {

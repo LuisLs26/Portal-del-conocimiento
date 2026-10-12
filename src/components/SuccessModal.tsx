@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { CheckCircle2, RotateCcw, ArrowRight, Home } from 'lucide-react';
 import { sound } from '../utils/sound';
@@ -22,8 +22,6 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   onRetry
 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const mode = new URLSearchParams(location.search).get('modo') === 'actividad' ? '?modo=actividad' : '';
   const retryTouch = useRef<{ x: number; y: number; pointer: number } | null>(null);
   const retryHandled = useRef(false);
 
@@ -141,7 +139,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             <button
               onClick={() => {
                 sound.click();
-                navigate(`/semana/${nextWeek}${mode}`);
+                navigate(`/semana/${nextWeek}`);
               }}
               className="ios-button ios-button-primary"
               style={{ width: '100%', padding: '14px', fontSize: '15px' }}

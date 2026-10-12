@@ -84,7 +84,7 @@ export const QRManager: React.FC = () => {
     if (!cleanBaseUrl) return;
     const options = { width: 1000, margin: 4, color: { dark: '#000000', light: '#FFFFFF' }, errorCorrectionLevel: 'H' as const };
     const timer = setTimeout(() => { Promise.all(ACTIVITIES_QR.map(async act => {
-      const url = `${cleanBaseUrl}${act.path}?modo=actividad`;
+      const url = `${cleanBaseUrl}${act.path}`;
       const canvas = document.createElement('canvas');
       await QRCode.toCanvas(canvas, url, options);
       const svg = await QRCode.toString(url, { ...options, type: 'svg' });
@@ -172,7 +172,7 @@ export const QRManager: React.FC = () => {
       }
 
       const manifest = ACTIVITIES_QR.map(
-        (a) => `Semana ${a.week}: ${a.name} -> ${cleanBaseUrl}${a.path}?modo=actividad`
+        (a) => `Semana ${a.week}: ${a.name} -> ${cleanBaseUrl}${a.path}`
       ).join('\n');
       zip.file('ENLACES_LIBRO.txt', manifest);
 
@@ -267,7 +267,7 @@ export const QRManager: React.FC = () => {
         {/* 5 QR Cards List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {ACTIVITIES_QR.map((act) => {
-            const fullUrl = cleanBaseUrl ? `${cleanBaseUrl}${act.path}?modo=actividad` : '';
+            const fullUrl = cleanBaseUrl ? `${cleanBaseUrl}${act.path}` : '';
             const isCopied = copiedWeek === act.week;
 
             return (
@@ -457,7 +457,7 @@ export const QRManager: React.FC = () => {
                   dangerouslySetInnerHTML={{ __html: svgContent || '' }}
                 />
                 <div style={{ fontSize: '7pt', color: '#333333' }}>
-                  {cleanBaseUrl}{act.path}?modo=actividad
+                  {cleanBaseUrl}{act.path}
                 </div>
               </div>
             );
