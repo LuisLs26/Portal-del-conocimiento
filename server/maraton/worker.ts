@@ -83,7 +83,7 @@ export class MaratonRoom {
       const a = ws.deserializeAttachment() as Attachment;
       const now = Date.now();
       if (now - a.window > 5_000) { a.window = now; a.count = 0; }
-      if (++a.count > 10) { ws.close(1008, 'Demasiadas acciones'); return; }
+      if (++a.count > 20) { ws.close(1008, 'Demasiadas acciones'); return; }
       ws.serializeAttachment(a);
       const message = JSON.parse(raw);
       if (message.type === 'auth') {

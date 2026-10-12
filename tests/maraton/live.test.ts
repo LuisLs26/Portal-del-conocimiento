@@ -26,9 +26,9 @@ it('31 conexiones reales: docente + 30 estudiantes, ranking compartido, autentic
     send(host,'start');await expect.poll(()=>clients.every(c=>c.state?.room.phase==='playing')).toBe(true);
     const started=performance.now();
     for(const client of clients)send(client,'roll');
-    await expect.poll(()=>clients.every(c=>c.state?.you?.done||c.state?.you?.question),{timeout:5000}).toBe(true);
+    await expect.poll(()=>clients.every(c=>(c.state?.you?.die ?? 0)>0),{timeout:5000}).toBe(true);
     for(const client of clients)if(client.state!.you!.question){const q=client.state!.you!.question!;const answer=BOOK_QUESTIONS.find(b=>b.text===q.text)!.options[0];send(client,'answer',{questionId:q.id,option:q.options.indexOf(answer)});}
-    await expect.poll(()=>connections.every(c=>c.state?.room.round===2),{timeout:5000}).toBe(true);
+    await expect.poll(()=>connections.every(c=>c.state?.room.players.every(p=>p.position>0 && !p.done)),{timeout:5000}).toBe(true);
     const elapsed=performance.now()-started;
     const ranking=host.state!.room.players.map(p=>`${p.id}:${p.position}:${p.rank}`);
     for(const client of clients){expect(client.state!.room.players.map(p=>`${p.id}:${p.position}:${p.rank}`)).toEqual(ranking);expect(JSON.stringify(client.state)).not.toContain('hostToken');}

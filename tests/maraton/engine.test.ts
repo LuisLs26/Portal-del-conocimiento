@@ -42,7 +42,7 @@ describe('Maratón: reglas autoritativas', () => {
   });
   it('casillas libres, estrellas, error, expiración y meta requieren sus reglas reales', () => {
     const { room } = game(2), p = room.players[0], actor = authenticate(room, p.token);
-    command(room, actor, act('roll', 1), 1001, () => 1); expect(p.done).toBe(true); expect(p.pending).toBeNull();
+    command(room, actor, act('roll', 1), 1001, () => 1); expect(p.done).toBe(false); expect(p.pending).toBeNull();
     p.done = false; p.position = 4;
     command(room, actor, act('roll', 1), 1001, () => 6, () => 0); expect(p.position).toBe(10);
     command(room, actor, act('answer', 1, { questionId:p.pending!.question.id, option:p.pending!.correct }), 1002); expect(p.position).toBe(12);
@@ -56,12 +56,17 @@ describe('Maratón: reglas autoritativas', () => {
     command(room, actor, act('roll', 1), 1007, () => 2, () => 0);
     command(room, actor, act('answer', 1, { questionId:p.pending!.question.id, option:0 }), 1008); expect(p.finishOrder).toBe(1);
   });
-  it('una desconexión no bloquea la clase: expira la pregunta y abre la siguiente ronda', () => {
-    const { room } = game(2), p = room.players[0];
-    command(room, authenticate(room,p.token), act('roll',1), 1001, () => 2, () => 0);
-    expect(expireRound(room, room.deadline)).toBe(true);
-    expect(room.round).toBe(2); expect(p.position).toBe(0); expect(p.pending).toBeNull(); expect(p.attempts).toBe(1);
-    expect(() => command(room, authenticate(room,p.token), act('roll',1), 62000)).toThrow('ronda');
+  it('avanza sin esperar a otro estudiante y conserva las preguntas sin cuenta regresiva', () => {
+    const { room } = game(2), p = room.players[0], actor = authenticate(room,p.token);
+    command(room,actor,act('roll',1),1001,()=>2,()=>0);
+    expect(expireRound(room,120000)).toBe(false);
+    expect(p.pending).toBeTruthy(); expect(room.deadline).toBe(0);
+    command(room,actor,act('answer',1,{questionId:p.pending!.question.id,option:p.pending!.correct}),120001);
+    command(room,actor,act('roll',1),120002,()=>2,()=>0);
+    expect(p.rolls).toBe(2); expect(room.players[1].rolls).toBe(0);
+    expect(p.position).toBe(4); expect(p.pending).toBeNull();
+    command(room,actor,act('roll',1),120003,()=>2,()=>0);
+    expect(p.rolls).toBe(3);
   });
   it('termina una carrera completa de 30, ordena el ranking y reinicia sin conservar puntuaciones', () => {
     const { room, host } = game(30);

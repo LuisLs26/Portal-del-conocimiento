@@ -7,6 +7,7 @@ import { FINISH, MAX_PLAYERS, tileKind } from '../maraton/protocol';
 import type { PublicPlayer, Session } from '../maraton/protocol';
 import { sound } from '../utils/sound';
 import '../maraton/maraton.css';
+import { RaceArena } from '../maraton/RaceArena';
 
 const COLORS = ['#7a52de','#e45171','#008a99','#d6790c','#2974dc','#426c4e'];
 const Board = memo(function Board({ players, self }: { players: PublicPlayer[]; self: string }) {
@@ -32,11 +33,6 @@ const Board = memo(function Board({ players, self }: { players: PublicPlayer[]; 
     })}
   </div>;
 });
-function Countdown({ deadline, offset }: { deadline: number; offset: number }) {
-  const [seconds, setSeconds] = useState(0);
-  useEffect(() => { const tick = () => setSeconds(Math.max(0, Math.ceil((deadline - Date.now() - offset) / 1000))); tick(); const timer = setInterval(tick, 1000); return () => clearInterval(timer); }, [deadline, offset]);
-  return <span className={seconds <= 10 ? 'race-clock urgent' : 'race-clock'} aria-label="Tiempo de la ronda">{seconds}s</span>;
-}
 export function Maraton() {
   const location = useLocation(), navigate = useNavigate();
   const code = new URLSearchParams(location.search).get('sala')?.toUpperCase() || '';
@@ -66,7 +62,7 @@ export function Maraton() {
   }
   function leave() { if (session) forget(session.room); setSession(null); setEntryError(''); navigate('/maraton', { replace: true }); }
   const room = state?.room, you = state?.you, self = room?.players.find(p => p.id === session?.id);
-  const offset = useMemo(() => state ? state.serverNow - Date.now() : 0, [state?.serverNow]);
+  if (room && session && room.phase !== 'lobby') return <RaceArena room={room} you={you || null} session={session} connection={connection} busy={busy} error={error} send={send} leave={leave} />;
   return <div className="maraton">
     <div className="race-intro"><span className="race-eyebrow"><Sparkles size={15} /> Una clase. Una gran carrera.</span><h1>Maratón<span>del conocimiento</span></h1><p>Lanza el dado, supera retos del libro y llega a la meta con tu clase.</p></div>
     {!session ? <>
@@ -85,7 +81,7 @@ export function Maraton() {
       {(error || entryError) && <p role="alert" className="race-error">{error || entryError}</p>}
       {!room && <p>Preparando tu carrera…</p>}
       {room && <>
-        <div className="race-summary"><span><Users size={17} /> {room.players.length}/{MAX_PLAYERS}</span><strong>{room.phase === 'lobby' ? `Sala ${room.code}` : room.phase === 'finished' ? 'Carrera terminada' : `Ronda ${room.round}`}</strong>{room.phase === 'playing' && <Countdown deadline={room.deadline} offset={offset} />}</div>
+        <div className="race-summary"><span><Users size={17} /> {room.players.length}/{MAX_PLAYERS}</span><strong>{room.phase === 'lobby' ? `Sala ${room.code}` : room.phase === 'finished' ? 'Carrera terminada' : `Ronda ${room.round}`}</strong></div>
         {room.phase === 'lobby' && <div className="race-card race-lobby"><h2>{session.role === 'host' ? 'Reúne a tu clase' : `¡Estás dentro, ${self?.name || session.name}!`}</h2><p>{session.role === 'host' ? 'Este QR lleva a tu sala. Cada estudiante solo escribe su nombre.' : 'La carrera comienza cuando el docente da la salida.'}</p>
           {session.role === 'host' && <>{qr && <img src={qr} alt={`QR para unirse a la sala ${room.code}`} className="race-qr" />}<strong className="race-code">{room.code}</strong><button className="race-secondary" onClick={async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); } catch { setEntryError('No se pudo copiar el enlace.'); } }}>{copied ? <Check size={17} /> : <Copy size={17} />}{copied ? 'Enlace copiado' : 'Copiar invitación'}</button><button className="race-primary" disabled={!room.players.length || busy || connection !== 'live'} onClick={() => { sound.pop(); send('start'); }}>Dar la salida <Flag size={18} /></button></>}
         </div>}
@@ -108,4 +104,4 @@ export function Maraton() {
   </div>;
 }
 function locationOrigin() { return window.location.origin; }
-function Rules() { return <details className="race-rules race-card"><summary>Cómo se juega</summary><ol><li>El docente da la salida. Todos juegan una vez por ronda.</li><li>Lanza el dado y avanza de 1 a 6 casillas.</li><li>En ❔ o ⭐ responde una pregunta del libro. Puedes cambiar tu elección antes de comprobar.</li><li>Si aciertas, conservas tu avance; en ⭐ ganas 2 casillas más. Si fallas o dejas una pregunta sin responder, retrocedes 2.</li><li>Tienes 60 segundos por ronda. Una desconexión no detiene a la clase.</li><li>Para cruzar la meta debes responder correctamente su pregunta. El orden de llegada decide los primeros puestos; mientras avanzas, los aciertos desempatan.</li></ol></details>; }
+function Rules() { return <details className="race-rules race-card"><summary>Cómo se juega</summary><ol><li>El docente da la salida. Cada estudiante juega a su ritmo, sin esperar a la clase.</li><li>Lanza el dado y avanza de 1 a 6 casillas.</li><li>En ❔ o ⭐ responde una pregunta del libro. Puedes cambiar tu elección antes de comprobar.</li><li>Si aciertas, conservas tu avance; en ⭐ ganas 2 casillas más. Si fallas o dejas una pregunta sin responder, retrocedes 2.</li><li>No hay cuenta regresiva ni espera entre turnos.</li><li>Para cruzar la meta debes responder correctamente su pregunta. El orden de llegada decide los primeros puestos; mientras avanzas, los aciertos desempatan.</li></ol></details>; }

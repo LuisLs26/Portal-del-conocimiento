@@ -1,4 +1,4 @@
-import { FINISH, MAX_PLAYERS, ROUND_MS, TOPICS, tileKind } from '../../src/maraton/protocol';
+import { FINISH, MAX_PLAYERS, TOPICS, tileKind } from '../../src/maraton/protocol';
 import type { Command, Feedback, PrivatePlayer, PublicQuestion, PublicRoom } from '../../src/maraton/protocol';
 import { BOOK_QUESTIONS } from './questions';
 
@@ -47,28 +47,11 @@ export function fairDie() {
 function finished(room: Room, player: Player) {
   if (player.position >= FINISH && !player.finishOrder) { player.finishOrder = ++room.finishCount; player.done = true; }
 }
-function nextRound(room: Room, now: number) {
-  if (room.players.every(p => p.finishOrder)) { room.phase = 'finished'; room.reason = '¡Toda la clase completó la Maratón!'; room.deadline = 0; return; }
-  room.round++; room.deadline = Math.min(now + ROUND_MS, room.raceEnds);
-  for (const p of room.players) if (!p.finishOrder) p.done = false;
+function maybeAdvance(room: Room) {
+  if (room.players.every(p => p.finishOrder)) { room.phase = 'finished'; room.reason = '¡Toda la clase completó la Maratón!'; room.deadline = 0; }
 }
-function maybeAdvance(room: Room, now: number) {
-  if (room.players.every(p => p.done || p.finishOrder)) nextRound(room, now);
-}
-export function expireRound(room: Room, now = Date.now()) {
-  if (room.phase !== 'playing' || now < room.deadline) return false;
-  for (const p of room.players) if (!p.done && !p.finishOrder) {
-    if (p.pending) {
-      p.attempts++; p.position = Math.max(0, p.position - 2);
-      p.feedback = { kind: 'timeout', text: 'Se acabó el tiempo. Retrocedes 2 casillas.', explanation: p.pending.explanation, answer: p.pending.question.options[p.pending.correct], page: p.pending.question.page };
-      p.pending = null;
-    } else p.feedback = { kind: 'timeout', text: 'Terminó la ronda. Podrás lanzar el dado en la siguiente.' };
-    p.done = true;
-  }
-  if (now >= room.raceEnds) { room.phase = 'finished'; room.reason = 'Terminó el tiempo de la carrera.'; room.deadline = 0; }
-  else nextRound(room, now);
-  room.seq++; return true;
-}
+// No shared round or answer deadline: a slow or disconnected player never blocks another.
+export function expireRound(_room: Room, _now = Date.now()) { return false; }
 function question(position: number, player: Player, random: () => number): Pending {
   const topic = Math.min(4, Math.floor((position - 1) / 8));
   const pool = BOOK_QUESTIONS.filter(q => q.topic === topic);
@@ -85,7 +68,7 @@ export function command(room: Room, actor: { role: 'host' | 'player'; id: string
   if (actor.role === 'host') {
     if (action.type === 'start') {
       if (room.phase !== 'lobby' || !room.players.length) throw new GameError('Espera a que entre al menos un estudiante.');
-      room.phase = 'playing'; room.raceEnds = now + 15 * 60_000; nextRound(room, now);
+      room.phase = 'playing'; room.round = 1; room.deadline = 0; room.raceEnds = 0;
     } else if (action.type === 'finish') {
       if (room.phase !== 'playing') throw new GameError('No hay una carrera en marcha.');
       room.phase = 'finished'; room.reason = 'El docente finalizó la carrera.'; room.deadline = 0;
@@ -102,14 +85,14 @@ export function command(room: Room, actor: { role: 'host' | 'player'; id: string
   if (!p) throw new GameError('No perteneces a esta sala.');
   if (p.seen.includes(action.requestId)) return;
   if (room.phase !== 'playing' || action.round !== room.round) throw new GameError('La ronda cambió. Espera la actualización antes de jugar.');
-  if (p.done || p.finishOrder) throw new GameError('Ya completaste tu turno. Espera la siguiente ronda.');
+  if (p.finishOrder) throw new GameError('¡Ya llegaste a la meta!');
   if (action.type === 'roll') {
     if (p.pending) throw new GameError('Responde la pregunta antes de volver a lanzar.');
     const die = dice();
     if (!Number.isInteger(die) || die < 1 || die > 6) throw new GameError('Tirada inválida.');
     p.die = die; p.rolls++; p.feedback = null; p.position = Math.min(FINISH, p.position + die);
     if (tileKind(p.position) === 'free') {
-      p.done = true; p.feedback = { kind: 'move', text: `Avanzaste ${die} casillas. Casilla libre: espera a la clase.` };
+      p.done = false; p.feedback = { kind: 'move', text: `Avanzaste ${die} casillas. ¡Puedes volver a lanzar!` };
     } else p.pending = question(p.position, p, random);
   } else if (action.type === 'answer') {
     if (!p.pending || action.questionId !== p.pending.question.id || !Number.isInteger(action.option) || action.option! < 0 || action.option! > 3) throw new GameError('Esa pregunta ya no está disponible.');
@@ -118,10 +101,10 @@ export function command(room: Room, actor: { role: 'host' | 'player'; id: string
     if (correct) { p.correct++; if (q.bonus) p.position = Math.min(FINISH - 1, p.position + 2); }
     else p.position = Math.max(0, p.position - 2);
     p.feedback = { kind: correct ? 'correct' : 'wrong', text: correct ? q.bonus ? '¡Correcto! Casilla estrella: avanzas 2 más.' : '¡Correcto! Conservas tu avance.' : 'Esta vez no acertaste. Retrocedes 2 casillas.', explanation: q.explanation, answer: q.question.options[q.correct], page: q.question.page };
-    p.pending = null; p.done = true; finished(room, p);
+    p.pending = null; p.done = false; finished(room, p);
   } else throw new GameError('Solo puedes lanzar el dado o responder.');
   p.seen.push(action.requestId); p.seen = p.seen.slice(-20);
-  room.seq++; maybeAdvance(room, now);
+  room.seq++; maybeAdvance(room);
 }
 export function publicRoom(room: Room, online = new Set<string>()): PublicRoom {
   const ranked = [...room.players].sort((a, b) => {

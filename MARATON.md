@@ -7,7 +7,7 @@ Solo esta actividad utiliza multijugador. Las cinco actividades existentes sigue
 1. El docente abre `/maraton`, despliega **Soy docente** y crea una sala.
 2. Comparte el QR de esa sala. Ese QR incluye su código; el estudiante solo escribe su nombre.
 3. Espera a los participantes y pulsa **Dar la salida**. Hay 30 plazas de estudiantes; el docente no ocupa una.
-4. Todos juegan una vez por ronda. Los movimientos y el ranking aparecen en los demás teléfonos.
+4. Cada estudiante juega a su ritmo, sin rondas compartidas ni tiempo de espera. Los movimientos y el ranking aparecen en los demás teléfonos.
 5. Los estudiantes ya finalizados pueden observar el ranking. El docente puede finalizar la carrera o comenzar otra con el mismo grupo.
 
 El QR general del gestor abre Maratón, pero el QR que debe compartirse con los estudiantes es el que aparece dentro de la sala creada por el docente. Un código de sala también puede introducirse manualmente.
@@ -20,8 +20,8 @@ El QR general del gestor abre Maratón, pero el QR que debe compartirse con los 
 - Casillas estrella: al acertar se ganan dos casillas adicionales. El bono nunca salta la pregunta de la meta.
 - Para terminar, hay que responder correctamente la pregunta de la casilla 40.
 - La posición decide el ranking durante la carrera; los aciertos y errores resuelven empates. Los finalizados se ordenan por llegada validada por el servidor.
-- Cada ronda dura como máximo 60 segundos. Se abre antes si todos terminan. Un jugador desconectado no bloquea la clase.
-- La carrera tiene un límite de 15 minutos. El docente puede terminarla antes conservando el ranking.
+- No hay cuenta regresiva ni espera entre turnos. Una pregunta pendiente debe responderse antes de volver a lanzar. Un jugador desconectado no bloquea la clase.
+- La carrera termina cuando todos llegan o cuando el docente la finaliza. Las salas mantienen su caducidad de cuatro horas.
 - Las salas caducan a las cuatro horas y sus datos se eliminan. Los nombres duplicados reciben un sufijo para distinguirlos.
 
 Las 40 preguntas son originales y se basan en el contenido de las páginas 4–23 del PDF proporcionado. Cada explicación muestra su página de referencia. Las respuestas correctas se mantienen en el módulo del servidor; no se incluyen en el paquete de la interfaz.
@@ -70,3 +70,9 @@ npm run test:maraton:mobile
 
 Las pruebas usan un solo trabajador. El servidor de `scripts/test-maraton-server.mjs` es exclusivamente una adaptación local para pruebas; el servicio que debe publicarse es el Worker de Cloudflare.
 
+
+## Tablero de videojuego y vista del docente
+
+Partida horizontal contenida en la pantalla, recorrido en espiral de 40 casillas, fichas de peón, dado CSS 3D de seis caras y preguntas superpuestas. La interfaz gira visualmente en retrato; no depende del bloqueo de orientación del navegador ni requiere pantalla completa. En la laptop del docente se muestran tablero y 30 puestos simultáneamente (desde 1000 × 600). En teléfonos, la lista completa se consulta por páginas sin desplazar el tablero.
+
+Referencias consultadas para la técnica del cubo y la organización del tablero: [Rolling-dice](https://github.com/Vaibh31/Rolling-dice) y [Ludo-Game](https://github.com/Rony7s/Ludo-Game). La implementación es propia y no incorpora código ni recursos de esos repositorios.
