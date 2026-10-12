@@ -24,3 +24,8 @@ dist-ssr
 
 playwright-report/
 test-results/
+
+tmp/
+.wrangler/
+.env
+.dev.vars

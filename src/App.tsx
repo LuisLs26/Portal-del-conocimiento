@@ -9,6 +9,7 @@ const Semana2Quiz = lazy(() => import('./pages/Semana2Quiz').then(m => ({ defaul
 const Semana3Matching = lazy(() => import('./pages/Semana3Matching').then(m => ({ default: m.Semana3Matching })));
 const Semana4Cloze = lazy(() => import('./pages/Semana4Cloze').then(m => ({ default: m.Semana4Cloze })));
 const Semana5WordSearch = lazy(() => import('./pages/Semana5WordSearch').then(m => ({ default: m.Semana5WordSearch })));
+const Maraton = lazy(() => import('./pages/Maraton').then(m => ({ default: m.Maraton })));
 const QRManager = lazy(() => import('./pages/QRManager').then(m => ({ default: m.QRManager })));
 
 // Minimal Apple iOS loader indicator
@@ -52,6 +53,9 @@ const AppShell: React.FC = () => {
               <Route path="/semana/3" element={<Semana3Matching />} />
               <Route path="/semana/4" element={<Semana4Cloze />} />
               <Route path="/semana/5" element={<Semana5WordSearch />} />
+
+              <Route path="/maraton" element={<Maraton />} />
+              <Route path="/semana/6" element={<Maraton />} />
 
               {/* QR Management and Book printing */}
               <Route path="/qr" element={<QRManager />} />

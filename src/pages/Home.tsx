@@ -8,7 +8,8 @@ import {
   ListChecks,
   Network,
   FileEdit,
-  Search
+  Search,
+  Flag
 } from 'lucide-react';
 import { sound } from '../utils/sound';
 
@@ -18,6 +19,7 @@ interface ActivityItem {
   topic: string;
   description: string;
   icon: React.ReactNode;
+  path?: string;
 }
 
 export const Home: React.FC = () => {
@@ -66,7 +68,8 @@ export const Home: React.FC = () => {
       topic: 'Situaciones y evidencias',
       description: '12 palabras para encontrar mediante selección táctil.',
       icon: <Search size={20} color="var(--apple-blue)" strokeWidth={2} />
-    }
+    },
+    { week: 6, title: 'Maratón', topic: 'Carrera de la clase · Multijugador', description: 'Lanza el dado, supera retos del libro y compite con hasta 30 estudiantes.', path: '/maraton', icon: <Flag size={20} color="#7a52de" /> }
   ];
 
   return (
@@ -122,7 +125,7 @@ export const Home: React.FC = () => {
           return (
             <Link
               key={act.week}
-              to={`/semana/${act.week}`}
+              to={act.path || `/semana/${act.week}`}
               onClick={() => sound.click()}
               className="ios-card"
               style={{

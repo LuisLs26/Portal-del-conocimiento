@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portal-maraton",
+  "main": "server/maraton/worker.ts",
+  "compatibility_date": "2026-10-12",
+  "durable_objects": { "bindings": [{ "name": "MARATON_ROOMS", "class_name": "MaratonRoom" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MaratonRoom"] }],
+  "observability": { "enabled": true }
+}

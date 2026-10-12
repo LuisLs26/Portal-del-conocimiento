@@ -1,6 +1,6 @@
 # Portal del conocimiento
 
-Cinco actividades educativas con interfaz móvil en blanco, gris y azul, acceso directo y códigos QR.
+Cinco actividades individuales y una Maratón multijugador con interfaz móvil en blanco, gris y azul, acceso directo y códigos QR.
 
 | Ruta | Actividad | Reglas |
 | --- | --- | --- |
@@ -44,3 +44,7 @@ Las pruebas móviles se ejecutan secuencialmente, con un solo navegador de prueb
 Vitest comprueba cruces, generación, puntuación, parejas y banco de palabras; valida 100 sopas completas y diez crucigramas generados. Playwright resuelve los cinco juegos, introduce errores, reinicia, recarga rutas directas, cambia la orientación del crucigrama y cancela un gesto en la sopa. Además decodifica los cinco QR, verifica el ZIP, la hoja de impresión, la ausencia de controles flotantes y pantalla completa, los sonidos y el movimiento reducido.
 
 Las pruebas se ejecutan con emulación móvil en Chrome. El teclado real de iOS/Android, la sensación del gesto y el rendimiento en un Android de gama baja requieren comprobación en dispositivos físicos.
+
+## Maratón en vivo
+
+Nueva sexta actividad en `/maraton`: dado, tablero de 40 casillas, 40 preguntas del libro y clasificación compartida para hasta 30 estudiantes. El docente crea una sala y comparte su QR. Solo Maratón requiere el servidor de Cloudflare; las otras cinco actividades conservan su funcionamiento individual. Consulta [MARATON.md](MARATON.md) para las reglas, pruebas y publicación del Worker y su enlace con Pages.

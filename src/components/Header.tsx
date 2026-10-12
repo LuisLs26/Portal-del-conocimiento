@@ -17,7 +17,8 @@ export const Header: React.FC = () => {
     '2': 'Cuestionario',
     '3': 'Relacionar',
     '4': 'Completar',
-    '5': 'Sopa de letras'
+    '5': 'Sopa de letras',
+    '6': 'Maratón'
   };
 
   return (
@@ -77,6 +78,8 @@ export const Header: React.FC = () => {
               {weekTitles[currentWeek]}
             </span>
           </div>
+        ) : location.pathname === '/maraton' ? (
+          <span style={{ fontSize: '15px', fontWeight: 600 }}>Maratón</span>
         ) : isQR ? (
           <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
             Códigos QR

@@ -11,7 +11,7 @@ export default defineConfig({
       name: 'dev-html-rewrite',
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          if (/^\/(?:index\.html|qr|semana\/[1-5])?(?:\?.*)?$/.test(req.url || '/')) {
+          if (/^\/(?:index\.html|qr|maraton|semana\/[1-6])?(?:\?.*)?$/.test(req.url || '/')) {
             req.url = '/index.source.html'
           }
           next()
@@ -19,6 +19,7 @@ export default defineConfig({
       },
     },
   ],
+  server: { proxy: { '/api/maraton': { target: 'http://127.0.0.1:8787', ws: true } } },
   build: {
     rollupOptions: {
       input: {

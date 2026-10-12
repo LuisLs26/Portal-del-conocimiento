@@ -50,7 +50,8 @@ const ACTIVITIES_QR: ActivityQRInfo[] = [
     name: 'Sopa de letras',
     topic: 'Situaciones y evidencias',
     path: '/semana/5'
-  }
+  },
+  { week: 6, name: 'Maratón', topic: 'Crea una sala y comparte su QR para jugar en vivo', path: '/maraton' }
 ];
 
 export const QRManager: React.FC = () => {
@@ -237,7 +238,7 @@ export const QRManager: React.FC = () => {
             }}
           />
 
-          <p role="status">{!cleanBaseUrl ? 'Introduce una dirección completa: https://tu-dominio.com' : error || (!ready ? 'Generando códigos…' : 'Cinco códigos listos para descargar.')}</p>
+          <p role="status">{!cleanBaseUrl ? 'Introduce una dirección completa: https://tu-dominio.com' : error || (!ready ? 'Generando códigos…' : 'Seis códigos listos para descargar.')}</p>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={handleDownloadZIP}
@@ -246,7 +247,7 @@ export const QRManager: React.FC = () => {
               style={{ flex: 1, padding: '10px', fontSize: '13px' }}
             >
               <FileArchive size={14} />
-              <span>{isZipping ? 'Generando...' : 'Descargar ZIP (5 QR)'}</span>
+              <span>{isZipping ? 'Generando...' : 'Descargar ZIP (6 QR)'}</span>
             </button>
 
             <button
@@ -264,7 +265,7 @@ export const QRManager: React.FC = () => {
           </div>
         </div>
 
-        {/* 5 QR Cards List */}
+        {/* 6 QR Cards List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {ACTIVITIES_QR.map((act) => {
             const fullUrl = cleanBaseUrl ? `${cleanBaseUrl}${act.path}` : '';
