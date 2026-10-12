@@ -7,7 +7,7 @@ export interface Question {
   explanation: string;
 }
 
-export const QUIZ_QUESTIONS: Question[] = [
+const questions: Question[] = [
   {
     id: 1,
     topic: 'Concepto de competencia',
@@ -139,3 +139,11 @@ export const QUIZ_QUESTIONS: Question[] = [
     explanation: 'Ser competente significa transferir y articular conocimientos, habilidades y actitudes en situaciones auténticas para resolver problemas y transformar la realidad.'
   }
 ];
+
+// Rotate alternatives without changing the educational answer.
+export const QUIZ_QUESTIONS: Question[] = questions.map((q, i) => {
+  const target = i % 4;
+  const options = [...q.options];
+  [options[target], options[q.correctIndex]] = [options[q.correctIndex], options[target]];
+  return { ...q, options, correctIndex: target };
+});

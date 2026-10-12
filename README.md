@@ -1,77 +1,46 @@
-# Evaluación de los Aprendizajes — Portal de Actividades Interactivas
+# Portal del conocimiento
 
-Plataforma educativa moderna, interactiva y complementaria para el libro **“Evaluación de los aprendizajes”**.
-Diseñada con el lenguaje visual de **Apple iOS (Liquid Glass)** y optimizada para dispositivos móviles (Android / iPhone) y computadoras de escritorio.
+Cinco actividades educativas con interfaz móvil en blanco, gris y azul, acceso directo y códigos QR.
 
----
+| Ruta | Actividad | Reglas |
+| --- | --- | --- |
+| `/semana/1` | Crucigrama | Nueve palabras conectadas, pistas numeradas, intersecciones válidas, cambio de orientación y escritura con teclado del teléfono o teclado integrado. |
+| `/semana/2` | Cuestionario | Diez preguntas, selección modificable antes de confirmar, explicación, puntuación y revisión de respuestas. |
+| `/semana/3` | Relacionar | Diez parejas en dos rondas, definiciones desordenadas, selección por toques y parejas identificadas con el mismo número. |
+| `/semana/4` | Completar | Ocho espacios dentro del texto, banco sin duplicados, devolución y reemplazo de términos; los aciertos quedan bloqueados al comprobar. |
+| `/semana/5` | Sopa | Tablero de 16 × 16, doce palabras, ocho direcciones y selección recta con captura y cancelación de puntero. |
 
-## 📖 Estructura de Actividades Semanales
+El progreso, las transiciones breves y los sonidos distinguen selección, acierto, error y finalización. El botón del encabezado guarda la preferencia de silencio. Se respeta la preferencia del sistema de reducir movimiento. El resaltado del gesto en la sopa actualiza únicamente las casillas afectadas, sin un renderizado de React por cada movimiento.
 
-| Semana | Actividad | Contenido Educativo | Ruta Directa |
-|---|---|---|---|
-| **1** | **Crucigrama** | Fundamentos, tipos y agentes de la evaluación formativa (9 palabras con intersecciones reales). | `/semana/1` |
-| **2** | **Cuestionario** | Enfoque por competencias: capacidades, estándares, desempeños y retroalimentación (10 preguntas de aplicación). | `/semana/2` |
-| **3** | **Relaciona Conceptos** | Propósitos, criterios e instrumentos de evaluación (10 parejas en 2 rondas dinámicas). | `/semana/3` |
-| **4** | **Completa el Aprendizaje** | Repaso integrador de competencias con fichas interactivas arrastrables y texto con 8 espacios. | `/semana/4` |
-| **5** | **Sopa de Letras** | Situaciones significativas, criterios y evidencias (cuadrícula dinámica 16×16 con 12 términos y selección táctil fluida). | `/semana/5` |
+## QR y publicación
 
----
+Las cinco rutas educativas abren directamente el juego sin el encabezado principal y ocupan la altura de la pantalla, también desde códigos QR anteriores. Los nuevos QR agregan `?modo=actividad` para indicar este modo explícitamente. Conservan controles discretos de sonido y salida. Los navegadores compatibles pueden activar pantalla completa al primer toque; iOS y otros navegadores pueden conservar sus barras.
 
-## 📱 Sistema de Códigos QR para el Libro Impreso
+En `/qr`, configura la dirección pública real donde está alojada la aplicación. Se utiliza el dominio guardado o el de la página actual; no se presupone un sitio publicado. Si pegas un enlace de actividad, se extrae su dominio para evitar rutas duplicadas. No se admiten direcciones incompletas ni protocolos diferentes de HTTP/HTTPS.
 
-El portal cuenta con un **Centro de Gestión de Códigos QR** accesible en:
-👉 `/qr`
+La generación cancela resultados antiguos al cambiar el dominio. Las descargas PNG, SVG, ZIP e impresión A4 se habilitan cuando los cinco códigos están preparados. El ZIP contiene los cinco PNG, los cinco SVG y un manifiesto con los enlaces.
 
-### Funcionalidades:
-- **Dominio configurable:** Permite ingresar la URL pública final de Cloudflare Pages (ej. `https://mi-portal.pages.dev`) para regenerar al instante todos los códigos QR y enlaces sin modificar el código fuente.
-- **Códigos QR de alta resolución:**
-  - Descarga individual en **PNG de 1000 × 1000 px** (óptimo contraste en blanco y negro para imprenta).
-  - Descarga individual en formato vectorial **SVG**.
-  - Descarga masiva de los 5 códigos en un único archivo comprimido **ZIP**.
-- **Hoja A4 para imprimir:** Formato listo para impresión física con marcas de corte y títulos independientes.
+Para Cloudflare Pages:
 
----
+- Comando de compilación: `npm run build`.
+- Directorio publicado: `dist`.
+- `public/_redirects` conserva la apertura y recarga directa de las rutas educativas.
 
-## 🎨 Identidad Visual y Tecnologías
+La compilación sincroniza también `index.html` y `assets/` en la raíz para el alojamiento estático existente y elimina únicamente fragmentos generados obsoletos. Subir el repositorio a GitHub no confirma por sí solo el despliegue público.
 
-- **Paleta de color editorial:**
-  - Verde oscuro: `#123D32`
-  - Verde esmeralda: `#285C4A`
-  - Dorado elegante: `#C5A15A`
-  - Crema: `#F8F4E9`
-  - Borgoña: `#782F43`
-  - Blanco cálido: `#FFFCF7`
-  - Gris oscuro: `#28332E`
-- **Tipografías:** *Playfair Display* (títulos académicos) y *Plus Jakarta Sans* / *SF Pro* (interfaz y actividades).
-- **Efectos:** *Liquid Glass* translúcido con desenfoque de fondo (`backdrop-filter: blur`), bordes con brillo especular, esquinas continuas tipo squircle y curvas de aceleración física de resortes (*Spring Physics*).
-- **Audio procedimental táctil:** Sonidos sintetizados mediante Web Audio API (cero latencia, sin archivos de audio pesados y con botón de silencio).
+## Desarrollo y pruebas
 
----
-
-## 🚀 Despliegue en Cloudflare Pages
-
-La aplicación está preparada para ser alojada como una Single Page Application (SPA) estática sin necesidad de un servidor Node.js en producción.
-
-### Parámetros de compilación en Cloudflare Pages:
-- **Framework preset:** `Vite`
-- **Build command (Comando de compilación):** `npm run build`
-- **Build output directory (Directorio de salida):** `dist`
-
-> El proyecto incluye el archivo `public/_redirects` (copiado a `dist/_redirects`) con la regla:
-> `/*    /index.html   200`
-> Esto asegura que el escaneo directo de cualquier código QR (`/semana/1`, `/semana/2`, `/qr`, etc.) cargue de forma inmediata sin errores 404.
-
----
-
-## 💻 Desarrollo Local
-
-```bash
-# Instalar dependencias
+```sh
 npm install
-
-# Iniciar servidor de desarrollo
 npm run dev
-
-# Compilar para producción
+npm run typecheck
+npm test
 npm run build
+npm run test:mobile
 ```
+
+Las pruebas móviles utilizan Google Chrome instalado, con eventos táctiles y pantallas 360 × 800, 375 × 812, 390 × 844 y 430 × 932. Para otro entorno, cambia `launchOptions.channel` en `playwright.config.ts` o instala el navegador de Playwright.
+
+Vitest comprueba cruces, generación, puntuación, parejas y banco de palabras; valida 100 sopas completas y diez crucigramas generados. Playwright resuelve los cinco juegos, introduce errores, reinicia, recarga rutas directas, cambia la orientación del crucigrama y cancela un gesto en la sopa. Además decodifica los cinco QR, verifica el ZIP, la hoja de impresión, la preferencia de sonido y el movimiento reducido.
+
+Las pruebas se ejecutan con emulación móvil en Chrome. El teclado real de iOS/Android, la sensación del gesto y el rendimiento en un Android de gama baja requieren comprobación en dispositivos físicos.

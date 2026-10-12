@@ -1,3 +1,6 @@
+import { GameHeading } from '../components/GameHeading';
+import { shuffle, placeTerm } from '../data/gameRules';
+import { GameProgress } from '../components/GameProgress';
 import React, { useState, useEffect } from 'react';
 import { CLOZE_BLANKS, WORD_BANK, type ClozeBlank } from '../data/clozeData';
 import { SuccessModal } from '../components/SuccessModal';
@@ -16,7 +19,7 @@ export const Semana4Cloze: React.FC = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   useEffect(() => {
-    setShuffledBank([...WORD_BANK].sort(() => Math.random() - 0.5));
+    setShuffledBank(shuffle(WORD_BANK));
   }, []);
 
   const placedWords = Object.values(slots).filter(Boolean) as string[];
@@ -35,6 +38,7 @@ export const Semana4Cloze: React.FC = () => {
   };
 
   const handleBlankClick = (blankId: number) => {
+    if (checkedState?.[blankId]) return;
     sound.pop();
     const currentPlaced = slots[blankId];
 
@@ -43,19 +47,18 @@ export const Semana4Cloze: React.FC = () => {
       setSelectedBankWord(null);
       setSelectedBlankId(null);
     } else if (currentPlaced !== null) {
-      setSlots((prev) => ({ ...prev, [blankId]: null }));
-      setCheckedState(null);
+      setSlots((prev) => placeTerm(prev, checkedState, blankId, null));
     } else {
       setSelectedBlankId((prev) => (prev === blankId ? null : blankId));
     }
   };
 
   const placeWordInBlank = (word: string, blankId: number) => {
-    setSlots((prev) => ({ ...prev, [blankId]: word }));
-    setCheckedState(null);
+    setSlots((prev) => placeTerm(prev, checkedState, blankId, word));
   };
 
   const handleCheck = () => {
+    if (remainingCount) return;
     const results: { [blankId: number]: boolean } = {};
     let allRight = true;
 
@@ -86,7 +89,7 @@ export const Semana4Cloze: React.FC = () => {
     setSelectedBankWord(null);
     setSelectedBlankId(null);
     setIsSuccessModalOpen(false);
-    setShuffledBank([...WORD_BANK].sort(() => Math.random() - 0.5));
+    setShuffledBank(shuffle(WORD_BANK));
   };
 
   const renderBlankSlot = (blank: ClozeBlank) => {
@@ -117,7 +120,9 @@ export const Semana4Cloze: React.FC = () => {
     }
 
     return (
-      <span
+      <button
+        aria-label={`Espacio ${blank.id + 1}`}
+        disabled={!!checkedState?.[blank.id]}
         key={blank.id}
         onClick={() => handleBlankClick(blank.id)}
         style={{
@@ -125,7 +130,7 @@ export const Semana4Cloze: React.FC = () => {
           alignItems: 'center',
           gap: '3px',
           minWidth: '94px',
-          height: '28px',
+          minHeight: '42px',
           padding: '2px 8px',
           margin: '2px 3px',
           verticalAlign: 'middle',
@@ -134,14 +139,14 @@ export const Semana4Cloze: React.FC = () => {
           border,
           color: textColor,
           fontWeight: 600,
-          fontSize: '13px',
+          fontSize: '16px',
           cursor: 'pointer',
           userSelect: 'none'
         }}
       >
         {placed ? (
           <>
-            <span>{placed}</span>
+            <span key={placed} className="inserted-term">{placed}</span>
             {isCorrect && <CheckCircle2 size={12} color="var(--apple-green)" />}
             {isWrong && <XCircle size={12} color="var(--apple-red)" />}
           </>
@@ -150,34 +155,36 @@ export const Semana4Cloze: React.FC = () => {
             [{blank.id + 1}]
           </span>
         )}
-      </span>
+      </button>
     );
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '12px 14px 40px' }}>
+    <div className="ios-animate-enter" style={{ padding: '24px 20px 80px' }}>
+      <GameHeading title="Completa el texto" />
+      <GameProgress value={checkedState ? Object.values(checkedState).filter(Boolean).length : 8 - remainingCount} total={8} label={checkedState ? 'Respuestas correctas' : 'Espacios completados'} />
       {/* Header Info */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--apple-blue)', textTransform: 'uppercase' }}>
           Repaso Integrador
         </span>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+        <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>
           {remainingCount === 0 ? 'Completo' : `${remainingCount} pendientes`}
         </span>
       </div>
 
-      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+      <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
         Toca una palabra del banco inferior y luego el espacio correspondiente.
       </p>
 
       {/* Main Paragraph Card */}
-      <div 
+      <div
         className="ios-card"
         style={{
           padding: '16px 14px',
           marginBottom: '14px',
-          lineHeight: 1.85,
-          fontSize: '14px',
+          lineHeight: 2.1,
+          fontSize: '17px',
           color: 'var(--text-primary)'
         }}
       >
@@ -209,7 +216,7 @@ export const Semana4Cloze: React.FC = () => {
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {availableBankWords.length === 0 ? (
-            <span style={{ fontSize: '12px', color: 'var(--apple-green)', fontWeight: 500 }}>
+            <span style={{ fontSize: '14px', color: 'var(--apple-green)', fontWeight: 500 }}>
               ✓ Todas las palabras han sido colocadas. Comprueba tus respuestas.
             </span>
           ) : (
@@ -221,11 +228,11 @@ export const Semana4Cloze: React.FC = () => {
                   onClick={() => handleBankWordClick(word)}
                   className="ios-button"
                   style={{
-                    padding: '8px 12px',
+                    padding: '12px 16px',
                     borderRadius: 'var(--radius-pill)',
                     background: isSelected ? 'var(--apple-blue)' : 'var(--surface-secondary)',
                     color: isSelected ? '#FFFFFF' : 'var(--text-primary)',
-                    fontSize: '12.5px',
+                    fontSize: '15px',
                     fontWeight: 600,
                     border: '1px solid transparent'
                   }}
@@ -241,6 +248,7 @@ export const Semana4Cloze: React.FC = () => {
       {/* Action Buttons */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
         <button
+          disabled={remainingCount > 0}
           onClick={handleCheck}
           className="ios-button ios-button-primary"
           style={{ flex: 1, padding: '12px' }}
@@ -260,24 +268,24 @@ export const Semana4Cloze: React.FC = () => {
       </div>
 
       {/* Explanations List if checked */}
-      {checkedState && (
+      {checkedState && Object.values(checkedState).some(value => !value) && (
         <div className="ios-card ios-animate-enter" style={{ padding: '14px 12px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: 700,
             color: 'var(--text-secondary)',
             textTransform: 'uppercase',
             marginBottom: '8px'
           }}>
             <HelpCircle size={14} color="var(--apple-blue)" />
-            <span>Fundamentos pedagógicos</span>
+            <span>Revisa estos espacios</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {CLOZE_BLANKS.map((blank) => {
+            {CLOZE_BLANKS.filter(blank => !checkedState[blank.id]).map((blank) => {
               const isRight = checkedState[blank.id];
               return (
                 <div
@@ -286,7 +294,7 @@ export const Semana4Cloze: React.FC = () => {
                     padding: '8px 10px',
                     borderRadius: 'var(--radius-sm)',
                     background: isRight ? 'var(--apple-green-tint)' : 'var(--apple-red-tint)',
-                    fontSize: '11.5px',
+                    fontSize: '15px',
                     lineHeight: 1.35
                   }}
                 >

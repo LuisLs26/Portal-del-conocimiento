@@ -1,14 +1,15 @@
+import { publicBaseUrl } from '../data/qrData';
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { sound } from '../utils/sound';
-import { 
-  Download, 
-  Copy, 
-  Check, 
-  Globe, 
-  Printer, 
-  FileArchive, 
+import {
+  Download,
+  Copy,
+  Check,
+  Globe,
+  Printer,
+  FileArchive,
   ExternalLink
 } from 'lucide-react';
 
@@ -54,15 +55,13 @@ const ACTIVITIES_QR: ActivityQRInfo[] = [
 
 export const QRManager: React.FC = () => {
   const [domain, setDomain] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const origin = window.location.origin;
-      if (!origin.includes('localhost') && !origin.includes('127.0.0.1')) {
-        return origin;
-      }
-    }
     const saved = localStorage.getItem('cf_custom_domain');
-    return saved || 'https://portal-del-conocimiento.pages.dev';
+    return (saved && publicBaseUrl(saved)) || window.location.origin;
   });
+  const [readyBase, setReadyBase] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (copyTimer.current) clearTimeout(copyTimer.current); }, []);
 
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
   const [isZipping, setIsZipping] = useState(false);
@@ -72,61 +71,53 @@ export const QRManager: React.FC = () => {
   const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.trim();
     setDomain(val);
-    localStorage.setItem('cf_custom_domain', val);
+    const base = publicBaseUrl(val);
+    if (base) localStorage.setItem('cf_custom_domain', base);
   };
 
-  const cleanBaseUrl = domain.replace(/\/+$/, '');
+  const cleanBaseUrl = publicBaseUrl(domain);
+  const ready = !!cleanBaseUrl && readyBase === cleanBaseUrl;
 
   useEffect(() => {
-    ACTIVITIES_QR.forEach(async (act) => {
-      const fullUrl = `${cleanBaseUrl}${act.path}`;
-
-      const canvas = canvasRefs.current[act.week];
-      if (canvas) {
-        try {
-          await QRCode.toCanvas(canvas, fullUrl, {
-            width: 1000,
-            margin: 4,
-            color: {
-              dark: '#000000',
-              light: '#FFFFFF'
-            },
-            errorCorrectionLevel: 'H'
-          });
-        } catch {
-          // Ignore
-        }
+    let cancelled = false;
+    setReadyBase(null); setQrSvgMap({}); setError('');
+    if (!cleanBaseUrl) return;
+    const options = { width: 1000, margin: 4, color: { dark: '#000000', light: '#FFFFFF' }, errorCorrectionLevel: 'H' as const };
+    const timer = setTimeout(() => { Promise.all(ACTIVITIES_QR.map(async act => {
+      const url = `${cleanBaseUrl}${act.path}?modo=actividad`;
+      const canvas = document.createElement('canvas');
+      await QRCode.toCanvas(canvas, url, options);
+      const svg = await QRCode.toString(url, { ...options, type: 'svg' });
+      return { act, canvas, svg };
+    })).then(results => {
+      if (cancelled) return;
+      const map: Record<number, string> = {};
+      for (const { act, canvas, svg } of results) {
+        const target = canvasRefs.current[act.week];
+        if (target) { target.width = canvas.width; target.height = canvas.height; target.getContext('2d')?.drawImage(canvas, 0, 0); }
+        map[act.week] = svg;
       }
-
-      try {
-        const svgString = await QRCode.toString(fullUrl, {
-          type: 'svg',
-          margin: 4,
-          color: {
-            dark: '#000000',
-            light: '#FFFFFF'
-          },
-          errorCorrectionLevel: 'H'
-        });
-        setQrSvgMap((prev) => ({ ...prev, [act.week]: svgString }));
-      } catch {
-        // Ignore
-      }
-    });
+      setQrSvgMap(map); setReadyBase(cleanBaseUrl);
+    }).catch(() => { if (!cancelled) setError('No se pudieron generar los códigos. Revisa el dominio e intenta nuevamente.'); });
+    }, 180);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [cleanBaseUrl]);
 
   const handleCopyLink = async (week: number, fullUrl: string) => {
+    if (!ready) return;
     sound.click();
     try {
       await navigator.clipboard.writeText(fullUrl);
       setCopiedWeek(week);
-      setTimeout(() => setCopiedWeek(null), 2000);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopiedWeek(null), 2000);
     } catch {
-      // Fallback
+      setError('No se pudo copiar. Puedes copiar el enlace mostrado debajo del código.');
     }
   };
 
   const handleDownloadPNG = (act: ActivityQRInfo) => {
+    if (!ready) return;
     sound.click();
     const canvas = canvasRefs.current[act.week];
     if (!canvas) return;
@@ -141,6 +132,7 @@ export const QRManager: React.FC = () => {
   };
 
   const handleDownloadSVG = (act: ActivityQRInfo) => {
+    if (!ready) return;
     sound.click();
     const svgStr = qrSvgMap[act.week];
     if (!svgStr) return;
@@ -157,6 +149,7 @@ export const QRManager: React.FC = () => {
   };
 
   const handleDownloadZIP = async () => {
+    if (!ready || isZipping) return;
     sound.click();
     setIsZipping(true);
     try {
@@ -179,7 +172,7 @@ export const QRManager: React.FC = () => {
       }
 
       const manifest = ACTIVITIES_QR.map(
-        (a) => `Semana ${a.week}: ${a.name} -> ${cleanBaseUrl}${a.path}`
+        (a) => `Semana ${a.week}: ${a.name} -> ${cleanBaseUrl}${a.path}?modo=actividad`
       ).join('\n');
       zip.file('ENLACES_LIBRO.txt', manifest);
 
@@ -193,7 +186,7 @@ export const QRManager: React.FC = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      // Ignore
+      setError('No se pudo descargar el archivo ZIP. Intenta nuevamente.');
     } finally {
       setIsZipping(false);
     }
@@ -225,6 +218,7 @@ export const QRManager: React.FC = () => {
           </div>
 
           <input
+            aria-label="Dominio público"
             type="url"
             value={domain}
             onChange={handleDomainChange}
@@ -236,17 +230,18 @@ export const QRManager: React.FC = () => {
               border: '1px solid var(--separator-dark)',
               background: 'var(--surface-secondary)',
               color: 'var(--text-primary)',
-              fontSize: '13px',
+              fontSize: '16px',
               fontWeight: 500,
               outline: 'none',
               marginBottom: '10px'
             }}
           />
 
+          <p role="status">{!cleanBaseUrl ? 'Introduce una dirección completa: https://tu-dominio.com' : error || (!ready ? 'Generando códigos…' : 'Cinco códigos listos para descargar.')}</p>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={handleDownloadZIP}
-              disabled={isZipping}
+              disabled={isZipping || !ready}
               className="ios-button ios-button-primary"
               style={{ flex: 1, padding: '10px', fontSize: '13px' }}
             >
@@ -255,6 +250,7 @@ export const QRManager: React.FC = () => {
             </button>
 
             <button
+              disabled={!ready}
               onClick={() => {
                 sound.click();
                 window.print();
@@ -271,7 +267,7 @@ export const QRManager: React.FC = () => {
         {/* 5 QR Cards List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {ACTIVITIES_QR.map((act) => {
-            const fullUrl = `${cleanBaseUrl}${act.path}`;
+            const fullUrl = cleanBaseUrl ? `${cleanBaseUrl}${act.path}?modo=actividad` : '';
             const isCopied = copiedWeek === act.week;
 
             return (
@@ -317,7 +313,9 @@ export const QRManager: React.FC = () => {
                 }}>
                   <canvas
                     ref={(el) => { canvasRefs.current[act.week] = el; }}
+                    data-qr-week={act.week}
                     style={{
+                      visibility: ready ? 'visible' : 'hidden',
                       width: '160px',
                       height: '160px',
                       display: 'block'
@@ -348,6 +346,7 @@ export const QRManager: React.FC = () => {
                   </span>
 
                   <button
+                    disabled={!ready}
                     onClick={() => handleCopyLink(act.week, fullUrl)}
                     className="ios-button"
                     style={{
@@ -367,6 +366,7 @@ export const QRManager: React.FC = () => {
                 {/* Download Actions */}
                 <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
                   <button
+                    disabled={!ready}
                     onClick={() => handleDownloadPNG(act)}
                     className="ios-button ios-button-secondary"
                     style={{ flex: 1, padding: '8px', fontSize: '12px' }}
@@ -376,6 +376,7 @@ export const QRManager: React.FC = () => {
                   </button>
 
                   <button
+                    disabled={!ready}
                     onClick={() => handleDownloadSVG(act)}
                     className="ios-button ios-button-secondary"
                     style={{ flex: 1, padding: '8px', fontSize: '12px' }}
@@ -386,7 +387,8 @@ export const QRManager: React.FC = () => {
                 </div>
 
                 <a
-                  href={fullUrl}
+                  href={ready ? fullUrl : undefined}
+                  aria-disabled={!ready}
                   target="_blank"
                   rel="noreferrer"
                   style={{
@@ -416,6 +418,7 @@ export const QRManager: React.FC = () => {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             header { display: none !important; }
+            .app-container { max-width: none !important; min-height: auto !important; }
             body { background: #FFFFFF !important; color: #000000 !important; }
             @page { size: A4 portrait; margin: 1cm; }
           }
@@ -449,12 +452,12 @@ export const QRManager: React.FC = () => {
                 <div style={{ fontSize: '8pt', color: '#666666', marginBottom: '8pt' }}>
                   {act.topic}
                 </div>
-                <div 
+                <div
                   style={{ width: '150px', height: '150px', margin: '0 auto 6pt' }}
                   dangerouslySetInnerHTML={{ __html: svgContent || '' }}
                 />
                 <div style={{ fontSize: '7pt', color: '#333333' }}>
-                  {cleanBaseUrl}{act.path}
+                  {cleanBaseUrl}{act.path}?modo=actividad
                 </div>
               </div>
             );

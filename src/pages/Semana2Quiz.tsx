@@ -1,12 +1,14 @@
+import { GameHeading } from '../components/GameHeading';
+import { GameProgress } from '../components/GameProgress';
+import { quizScore } from '../data/gameRules';
 import React, { useState } from 'react';
 import { QUIZ_QUESTIONS, type Question } from '../data/quizData';
-import { SuccessModal } from '../components/SuccessModal';
 import { sound } from '../utils/sound';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  ArrowRight, 
-  RotateCcw, 
+import {
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  RotateCcw,
   HelpCircle,
   BookOpen
 } from 'lucide-react';
@@ -18,15 +20,19 @@ export const Semana2Quiz: React.FC = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const currentQ: Question = QUIZ_QUESTIONS[currentIndex];
   const totalQuestions = QUIZ_QUESTIONS.length;
-  const progressPercent = ((currentIndex + 1) / totalQuestions) * 100;
 
   const handleSelectOption = (index: number) => {
     if (showExplanation) return;
+    sound.pop();
     setSelectedOption(index);
+  };
+
+  const handleConfirm = () => {
+    if (showExplanation || selectedOption === null) return;
+    const index = selectedOption;
     setShowExplanation(true);
     setUserAnswers((prev) => ({ ...prev, [currentIndex]: index }));
 
@@ -39,6 +45,7 @@ export const Semana2Quiz: React.FC = () => {
   };
 
   const handleNext = () => {
+    if (!showExplanation) return;
     sound.click();
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex((prev) => prev + 1);
@@ -46,23 +53,12 @@ export const Semana2Quiz: React.FC = () => {
       setShowExplanation(false);
     } else {
       setIsFinished(true);
-      const score = calculateScore();
-      if (score.correct >= 7) {
-        setIsSuccessModalOpen(true);
-      }
+      sound.fanfare();
+      try { localStorage.setItem('week_2_completed', 'true'); } catch { /* Session result remains visible. */ }
     }
   };
 
-  const calculateScore = () => {
-    let correct = 0;
-    QUIZ_QUESTIONS.forEach((q, idx) => {
-      if (userAnswers[idx] === q.correctIndex) {
-        correct++;
-      }
-    });
-    const percentage = Math.round((correct / totalQuestions) * 100);
-    return { correct, percentage };
-  };
+  const calculateScore = () => quizScore(QUIZ_QUESTIONS, userAnswers);
 
   const handleRestart = () => {
     sound.click();
@@ -72,7 +68,6 @@ export const Semana2Quiz: React.FC = () => {
     setShowExplanation(false);
     setIsFinished(false);
     setReviewMode(false);
-    setIsSuccessModalOpen(false);
   };
 
   const letters = ['A', 'B', 'C', 'D'];
@@ -91,6 +86,7 @@ export const Semana2Quiz: React.FC = () => {
 
     return (
       <div className="ios-animate-enter" style={{ padding: '20px 16px 40px' }}>
+      <GameHeading title="Cuestionario" />
         <div className="ios-card" style={{ padding: '28px 20px', textAlign: 'center' }}>
           <div style={{
             width: '56px',
@@ -109,7 +105,7 @@ export const Semana2Quiz: React.FC = () => {
           <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
             Resultados
           </h2>
-          <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
             Enfoque por competencias
           </p>
 
@@ -123,7 +119,7 @@ export const Semana2Quiz: React.FC = () => {
               <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>
                 {correct}/{totalQuestions}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
                 Aciertos
               </div>
             </div>
@@ -137,14 +133,14 @@ export const Semana2Quiz: React.FC = () => {
               <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--apple-blue)' }}>
                 {percentage}%
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--apple-blue)' }}>
+              <div style={{ fontSize: '15px', color: 'var(--apple-blue)' }}>
                 Precisión
               </div>
             </div>
           </div>
 
           <p style={{
-            fontSize: '13px',
+            fontSize: '15px',
             color: 'var(--text-secondary)',
             lineHeight: 1.45,
             marginBottom: '24px'
@@ -152,7 +148,7 @@ export const Semana2Quiz: React.FC = () => {
             {feedback}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
               onClick={() => {
                 sound.click();
@@ -188,7 +184,7 @@ export const Semana2Quiz: React.FC = () => {
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Revisión de Respuestas
             </h2>
-            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+            <span style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
               {totalQuestions} preguntas respondidas
             </span>
           </div>
@@ -198,7 +194,7 @@ export const Semana2Quiz: React.FC = () => {
               setReviewMode(false);
             }}
             className="ios-button ios-button-secondary"
-            style={{ padding: '6px 12px', fontSize: '12px' }}
+            style={{ padding: '6px 12px', fontSize: '16px' }}
           >
             Cerrar
           </button>
@@ -217,12 +213,12 @@ export const Semana2Quiz: React.FC = () => {
                   ) : (
                     <XCircle size={16} color="var(--apple-red)" strokeWidth={2.5} />
                   )}
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>
                     Pregunta {idx + 1} • {q.topic}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px', lineHeight: 1.35 }}>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px', lineHeight: 1.5 }}>
                   {q.question}
                 </div>
 
@@ -253,7 +249,7 @@ export const Semana2Quiz: React.FC = () => {
                           borderRadius: 'var(--radius-sm)',
                           background: bg,
                           border,
-                          fontSize: '12px',
+                          fontSize: '16px',
                           fontWeight: isTarget ? 600 : 400,
                           color,
                           display: 'flex',
@@ -271,7 +267,7 @@ export const Semana2Quiz: React.FC = () => {
                   padding: '8px 10px',
                   borderRadius: 'var(--radius-sm)',
                   background: 'var(--surface-secondary)',
-                  fontSize: '11.5px',
+                  fontSize: '16px',
                   color: 'var(--text-secondary)',
                   lineHeight: 1.4
                 }}>
@@ -288,37 +284,22 @@ export const Semana2Quiz: React.FC = () => {
 
   // Active Quiz View (1 question per screen)
   return (
-    <div className="ios-animate-enter" style={{ padding: '12px 14px 40px' }}>
-      {/* Progress Line */}
-      <div style={{
-        width: '100%',
-        height: '4px',
-        background: 'var(--separator)',
-        borderRadius: '2px',
-        overflow: 'hidden',
-        marginBottom: '12px'
-      }}>
-        <div style={{
-          width: `${progressPercent}%`,
-          height: '100%',
-          background: 'var(--apple-blue)',
-          borderRadius: '2px',
-          transition: 'width 0.25s ease'
-        }} />
-      </div>
+    <div className="ios-animate-enter" style={{ padding: '24px 20px 80px' }}>
+      <GameHeading title="Cuestionario" />
+      <GameProgress value={Object.keys(userAnswers).length} total={10} label="Preguntas respondidas" />
 
       {/* Question Counter & Topic */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--apple-blue)', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--apple-blue)', textTransform: 'uppercase' }}>
           {currentQ.topic}
         </span>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+        <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>
           {currentIndex + 1} de {totalQuestions}
         </span>
       </div>
 
       {/* Main Question Card */}
-      <div className="ios-card" style={{ padding: '20px 16px', marginBottom: '16px' }}>
+      <div key={currentQ.id} className="ios-card ios-animate-enter" style={{ padding: '20px 16px', marginBottom: '16px' }}>
         <h2 style={{
           fontSize: '16.5px',
           fontWeight: 600,
@@ -330,7 +311,7 @@ export const Semana2Quiz: React.FC = () => {
         </h2>
 
         {/* 4 Options in Apple List Cell Style */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {currentQ.options.map((opt, idx) => {
             const isChosen = selectedOption === idx;
             const isTarget = idx === currentQ.correctIndex;
@@ -370,7 +351,7 @@ export const Semana2Quiz: React.FC = () => {
                 className="ios-button"
                 style={{
                   width: '100%',
-                  padding: '12px 14px',
+                  padding: '16px',
                   borderRadius: 'var(--radius-md)',
                   background: bg,
                   border,
@@ -392,7 +373,7 @@ export const Semana2Quiz: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 700,
-                  fontSize: '12px',
+                  fontSize: '16px',
                   flexShrink: 0
                 }}>
                   {letters[idx]}
@@ -400,10 +381,10 @@ export const Semana2Quiz: React.FC = () => {
 
                 <div style={{
                   flex: 1,
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: 500,
                   color: textColor,
-                  lineHeight: 1.35
+                  lineHeight: 1.5
                 }}>
                   {opt}
                 </div>
@@ -415,7 +396,7 @@ export const Semana2Quiz: React.FC = () => {
 
       {/* Explanation Box */}
       {showExplanation && (
-        <div 
+        <div
           className="ios-card ios-animate-enter"
           style={{
             padding: '14px 16px',
@@ -428,7 +409,7 @@ export const Semana2Quiz: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '12.5px',
+            fontSize: '15px',
             fontWeight: 700,
             color: selectedOption === currentQ.correctIndex ? 'var(--apple-green)' : 'var(--apple-red)',
             marginBottom: '4px'
@@ -436,12 +417,13 @@ export const Semana2Quiz: React.FC = () => {
             <HelpCircle size={14} />
             <span>{selectedOption === currentQ.correctIndex ? '¡Correcto!' : 'Explicación:'}</span>
           </div>
-          <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.4 }}>
-            {currentQ.explanation}
+          <p style={{ fontSize: '15px', color: 'var(--text-primary)', lineHeight: 1.4 }}>
+            {`Respuesta correcta: ${letters[currentQ.correctIndex]}. ${currentQ.options[currentQ.correctIndex]}`}<br />{currentQ.explanation}
           </p>
         </div>
       )}
 
+      {!showExplanation && <button className="ios-button ios-button-primary" disabled={selectedOption === null} onClick={handleConfirm}>Comprobar respuesta</button>}
       {/* Continue Button */}
       {showExplanation && (
         <button
@@ -454,14 +436,7 @@ export const Semana2Quiz: React.FC = () => {
         </button>
       )}
 
-      <SuccessModal
-        isOpen={isSuccessModalOpen}
-        title="¡Completado!"
-        subtitle="Has respondido el cuestionario sobre enfoque por competencias."
-        weekNumber={2}
-        scoreText={`${calculateScore().correct} de ${totalQuestions} respuestas correctas`}
-        onRetry={handleRestart}
-      />
+
     </div>
   );
 };

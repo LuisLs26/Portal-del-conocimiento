@@ -1,8 +1,11 @@
+import { GameHeading } from '../components/GameHeading';
+import { straightPath } from '../data/gameRules';
+import { GameProgress } from '../components/GameProgress';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  generateWordSearchGrid, 
-  type PlacedWord, 
-  WORD_SEARCH_WORDS 
+import {
+  generateWordSearchGrid,
+  type PlacedWord,
+  WORD_SEARCH_WORDS
 } from '../data/wordSearchData';
 import { SuccessModal } from '../components/SuccessModal';
 import { sound } from '../utils/sound';
@@ -21,9 +24,8 @@ export const Semana5WordSearch: React.FC = () => {
   } | null>(null);
 
   const [foundWords, setFoundWords] = useState<string[]>([]);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [startCell, setStartCell] = useState<CellCoords | null>(null);
-  const [currentCell, setCurrentCell] = useState<CellCoords | null>(null);
+  const previewCells = useRef<HTMLElement[]>([]);
+  const [foundPaths, setFoundPaths] = useState<CellCoords[][]>([]);
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
@@ -34,10 +36,11 @@ export const Semana5WordSearch: React.FC = () => {
   const initGame = useCallback(() => {
     const generated = generateWordSearchGrid(gridSize);
     setBoard(generated);
+    gesture.current = null;
+    setFeedback('');
     setFoundWords([]);
-    setStartCell(null);
-    setCurrentCell(null);
-    setIsSelecting(false);
+    clearPreview();
+    setFoundPaths([]);
     setElapsedSeconds(0);
     setIsTimerRunning(true);
     setIsSuccessModalOpen(false);
@@ -61,38 +64,21 @@ export const Semana5WordSearch: React.FC = () => {
     return `${m}:${s}`;
   };
 
-  const getSelectedPath = useCallback((start: CellCoords, end: CellCoords): CellCoords[] => {
-    const dr = end.r - start.r;
-    const dc = end.c - start.c;
-    const absR = Math.abs(dr);
-    const absC = Math.abs(dc);
+  const getSelectedPath = straightPath;
+  const gesture = useRef<{ pointer: number; start: CellCoords; end: CellCoords } | null>(null);
+  const [feedback, setFeedback] = useState('');
 
-    if (absR === 0 && absC === 0) return [start];
-
-    const isHorizontal = absR === 0;
-    const isVertical = absC === 0;
-    const isDiagonal = absR === absC;
-
-    if (!isHorizontal && !isVertical && !isDiagonal) return [start];
-
-    const steps = Math.max(absR, absC);
-    const stepR = dr === 0 ? 0 : dr / absR;
-    const stepC = dc === 0 ? 0 : dc / absC;
-
-    const path: CellCoords[] = [];
-    for (let i = 0; i <= steps; i++) {
-      path.push({
-        r: start.r + stepR * i,
-        c: start.c + stepC * i
-      });
+  function clearPreview() {
+    previewCells.current.forEach(cell => cell.classList.remove('word-preview'));
+    previewCells.current = [];
+  }
+  function showPreview(start: CellCoords, end: CellCoords) {
+    clearPreview();
+    for (const p of straightPath(start, end)) {
+      const cell = gridContainerRef.current?.querySelector<HTMLElement>(`[data-r="${p.r}"][data-c="${p.c}"]`);
+      if (cell) { cell.classList.add('word-preview'); previewCells.current.push(cell); }
     }
-    return path;
-  }, []);
-
-  const activeSelectionPath = React.useMemo(() => {
-    if (!isSelecting || !startCell || !currentCell) return [];
-    return getSelectedPath(startCell, currentCell);
-  }, [isSelecting, startCell, currentCell, getSelectedPath]);
+  }
 
   const getCellFromPoint = (clientX: number, clientY: number): CellCoords | null => {
     const el = document.elementFromPoint(clientX, clientY);
@@ -106,28 +92,35 @@ export const Semana5WordSearch: React.FC = () => {
   };
 
   const handlePointerDown = (r: number, c: number, e: React.PointerEvent) => {
+    if (gesture.current || !e.isPrimary) return;
     e.preventDefault();
+    gridContainerRef.current?.setPointerCapture(e.pointerId);
+    gesture.current = { pointer: e.pointerId, start: { r, c }, end: { r, c } };
+    setFeedback('');
     sound.pop();
-    setIsSelecting(true);
-    setStartCell({ r, c });
-    setCurrentCell({ r, c });
+    showPreview({ r, c }, { r, c });
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isSelecting) return;
+    if (!gesture.current || gesture.current.pointer !== e.pointerId) return;
     const cell = getCellFromPoint(e.clientX, e.clientY);
-    if (cell) {
-      setCurrentCell(cell);
+    if (cell && (cell.r !== gesture.current.end.r || cell.c !== gesture.current.end.c)) {
+      gesture.current.end = cell;
+      showPreview(gesture.current.start, cell);
     }
   };
 
-  const handlePointerUp = () => {
-    if (!isSelecting || !startCell || !currentCell || !board) {
-      setIsSelecting(false);
+  const handlePointerUp = (e: React.PointerEvent) => {
+    const current = gesture.current;
+    if (!current || current.pointer !== e.pointerId) return;
+    gesture.current = null;
+    if (gridContainerRef.current?.hasPointerCapture(e.pointerId)) gridContainerRef.current.releasePointerCapture(e.pointerId);
+    if (!board) {
+      clearPreview();
       return;
     }
 
-    const path = getSelectedPath(startCell, currentCell);
+    const path = getSelectedPath(current.start, current.end);
     const formedLetters = path.map((pt) => board.grid[pt.r][pt.c]).join('');
     const reversedLetters = formedLetters.split('').reverse().join('');
 
@@ -137,42 +130,37 @@ export const Semana5WordSearch: React.FC = () => {
 
     if (matched) {
       sound.success();
+      setFeedback('¡Palabra encontrada!');
       const updatedFound = [...foundWords, matched.word];
       setFoundWords(updatedFound);
+      setFoundPaths(prev => [...prev, path]);
 
       if (updatedFound.length === board.placedWords.length) {
         setIsTimerRunning(false);
-        setTimeout(() => {
-          setIsSuccessModalOpen(true);
-        }, 400);
+        setIsSuccessModalOpen(true);
       }
     } else {
-      sound.click();
+      setFeedback('La selección no forma una palabra nueva. Intenta nuevamente.');
+      sound.error();
     }
 
-    setIsSelecting(false);
-    setStartCell(null);
-    setCurrentCell(null);
+    clearPreview();
   };
 
   const foundCellColorMap = React.useMemo(() => {
     const map: { [key: string]: boolean } = {};
     if (!board) return map;
 
-    board.placedWords.forEach((pw) => {
-      if (foundWords.includes(pw.word)) {
-        pw.path.forEach((pt) => {
-          map[`${pt.r}-${pt.c}`] = true;
-        });
-      }
-    });
+    foundPaths.flat().forEach(pt => { map[`${pt.r}-${pt.c}`] = true; });
     return map;
-  }, [board, foundWords]);
+  }, [board, foundPaths]);
 
   if (!board) return null;
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '12px 10px 40px' }}>
+    <div className="ios-animate-enter" style={{ padding: '24px 16px 80px' }}>
+      <GameHeading title="Sopa de letras" hint="Desliza de la primera a la última letra." />
+      <GameProgress value={foundWords.length} total={12} label="Palabras encontradas" />
       {/* Top Status Indicators Pill */}
       <div style={{
         display: 'flex',
@@ -187,7 +175,7 @@ export const Semana5WordSearch: React.FC = () => {
           padding: '3px 10px',
           borderRadius: 'var(--radius-pill)',
           background: 'var(--apple-blue-tint)',
-          fontSize: '11px',
+          fontSize: '15px',
           fontWeight: 700,
           color: 'var(--apple-blue)',
           textTransform: 'uppercase'
@@ -200,7 +188,7 @@ export const Semana5WordSearch: React.FC = () => {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '4px',
-          fontSize: '12px',
+          fontSize: '14px',
           fontWeight: 600,
           color: 'var(--text-secondary)'
         }}>
@@ -210,7 +198,7 @@ export const Semana5WordSearch: React.FC = () => {
       </div>
 
       {/* Sopa de Letras Mobile Grid */}
-      <div 
+      <div
         className="ios-card"
         style={{
           padding: '8px',
@@ -223,15 +211,17 @@ export const Semana5WordSearch: React.FC = () => {
           marginBottom: '12px'
         }}
         onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
+        onPointerUp={e => { e.preventDefault(); handlePointerMove(e); handlePointerUp(e); }}
+        onPointerCancel={() => { gesture.current = null; clearPreview(); }}
       >
-        <div 
+        <div
           ref={gridContainerRef}
+          onLostPointerCapture={() => { gesture.current = null; clearPreview(); }}
           style={{
             display: 'grid',
-            gridTemplateRows: `repeat(${gridSize}, 20px)`,
-            gridTemplateColumns: `repeat(${gridSize}, 20px)`,
+            width: '100%',
+            gridTemplateRows: `repeat(${gridSize}, auto)`,
+            gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
             gap: '1px',
             background: 'var(--surface-secondary)',
             padding: '4px',
@@ -241,16 +231,12 @@ export const Semana5WordSearch: React.FC = () => {
           {board.grid.map((row, r) =>
             row.map((letter, c) => {
               const key = `${r}-${c}`;
-              const isSelected = activeSelectionPath.some((pt) => pt.r === r && pt.c === c);
               const isFound = foundCellColorMap[key];
 
               let bg = '#FFFFFF';
               let color = 'var(--text-primary)';
 
-              if (isSelected) {
-                bg = 'var(--apple-blue)';
-                color = '#FFFFFF';
-              } else if (isFound) {
+              if (isFound) {
                 bg = 'var(--apple-green-tint)';
                 color = 'var(--apple-green)';
               }
@@ -263,15 +249,15 @@ export const Semana5WordSearch: React.FC = () => {
                   data-c={c}
                   onPointerDown={(e) => handlePointerDown(r, c, e)}
                   style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '100%',
+                    aspectRatio: '1',
                     borderRadius: '3px',
                     background: bg,
                     color,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '11.5px',
+                    fontSize: '14px',
                     fontWeight: 700,
                     cursor: 'pointer'
                   }}
@@ -284,6 +270,7 @@ export const Semana5WordSearch: React.FC = () => {
         </div>
       </div>
 
+      <p role="status">{feedback}</p>
       {/* Reset Button */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
         <button
@@ -292,7 +279,7 @@ export const Semana5WordSearch: React.FC = () => {
             initGame();
           }}
           className="ios-button ios-button-secondary"
-          style={{ width: '100%', padding: '10px', fontSize: '13px' }}
+          style={{ width: '100%', padding: '10px', fontSize: '15px' }}
         >
           <RotateCcw size={14} />
           <span>Nueva partida</span>
@@ -302,7 +289,7 @@ export const Semana5WordSearch: React.FC = () => {
       {/* Words Checklist */}
       <div className="ios-card" style={{ padding: '14px 12px' }}>
         <div style={{
-          fontSize: '11px',
+          fontSize: '15px',
           fontWeight: 700,
           color: 'var(--text-secondary)',
           textTransform: 'uppercase',
@@ -326,7 +313,7 @@ export const Semana5WordSearch: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  fontSize: '11px',
+                  fontSize: '15px',
                   fontWeight: 600,
                   color: isFound ? 'var(--apple-green)' : 'var(--text-secondary)',
                   textDecoration: isFound ? 'line-through' : 'none',

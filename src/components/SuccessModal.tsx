@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { CheckCircle2, RotateCcw, ArrowRight, Home } from 'lucide-react';
 import { sound } from '../utils/sound';
@@ -22,18 +22,23 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   onRetry
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const mode = new URLSearchParams(location.search).get('modo') === 'actividad' ? '?modo=actividad' : '';
+  const retryTouch = useRef<{ x: number; y: number; pointer: number } | null>(null);
+  const retryHandled = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       sound.fanfare();
-      localStorage.setItem(`week_${weekNumber}_completed`, 'true');
+      try { localStorage.setItem(`week_${weekNumber}_completed`, 'true'); } catch { /* Completion still works without storage. */ }
 
       try {
         confetti({
           particleCount: 50,
           spread: 60,
           origin: { y: 0.65 },
-          colors: ['#007AFF', '#34C759', '#5856D6', '#FF9500']
+          disableForReducedMotion: true,
+          colors: ['#007AFF', '#5856D6', '#FF9500']
         });
       } catch {
         // Safe fallback
@@ -46,7 +51,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   const nextWeek = weekNumber < 5 ? weekNumber + 1 : null;
 
   return (
-    <div style={{
+    <div role="dialog" aria-modal="true" aria-label={title} style={{
       position: 'fixed',
       inset: 0,
       zIndex: 999,
@@ -54,9 +59,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
       alignItems: 'flex-end',
       justifyContent: 'center',
       background: 'rgba(0, 0, 0, 0.4)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      animation: 'fadeIn 0.2s ease-out'
+      animation: 'fadeIn 220ms var(--ease-ios)'
     }}>
       <div
         className="ios-card ios-animate-enter"
@@ -138,7 +141,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             <button
               onClick={() => {
                 sound.click();
-                navigate(`/semana/${nextWeek}`);
+                navigate(`/semana/${nextWeek}${mode}`);
               }}
               className="ios-button ios-button-primary"
               style={{ width: '100%', padding: '14px', fontSize: '15px' }}
@@ -162,7 +165,21 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
+              onPointerDown={event => {
+                retryHandled.current = false;
+                if (event.pointerType === 'touch') retryTouch.current = { x: event.clientX, y: event.clientY, pointer: event.pointerId };
+              }}
+              onPointerCancel={() => { retryTouch.current = null; }}
+              onPointerUp={event => {
+                const start = retryTouch.current;
+                retryTouch.current = null;
+                if (!start || start.pointer !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) return;
+                event.preventDefault();
+                retryHandled.current = true;
+                sound.click(); onRetry();
+              }}
               onClick={() => {
+                if (retryHandled.current) { retryHandled.current = false; return; }
                 sound.click();
                 onRetry();
               }}

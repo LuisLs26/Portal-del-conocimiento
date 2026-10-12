@@ -11,7 +11,7 @@ export default defineConfig({
       name: 'dev-html-rewrite',
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          if (req.url === '/' || req.url === '/index.html') {
+          if (/^\/(?:index\.html|qr|semana\/[1-5])?(?:\?.*)?$/.test(req.url || '/')) {
             req.url = '/index.source.html'
           }
           next()

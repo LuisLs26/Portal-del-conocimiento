@@ -4,9 +4,9 @@
   --surface: #FFFFFF;
   --surface-secondary: #F2F2F7;
   --surface-tertiary: #E5E5EA;
-  
+
   --text-primary: #1D1D1F;
-  --text-secondary: #86868B;
+  --text-secondary: #64646B;
   --text-tertiary: #AEAEB2;
 
   --apple-blue: #007AFF;
@@ -41,7 +41,7 @@
 
   /* Spring Physics & Timing */
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
-  --ease-ios: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-ios: cubic-bezier(0.23, 1, 0.32, 1);
   --dur-touch: 120ms;
   --dur-nav: 220ms;
 }
@@ -185,3 +185,45 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+.game { padding: 24px 20px 80px; }
+.matching-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.match { display: block; width: 100%; min-height: 84px; margin-bottom: 12px; padding: 14px; border: 1px solid var(--separator); border-radius: 12px; background: white; text-align: left; font: inherit; font-size: 15px; line-height: 1.5; touch-action: manipulation; }
+.match.selected { background: var(--apple-blue-tint); border-color: var(--apple-blue); }
+.match:disabled { color: var(--apple-blue); background: var(--apple-blue-tint); opacity: 1; }
+button:disabled { cursor: default; }
+.ios-button:disabled { opacity: .5; }
+button:focus-visible { outline: 2px solid var(--apple-blue); outline-offset: 2px; }
+
+.word-preview { background: var(--apple-blue) !important; color: white !important; }
+.game-progress { display: grid; gap: 6px; margin-bottom: 12px; color: var(--text-secondary); font-size: 12px; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.progress-track { height: 6px; overflow: hidden; background: var(--surface-tertiary); border-radius: 8px; }
+.progress-fill { height: 100%; background: var(--apple-blue); transform-origin: left; transition: transform var(--dur-nav) var(--ease-ios); }
+.activity-mode { max-width: none; min-height: 100dvh; }
+.activity-mode main { min-height: 100dvh; padding-bottom: 66px; max-width: 440px; margin: 0 auto; }
+.activity-controls { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: white; box-shadow: var(--shadow-card); z-index: 101; }
+.activity-controls button { padding: 0; width: 44px; height: 44px; color: var(--apple-blue); background: var(--surface-secondary); }
+.match { transition: transform var(--dur-touch) var(--ease-ios); }
+.match:active:not(:disabled) { transform: scale(.97); }
+.inserted-term { display: inline-block; opacity: 1; transform: translateY(0); transition: transform 140ms var(--ease-ios), opacity 140ms var(--ease-ios); }
+@starting-style { .inserted-term { opacity: 0; transform: translateY(4px); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .ios-animate-enter { animation: fadeIn 120ms ease; }
+  .ios-button:active, .match:active:not(:disabled), .inserted-term { transform: none; }
+  .progress-fill { transition: none; }
+}
+
+.game-heading { margin-bottom: 22px; }
+.game-heading h1 { font-size: 26px; line-height: 1.2; letter-spacing: -.6px; font-weight: 700; }
+.game-heading p, .game-hint { margin-top: 10px; font-size: 16px; line-height: 1.5; color: var(--text-secondary); }
+.game > p { font-size: 15px; line-height: 1.5; margin-bottom: 16px; }
+.game-details { margin: 16px 0; border-radius: 16px; background: white; border: 1px solid var(--separator); }
+.game-details summary { padding: 16px; min-height: 52px; font-size: 15px; font-weight: 600; color: var(--apple-blue); cursor: pointer; }
+.game-details > .ios-card { border: 0; box-shadow: none; }
+.active-word-strip { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 18px; padding: 4px 0; position: relative; scroll-padding: 4px; }
+.active-word-strip button { flex: 0 0 40px; height: 46px; border: 1px solid var(--separator-dark); border-radius: 10px; background: white; color: var(--text-primary); font-size: 22px; font-weight: 600; touch-action: manipulation; }
+.active-word-strip button.selected { background: var(--apple-blue-tint); border: 2px solid var(--apple-blue); color: var(--apple-blue); }
+.crossword-input:focus { outline: 2px solid var(--apple-blue); outline-offset: 2px; }

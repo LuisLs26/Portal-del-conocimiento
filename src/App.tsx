@@ -1,5 +1,6 @@
+import { ActivityMode } from './components/ActivityMode';
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 
 // Code-splitting with lazy loading for extreme mobile speed
@@ -35,11 +36,12 @@ const LoadingFallback = () => (
   </div>
 );
 
-export const App: React.FC = () => {
+const AppShell: React.FC = () => {
+  const location = useLocation();
+  const immersive = /^\/semana\/[1-5]$/.test(location.pathname);
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        <Header />
+      <div className={`app-container ${immersive ? 'activity-mode' : ''}`}>
+        {immersive ? <ActivityMode /> : <Header />}
         
         <main style={{ flex: 1, width: '100%' }}>
           <Suspense fallback={<LoadingFallback />}>
@@ -63,8 +65,8 @@ export const App: React.FC = () => {
           </Suspense>
         </main>
       </div>
-    </BrowserRouter>
   );
 };
 
+export const App = () => <BrowserRouter><AppShell /></BrowserRouter>;
 export default App;

@@ -1,13 +1,15 @@
+import { GameHeading } from '../components/GameHeading';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  CROSSWORD_ITEMS, 
-  CROSSWORD_ROWS, 
-  CROSSWORD_COLS, 
+import {
+  CROSSWORD_ITEMS,
+  CROSSWORD_ROWS,
+  CROSSWORD_COLS,
   type CrosswordItem,
-  normalizeLetter 
+  normalizeLetter
 } from '../data/crosswordData';
 import { SuccessModal } from '../components/SuccessModal';
 import { sound } from '../utils/sound';
+import { GameProgress } from '../components/GameProgress';
 import { Check, RotateCcw, Eraser, Delete } from 'lucide-react';
 
 interface CellPos {
@@ -20,9 +22,9 @@ export const Semana1Crossword: React.FC = () => {
     Array(CROSSWORD_ROWS).fill(null).map(() => Array(CROSSWORD_COLS).fill(''))
   );
 
-  const [selectedCell, setSelectedCell] = useState<CellPos>({ r: 0, c: 3 });
-  const [activeDirection, setActiveDirection] = useState<'H' | 'V'>('H');
-  const [activeClueId, setActiveClueId] = useState<number>(6); // COEVALUACION
+  const [selectedCell, setSelectedCell] = useState<CellPos>({ r: CROSSWORD_ITEMS[0].row, c: CROSSWORD_ITEMS[0].col });
+  const [activeDirection, setActiveDirection] = useState<'H' | 'V'>(CROSSWORD_ITEMS[0].direction);
+  const [activeClueId, setActiveClueId] = useState<number>(CROSSWORD_ITEMS[0].id); // COEVALUACION
 
   const [checkedResults, setCheckedResults] = useState<{ [key: string]: boolean } | null>(null);
   const [completedWords, setCompletedWords] = useState<number[]>([]);
@@ -36,7 +38,7 @@ export const Semana1Crossword: React.FC = () => {
     };
   }>({});
 
-  useEffect(() => {
+  React.useMemo(() => {
     const map: typeof cellMap.current = {};
     CROSSWORD_ITEMS.forEach((item) => {
       for (let i = 0; i < item.word.length; i++) {
@@ -118,6 +120,7 @@ export const Semana1Crossword: React.FC = () => {
     });
 
     setCheckedResults(null);
+    setCompletedWords([]);
     advanceCursor(r, c, activeDirection);
   }, [selectedCell, activeDirection, advanceCursor]);
 
@@ -133,6 +136,7 @@ export const Semana1Crossword: React.FC = () => {
         return next;
       });
       setCheckedResults(null);
+      setCompletedWords([]);
     } else {
       retreatCursor(r, c, activeDirection);
     }
@@ -246,6 +250,7 @@ export const Semana1Crossword: React.FC = () => {
       return next;
     });
     setCheckedResults(null);
+    setCompletedWords([]);
   };
 
   const handleResetAll = () => {
@@ -253,8 +258,9 @@ export const Semana1Crossword: React.FC = () => {
     setUserGrid(Array(CROSSWORD_ROWS).fill(null).map(() => Array(CROSSWORD_COLS).fill('')));
     setCheckedResults(null);
     setCompletedWords([]);
-    setSelectedCell({ r: 0, c: 3 });
-    setActiveDirection('H');
+    setSelectedCell({ r: CROSSWORD_ITEMS[0].row, c: CROSSWORD_ITEMS[0].col });
+    setActiveDirection(CROSSWORD_ITEMS[0].direction);
+    setActiveClueId(CROSSWORD_ITEMS[0].id);
     setIsSuccessOpen(false);
   };
 
@@ -271,6 +277,15 @@ export const Semana1Crossword: React.FC = () => {
     return set;
   }, [activeClueId]);
 
+  const nativeInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const active = document.querySelector(`[data-word-position="${selectedCell.r}-${selectedCell.c}"]`) as HTMLElement | null;
+    const strip = active?.parentElement;
+    if (active && strip) {
+      if (active.offsetLeft < strip.scrollLeft) strip.scrollLeft = active.offsetLeft;
+      else if (active.offsetLeft + active.offsetWidth > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = active.offsetLeft + active.offsetWidth - strip.clientWidth;
+    }
+  }, [selectedCell]);
   const VIRTUAL_KEYS = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
@@ -280,10 +295,13 @@ export const Semana1Crossword: React.FC = () => {
   const activeClueObj = CROSSWORD_ITEMS.find((it) => it.id === activeClueId);
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '12px 10px 40px' }}>
+    <div className="ios-animate-enter" style={{ padding: '24px 16px 80px' }}>
+      <GameHeading title="Crucigrama" />
+      <GameProgress value={completedWords.length} total={9} label="Palabras correctas" />
+      {checkedResults && <p role="status">{completedWords.length === 9 ? '¡Crucigrama completo!' : 'Revisa las casillas señaladas y vuelve a comprobar.'}</p>}
       {/* Active Clue Bar (Pinned at top of activity) */}
       {activeClueObj && (
-        <div 
+        <div
           className="ios-card"
           style={{
             padding: '12px 14px',
@@ -302,7 +320,7 @@ export const Semana1Crossword: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '13px',
+            fontSize: '16px',
             fontWeight: 700,
             flexShrink: 0
           }}>
@@ -312,15 +330,23 @@ export const Semana1Crossword: React.FC = () => {
             <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--apple-blue)', textTransform: 'uppercase' }}>
               {activeDirection === 'H' ? 'Horizontal' : 'Vertical'}
             </span>
-            <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.35 }}>
+            <div style={{ fontSize: '16px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
               {activeClueObj.clue}
             </div>
           </div>
         </div>
       )}
 
+      {activeClueObj && <div className="active-word-strip" aria-label="Palabra seleccionada">
+        {Array.from(activeClueObj.word).map((_, index) => {
+          const r = activeClueObj.row + (activeClueObj.direction === 'V' ? index : 0);
+          const c = activeClueObj.col + (activeClueObj.direction === 'H' ? index : 0);
+          const selected = r === selectedCell.r && c === selectedCell.c;
+          return <button key={index} className={selected ? 'selected' : ''} aria-label={`Letra ${index + 1} de la palabra`} data-word-position={`${r}-${c}`} onClick={() => { setSelectedCell({ r, c }); nativeInput.current?.focus({ preventScroll: true }); }}>{userGrid[r][c]}</button>;
+        })}
+      </div>}
       {/* Crossword Mobile Grid Container */}
-      <div 
+      <div
         className="ios-card"
         style={{
           padding: '10px',
@@ -334,8 +360,9 @@ export const Semana1Crossword: React.FC = () => {
       >
         <div style={{
           display: 'grid',
-          gridTemplateRows: `repeat(${CROSSWORD_ROWS}, 21px)`,
-          gridTemplateColumns: `repeat(${CROSSWORD_COLS}, 21px)`,
+          width: '100%',
+          gridTemplateRows: `repeat(${CROSSWORD_ROWS}, auto)`,
+          gridTemplateColumns: `repeat(${CROSSWORD_COLS}, minmax(0, 1fr))`,
           gap: '1px',
           background: 'var(--surface-secondary)',
           padding: '4px',
@@ -358,8 +385,8 @@ export const Semana1Crossword: React.FC = () => {
                   <div
                     key={key}
                     style={{
-                      width: '21px',
-                      height: '21px',
+                      width: '100%',
+                      aspectRatio: '1',
                       background: 'var(--surface-tertiary)',
                       borderRadius: '2px'
                     }}
@@ -387,17 +414,18 @@ export const Semana1Crossword: React.FC = () => {
               return (
                 <div
                   key={key}
-                  onClick={() => handleCellClick(r, c)}
+                  data-cross-cell={key}
+                  onClick={() => { handleCellClick(r, c); nativeInput.current?.focus({ preventScroll: true }); }}
                   style={{
-                    width: '21px',
-                    height: '21px',
+                    width: '100%',
+                    aspectRatio: '1',
                     position: 'relative',
                     background: bg,
                     borderRadius: '3px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
+                    fontSize: '14px',
                     fontWeight: 700,
                     color: textColor,
                     cursor: 'pointer',
@@ -410,7 +438,7 @@ export const Semana1Crossword: React.FC = () => {
                       position: 'absolute',
                       top: '1px',
                       left: '1px',
-                      fontSize: '6.5px',
+                      fontSize: '8px',
                       fontWeight: 700,
                       lineHeight: 1,
                       color: isSelected ? '#FFFFFF' : 'var(--text-secondary)'
@@ -426,12 +454,13 @@ export const Semana1Crossword: React.FC = () => {
         </div>
       </div>
 
+      <input className="crossword-input" ref={nativeInput} aria-label="Letra del crucigrama" autoComplete="off" autoCapitalize="characters" value="" style={{ width: '100%', fontSize: 16, padding: '10px 12px', border: '1px solid var(--separator)', borderRadius: 12, background: 'white', marginBottom: 10 }} placeholder="Toca una casilla y escribe aquí" onChange={e => { for (const letter of e.target.value.slice(-1)) handleInputLetter(letter); }} onKeyDown={e => { if (e.key === 'Backspace') { e.preventDefault(); handleBackspace(); } }} />
       {/* Action Buttons Row */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
         <button
           onClick={handleCheck}
           className="ios-button ios-button-primary"
-          style={{ flex: 2, padding: '10px 14px', fontSize: '13.5px' }}
+          style={{ flex: 2, padding: '10px 14px', fontSize: '15px' }}
         >
           <Check size={16} strokeWidth={2.5} />
           <span>Comprobar</span>
@@ -440,7 +469,7 @@ export const Semana1Crossword: React.FC = () => {
         <button
           onClick={handleClearCurrentWord}
           className="ios-button ios-button-secondary"
-          style={{ flex: 1, padding: '10px 8px', fontSize: '13px' }}
+          style={{ flex: 1, padding: '10px 8px', fontSize: '16px' }}
           title="Borrar palabra activa"
         >
           <Eraser size={14} />
@@ -457,8 +486,9 @@ export const Semana1Crossword: React.FC = () => {
         </button>
       </div>
 
+      <details className="game-details"><summary>Teclado en pantalla</summary>
       {/* iOS Mobile Virtual Keyboard */}
-      <div 
+      <div
         style={{
           background: 'var(--surface-secondary)',
           borderRadius: 'var(--radius-md)',
@@ -513,10 +543,12 @@ export const Semana1Crossword: React.FC = () => {
         </div>
       </div>
 
+      </details>
+      <details className="game-details" data-clues><summary>Todas las pistas ({completedWords.length}/9 completadas)</summary>
       {/* Clean Clue List in Apple List Style */}
       <div className="ios-card" style={{ padding: '16px 14px' }}>
         <div style={{
-          fontSize: '12px',
+          fontSize: '14px',
           fontWeight: 700,
           color: 'var(--text-secondary)',
           textTransform: 'uppercase',
@@ -547,17 +579,17 @@ export const Semana1Crossword: React.FC = () => {
                 }}
               >
                 <span style={{
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: 700,
                   color: isActive ? 'var(--apple-blue)' : 'var(--text-secondary)'
                 }}>
                   {item.number}.
                 </span>
                 <span style={{
-                  fontSize: '12.5px',
+                  fontSize: '15px',
                   color: isDone ? 'var(--apple-green)' : 'var(--text-primary)',
                   textDecoration: isDone ? 'line-through' : 'none',
-                  lineHeight: 1.35
+                  lineHeight: 1.5
                 }}>
                   {item.clue}
                 </span>
@@ -567,6 +599,7 @@ export const Semana1Crossword: React.FC = () => {
         </div>
       </div>
 
+      </details>
       {/* Success Modal */}
       <SuccessModal
         isOpen={isSuccessOpen}

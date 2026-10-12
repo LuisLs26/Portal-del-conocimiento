@@ -1,3 +1,4 @@
+import { shuffle } from './gameRules';
 export interface WordItem {
   id: number;
   word: string; // uppercase without accents for grid
@@ -52,6 +53,7 @@ export function generateWordSearchGrid(size = 16): {
   grid: string[][];
   placedWords: PlacedWord[];
 } {
+  if (size < 13) throw new Error('El tablero debe medir al menos 13 casillas.');
   const directions = [
     [0, 1],   // H derecha
     [0, -1],  // H izquierda
@@ -71,7 +73,7 @@ export function generateWordSearchGrid(size = 16): {
     let allPlaced = true;
 
     // Order words randomly to vary layout
-    const wordsToPlace = [...WORD_SEARCH_WORDS].sort(() => Math.random() - 0.5);
+    const wordsToPlace = shuffle(WORD_SEARCH_WORDS);
 
     for (let wIndex = 0; wIndex < wordsToPlace.length; wIndex++) {
       const item = wordsToPlace[wIndex];
@@ -87,9 +89,9 @@ export function generateWordSearchGrid(size = 16): {
           }
         }
       }
-      spots.sort(() => Math.random() - 0.5);
+      const shuffledSpots = shuffle(spots);
 
-      for (const { r, c, d } of spots) {
+      for (const { r, c, d } of shuffledSpots) {
         const er = r + d[0] * (w.length - 1);
         const ec = c + d[1] * (w.length - 1);
         if (er < 0 || er >= size || ec < 0 || ec >= size) continue;
@@ -150,5 +152,10 @@ export function generateWordSearchGrid(size = 16): {
   }
 
   // Fallback (safe guarantee)
-  return generateWordSearchGrid(size);
+  const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => SPANISH_FREQUENT_LETTERS[Math.floor(Math.random() * SPANISH_FREQUENT_LETTERS.length)]));
+  const placedWords = WORD_SEARCH_WORDS.map((item, r) => {
+    const path = Array.from(item.word, (letter, c) => { grid[r][c] = letter; return { r, c }; });
+    return { ...item, startR: r, startC: 0, endR: r, endC: item.word.length - 1, path, color: HIGHLIGHT_COLORS[r] };
+  });
+  return { grid, placedWords };
 }

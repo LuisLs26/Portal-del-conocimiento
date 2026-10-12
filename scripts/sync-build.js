@@ -30,6 +30,12 @@ if (fs.existsSync(distAssets)) {
     fs.mkdirSync(rootAssets, { recursive: true });
   }
   const files = fs.readdirSync(distAssets);
+  // Remove obsolete generated chunks, leaving other assets intact.
+  for (const file of fs.readdirSync(rootAssets)) {
+    if (/\.(js|css)$/.test(file) && !files.includes(file)) {
+      fs.unlinkSync(path.join(rootAssets, file));
+    }
+  }
   for (const file of files) {
     fs.copyFileSync(path.join(distAssets, file), path.join(rootAssets, file));
   }
