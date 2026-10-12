@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode';
-import { Flag, Trophy, Users, Copy, Check, Dice5, Sparkles } from 'lucide-react';
+import { Flag, Trophy, Users, Copy, Check, Dice5 } from 'lucide-react';
 import { enterRace, forget, remember, savedSession, useRace } from '../maraton/client';
 import { FINISH, MAX_PLAYERS, tileKind } from '../maraton/protocol';
 import type { PublicPlayer, Session } from '../maraton/protocol';
@@ -64,25 +64,25 @@ export function Maraton() {
   const room = state?.room, you = state?.you, self = room?.players.find(p => p.id === session?.id);
   if (room && session && room.phase !== 'lobby') return <RaceArena room={room} you={you || null} session={session} connection={connection} busy={busy} error={error} send={send} leave={leave} />;
   return <div className="maraton">
-    <div className="race-intro"><span className="race-eyebrow"><Sparkles size={15} /> Una clase. Una gran carrera.</span><h1>Maratón<span>del conocimiento</span></h1><p>Lanza el dado, supera retos del libro y llega a la meta con tu clase.</p></div>
+    <div className="race-intro"><h1>Maratón<span>del conocimiento</span></h1></div>
     {!session ? <>
-      <div className="race-entry race-card"><h2>¡Únete a la carrera!</h2><p>Escanea el QR de tu docente y escribe tu nombre.</p>
+      <div className="race-entry race-card"><h2>Tu nombre para jugar</h2>
         <form onSubmit={e => { e.preventDefault(); void enter(); }}>
           <label htmlFor="race-name">Tu nombre</label><input id="race-name" autoComplete="given-name" maxLength={24} value={name} onChange={e => setName(e.target.value)} placeholder="Por ejemplo, Ana Torres" required />
           {!code && <><label htmlFor="race-code">Código de sala</label><input id="race-code" value={roomInput} onChange={e => setRoomInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,''))} maxLength={8} placeholder="Código del docente" autoCapitalize="characters" required /></>}
           {code && <span className="race-room-tag">Sala {code}</span>}
-          <button className="race-primary" disabled={joining}>{joining ? 'Entrando…' : 'Entrar con mi nombre'} <Flag size={18} /></button>
+          <button className="race-primary" disabled={joining}>{joining ? 'Entrando…' : 'Entrar'} <Flag size={18} /></button>
         </form><p role="alert" className="race-error">{entryError}</p>
       </div>
-      <details className="race-teacher race-card"><summary>Soy docente · organizar una carrera</summary><p>Crea una sala para hasta {MAX_PLAYERS} estudiantes. Comparte su QR y da la salida cuando estén listos.</p><button className="race-secondary" disabled={joining} onClick={() => void enter(true)}>Crear sala de Maratón</button></details>
-      <Rules />
+      <details className="race-teacher race-card"><summary>Soy docente</summary><button className="race-secondary" disabled={joining} onClick={() => void enter(true)}>Crear sala</button></details>
+
     </> : <>
       <div className={`race-connection ${connection}`} role="status">{connection === 'live' ? '● Conectado en vivo' : connection === 'connecting' ? 'Conectando con la clase…' : connection === 'offline' ? 'Reconectando… tu avance está guardado.' : 'La conexión a la sala terminó.'}</div>
       {(error || entryError) && <p role="alert" className="race-error">{error || entryError}</p>}
       {!room && <p>Preparando tu carrera…</p>}
       {room && <>
         <div className="race-summary"><span><Users size={17} /> {room.players.length}/{MAX_PLAYERS}</span><strong>{room.phase === 'lobby' ? `Sala ${room.code}` : room.phase === 'finished' ? 'Carrera terminada' : `Ronda ${room.round}`}</strong></div>
-        {room.phase === 'lobby' && <div className="race-card race-lobby"><h2>{session.role === 'host' ? 'Reúne a tu clase' : `¡Estás dentro, ${self?.name || session.name}!`}</h2><p>{session.role === 'host' ? 'Este QR lleva a tu sala. Cada estudiante solo escribe su nombre.' : 'La carrera comienza cuando el docente da la salida.'}</p>
+        {room.phase === 'lobby' && <div className="race-card race-lobby"><h2>{session.role === 'host' ? 'Invita a tu clase' : `¡Estás dentro, ${self?.name || session.name}!`}</h2><p>{session.role === 'host' ? 'Comparte este QR.' : 'El docente dará la salida.'}</p>
           {session.role === 'host' && <>{qr && <img src={qr} alt={`QR para unirse a la sala ${room.code}`} className="race-qr" />}<strong className="race-code">{room.code}</strong><button className="race-secondary" onClick={async () => { try { await navigator.clipboard.writeText(shareUrl); setCopied(true); } catch { setEntryError('No se pudo copiar el enlace.'); } }}>{copied ? <Check size={17} /> : <Copy size={17} />}{copied ? 'Enlace copiado' : 'Copiar invitación'}</button><button className="race-primary" disabled={!room.players.length || busy || connection !== 'live'} onClick={() => { sound.pop(); send('start'); }}>Dar la salida <Flag size={18} /></button></>}
         </div>}
         {room.phase !== 'lobby' && <>
@@ -99,9 +99,8 @@ export function Maraton() {
         {session.role === 'host' && room.phase === 'playing' && <button className="race-secondary" disabled={busy || connection !== 'live'} onClick={() => { if (window.confirm('¿Finalizar la carrera y conservar el ranking actual?')) send('finish'); }}>Finalizar carrera</button>}
         {session.role === 'host' && room.phase === 'finished' && <button className="race-primary" disabled={busy || connection !== 'live'} onClick={() => send('reset')}>Organizar otra carrera</button>}
       </>}
-      <button className="race-exit" onClick={leave}>Salir de esta sala</button><Rules />
+      <button className="race-exit" onClick={leave}>Salir de esta sala</button>
     </>}
   </div>;
 }
 function locationOrigin() { return window.location.origin; }
-function Rules() { return <details className="race-rules race-card"><summary>Cómo se juega</summary><ol><li>El docente da la salida. Cada estudiante juega a su ritmo, sin esperar a la clase.</li><li>Lanza el dado y avanza de 1 a 6 casillas.</li><li>En ❔ o ⭐ responde una pregunta del libro. Puedes cambiar tu elección antes de comprobar.</li><li>Si aciertas, conservas tu avance; en ⭐ ganas 2 casillas más. Si fallas o dejas una pregunta sin responder, retrocedes 2.</li><li>No hay cuenta regresiva ni espera entre turnos.</li><li>Para cruzar la meta debes responder correctamente su pregunta. El orden de llegada decide los primeros puestos; mientras avanzas, los aciertos desempatan.</li></ol></details>; }

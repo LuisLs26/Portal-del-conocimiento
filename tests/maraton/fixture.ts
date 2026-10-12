@@ -12,7 +12,7 @@ export async function raceServer(port = 0) {
     const data = new Map<string, unknown>(), sockets: any[] = [];
     let alarm: ReturnType<typeof setTimeout> | null = null;
     const ctx: any = {
-      storage: { get:async(key:string)=>data.get(key), put:async(key:string,value:unknown)=>{ data.set(key,structuredClone(value)); }, deleteAll:async()=>{data.clear();}, setAlarm:async(at:number)=>{ if(alarm)clearTimeout(alarm); alarm=setTimeout(()=>void entry.actor.alarm(),Math.max(1,at-Date.now())); alarm.unref(); } },
+      storage: { get:async(key:string)=>data.get(key), put:async(key:string,value:unknown)=>{ data.set(key,structuredClone(value)); }, deleteAll:async()=>{data.clear();}, setAlarm:async(at:number)=>{ if(!Number.isFinite(at)||at<=0)throw Error('Alarm must be a positive timestamp'); if(alarm)clearTimeout(alarm); alarm=setTimeout(()=>void entry.actor.alarm(),Math.max(1,at-Date.now())); alarm.unref(); } },
       blockConcurrencyWhile:(fn:()=>Promise<void>)=>{ctx.ready=fn();return ctx.ready;},
       setWebSocketAutoResponse:()=>{}, getWebSockets:()=>sockets.filter(s=>s.ws.readyState===WebSocket.OPEN), acceptWebSocket:()=>{},
     };

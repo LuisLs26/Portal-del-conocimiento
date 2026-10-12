@@ -5,8 +5,8 @@ test('Maratón: QR de sala, nombre, dado, pregunta, ranking y diseño móvil', a
   await page.goto('/maraton');
   await expect(page.getByRole('heading',{name:/Maratón.*del conocimiento/})).toBeVisible();
   await expect(page.getByRole('button',{name:/Silenciar|Activar sonido|Salir de la actividad/})).toHaveCount(0);
-  await page.getByText('Soy docente · organizar una carrera').tap();
-  await page.getByRole('button',{name:'Crear sala de Maratón'}).tap();
+  await page.getByText('Soy docente').tap();
+  await page.getByRole('button',{name:'Crear sala'}).tap();
   await expect(page.locator('.race-code')).toBeVisible();
   const code=(await page.locator('.race-code').textContent())!;
   await expect(page.locator('.race-qr')).toBeVisible();
@@ -14,7 +14,7 @@ test('Maratón: QR de sala, nombre, dado, pregunta, ranking y diseño móvil', a
   await student.goto(`/maraton?sala=${code}`);
   await student.getByRole('textbox',{name:'Tu nombre'}).fill('Ana Torres');
   await expect(student.getByRole('textbox',{name:'Código de sala'})).toHaveCount(0);
-  await student.getByRole('button',{name:'Entrar con mi nombre'}).tap();
+  await student.getByRole('button',{name:'Entrar'}).tap();
   await expect(page.getByText('Ana Torres',{exact:true})).toBeVisible();
   await Promise.all(Array.from({length:29},(_,i)=>context.request.post(`/api/maraton/rooms/${code}/join`,{data:{name:`Alumno ${i+2}`}})));
   await page.getByRole('button',{name:'Dar la salida'}).tap();

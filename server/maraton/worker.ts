@@ -18,7 +18,7 @@ export class MaratonRoom {
   private async save() {
     if (!this.room) return;
     await this.ctx.storage.put('room', this.room);
-    await this.ctx.storage.setAlarm(this.room.phase === 'playing' ? this.room.deadline : this.room.expires);
+    await this.ctx.storage.setAlarm(this.room.expires);
   }
   private online() {
     return new Set(this.ctx.getWebSockets().map(ws => (ws.deserializeAttachment() as Attachment)?.id).filter((id): id is string => !!id));
