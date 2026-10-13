@@ -29,7 +29,14 @@ test('Maratón: QR de sala, nombre, dado, pregunta, ranking y diseño móvil', a
   await student.screenshot({path:test.info().outputPath('maraton-movil.png'),fullPage:true});
   let answered=false;
   for(let i=0;i<8&&!answered;i++){
+    const before=await student.locator('.own-pawn').getAttribute('data-position');
     await student.getByRole('button',{name:'LANZAR DADO'}).tap();
+    await expect(student.locator('.arena-screen')).toHaveAttribute('data-stage','result');
+    await expect(student.locator('.arena-dice-result')).toContainText(/Salió [1-6]/);
+    await expect(student.locator('.own-pawn')).toHaveAttribute('data-position',before!);
+    await expect(student.locator('.arena-question')).toHaveCount(0);
+    await expect(student.locator('.arena-screen')).toHaveAttribute('data-stage','moving');
+    await expect(student.locator('.arena-question')).toHaveCount(0);
     await expect.poll(()=>student.locator('.arena-question').count().then(count=>count||student.getByRole('button',{name:'LANZAR DADO'}).isEnabled())).toBeTruthy();
     if(await student.locator('.arena-question').count()){
       const text=await student.locator('.arena-question h2').textContent();

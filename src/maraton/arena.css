@@ -52,3 +52,14 @@
 .arena-center .arena-roll{flex-shrink:0}
 .host-screen .arena-center{left:46%;right:15%;flex-direction:column;gap:3px}
 @media(max-height:420px),(orientation:portrait){.arena-center{gap:9px}.arena-center-hint,.arena-key{display:none}.arena-center .arena-dice{transform:scale(.75)}.arena-roll{padding:8px 14px!important}.host-screen .arena-center{gap:0}.host-screen .arena-host>span{display:none}}
+
+/* The resting face stays square to the camera, with a readable numeric result. */
+.dice-cube[data-value="1"]{transform:rotateX(0deg) rotateY(0deg)}
+.dice-cube[data-value="2"]{transform:rotateX(0deg) rotateY(-90deg)}
+.dice-cube[data-value="3"]{transform:rotateX(-90deg) rotateY(0deg)}
+.dice-cube[data-value="4"]{transform:rotateX(90deg) rotateY(0deg)}
+.dice-cube[data-value="5"]{transform:rotateX(0deg) rotateY(90deg)}
+.dice-cube[data-value="6"]{transform:rotateX(0deg) rotateY(180deg)}
+.arena-dice-result{position:absolute;bottom:-5px;left:0;font-size:12px;font-weight:850;color:#ffe16a}
+.arena-pawn{transition:transform 180ms var(--arena-ease)}
+@media(prefers-reduced-motion:reduce){.arena-pawn{transition:none}}
