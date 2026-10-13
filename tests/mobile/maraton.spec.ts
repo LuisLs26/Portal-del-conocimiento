@@ -46,6 +46,10 @@ test('Maratón: QR de sala, nombre, dado, pregunta, ranking y diseño móvil', a
       const correct=labels.findIndex(text=>text.includes(q.options[0]));
       await options.nth((correct+1)%4).tap();
       await options.nth(correct).tap();
+      await student.screenshot({path:test.info().outputPath('maraton-pregunta.png')});
+      const panel=await student.locator('.arena-question').boundingBox();
+      const overlay=await student.locator('.arena-overlay').boundingBox();
+      expect(panel!.y+panel!.height).toBeLessThanOrEqual(overlay!.y+overlay!.height);
       await student.getByRole('button',{name:'CONFIRMAR RESPUESTA'}).tap();
       await expect(student.getByRole('button',{name:'SEGUIR JUGANDO ➜'})).toBeVisible();
       await expect(page.getByText(/1 aciertos/)).toBeVisible();
