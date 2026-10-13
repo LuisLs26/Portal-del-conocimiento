@@ -17,7 +17,9 @@ it('31 conexiones reales: docente + 30 estudiantes, ranking compartido, autentic
   }
   const send=(client:typeof connections[number],type:string,extra:object={})=>client.ws.send(JSON.stringify({type,round:client.state!.room.round,requestId:crypto.randomUUID(),...extra}));
   try{
+    expect((await fetch(server.url+'/rooms/00000000/status')).status).toBe(404);
     const hostIdentity=(await post('/rooms')).data as Session,host=await connect(hostIdentity);
+    expect((await fetch(server.url+`/rooms/${hostIdentity.room}/status`)).status).toBe(200);
     const identities=await Promise.all(Array.from({length:30},async(_,i)=>(await post(`/rooms/${hostIdentity.room}/join`,{name:`Estudiante ${i+1}`})).data as Session));
     const clients=await Promise.all(identities.map(connect));
     expect((await post(`/rooms/${hostIdentity.room}/join`,{name:'Participante 31'})).status).toBe(400);

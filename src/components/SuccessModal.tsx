@@ -64,6 +64,8 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
         style={{
           width: '100%',
           maxWidth: '430px',
+          maxHeight: 'calc(100dvh - 16px)',
+          overflowY: 'auto',
           borderBottomLeftRadius: 0,
           borderBottomRightRadius: 0,
           borderTopLeftRadius: '24px',

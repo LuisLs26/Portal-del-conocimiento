@@ -235,3 +235,7 @@ button:focus-visible { outline: 2px solid var(--apple-blue); outline-offset: 2px
 .activity-card:nth-child(3n) .activity-badge svg{color:#986b00!important}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2463eb;outline-offset:3px}
 .match.selected{box-shadow:0 0 0 1px var(--apple-blue);background:#edf4ff}
+
+.matching-columns{align-items:stretch;gap:12px}
+.matching-columns>.match{margin:0;height:100%;min-height:88px;display:flex;align-items:center;font-size:14px;line-height:1.45;padding:13px;overflow-wrap:anywhere}
+.matching-feedback{min-height:28px;padding:4px 0;color:#315c9b;font-size:14px;line-height:1.4}

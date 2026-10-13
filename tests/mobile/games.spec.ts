@@ -64,6 +64,11 @@ test('cuestionario: cambiar selección, confirmar, bloquear, puntuar y revisar',
 });
 test('relacionar: error, cambiar concepto, diez parejas, reiniciar en ambas rondas', async ({ page }) => {
   await open(page, 3);
+  await expect(page.locator('.matching-columns > button')).toHaveCount(10);
+  const boxes=await page.locator('.matching-columns > button').evaluateAll(items=>items.map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom};}));
+  for(let i=0;i<10;i+=2){expect(Math.abs(boxes[i].top-boxes[i+1].top)).toBeLessThan(1);expect(Math.abs(boxes[i].bottom-boxes[i+1].bottom)).toBeLessThan(1);}
+  await page.screenshot({path:test.info().outputPath("relacionar-alineado.png"),fullPage:true});
+
   await page.locator('[data-concept="1"]').tap();
   await page.locator('[data-definition="2"]').tap();
   await expect(page.getByRole('status')).toContainText('no corresponde');

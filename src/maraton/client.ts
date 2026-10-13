@@ -49,11 +49,18 @@ export function useRace(session: Session | null) {
           if (message.ack === pending.current || !pending.current) { clearPending(); setError(''); }
         } catch { setError('No se pudo leer la actualización. Reconecta para continuar.'); }
       };
-      ws.onclose = event => {
+      ws.onclose = async event => {
         if (stopped || socket.current !== ws) return;
         clearPending();
         if ([4001,4003,4004,1008].includes(event.code)) { setConnection('gone'); setError(event.reason || 'Vuelve a entrar a la carrera.'); return; }
-        setConnection('offline'); retry = setTimeout(connect, Math.min(10_000, 1000 * 2 ** attempts++) + Math.random() * 350);
+        setConnection('offline');
+        try {
+          const status=await fetch(`${base}/rooms/${session!.room}/status`,{signal:AbortSignal.timeout(3000)});
+          if(stopped||socket.current!==ws)return;
+          if(status.status===404){setConnection('gone');setError('Esta sala ha caducado. Pide al docente un nuevo QR.');return;}
+        } catch { /* A mobile network interruption should keep retrying. */ }
+        if(stopped||socket.current!==ws)return;
+        retry = setTimeout(connect, Math.min(10_000, 1000 * 2 ** attempts++) + Math.random() * 350);
       };
       ws.onerror = () => { /* onclose schedules a single reconnect. */ };
     }

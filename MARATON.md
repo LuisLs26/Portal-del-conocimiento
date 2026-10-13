@@ -87,3 +87,14 @@ Referencias consultadas para la técnica del cubo y la organización del tablero
 | Entrada y juego con paletas diferentes | Entrada, preguntas y ranking coordinados en azul, rojo y amarillo |
 
 Se mantuvo el formato de teléfono en las actividades individuales. La revisión automatizada utiliza un solo navegador.
+
+## Revisión final de estabilidad y presentación
+
+- Relacionar: tarjetas en una única cuadrícula. Cada fila comparte altura aunque la definición tenga más líneas; ambas columnas terminan al mismo nivel. Mensaje de resultado con espacio reservado para evitar saltos.
+- Salas inexistentes o caducadas: se verifica su estado antes de repetir una conexión fallida, y se muestra una salida clara.
+- Finalización anticipada: el primer puesto se describe como líder si todavía no cruzó la meta.
+- Preguntas y ranking: los controles del tablero quedan inactivos mientras hay un panel abierto; el foco pasa al panel.
+- Resultados individuales: el panel se adapta a la altura disponible y permite leerlo con pantallas bajas.
+- Retirado el tablero anterior que ya no se utilizaba, reduciendo el paquete de Maratón.
+
+La revisión no puede garantizar ausencia absoluta de errores en todos los teléfonos y redes. Las pruebas documentan las situaciones comprobadas.

@@ -72,3 +72,13 @@ test('Maratón: QR de sala, nombre, dado, pregunta, ranking y diseño móvil', a
   await expect(student.getByRole('textbox',{name:'Tu nombre'})).toHaveCount(0);
   await student.close();
 });
+
+
+test('una sala inexistente muestra caducidad y detiene la reconexión', async({page})=>{
+  await page.goto('/maraton?sala=00000000');
+  await page.evaluate(()=>sessionStorage.setItem('maraton:00000000',JSON.stringify({room:'00000000',id:'prueba',token:crypto.randomUUID(),role:'player',name:'Ana'})));
+  await page.reload();
+  await expect(page.getByRole('alert')).toContainText('caducado',{timeout:15000});
+  await expect(page.locator('.race-connection')).toHaveClass(/gone/);
+  await expect(page.getByRole('button',{name:'Salir de esta sala'})).toBeEnabled();
+});

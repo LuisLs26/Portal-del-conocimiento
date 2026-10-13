@@ -48,6 +48,7 @@ export class MaratonRoom {
       return json({ room: code, token: this.room.hostToken, id: 'host', role: 'host' });
     }
     if (!this.room || Date.now() >= this.room.expires) return json({ error: 'La sala no existe o ha caducado. Pide al docente su QR actual.' }, 404);
+    if (url.pathname.endsWith('/status') && request.method === 'GET') return json({ ready: true });
     if (url.pathname.endsWith('/join') && request.method === 'POST') {
       try {
         const body = await request.json() as { name?: string; token?: string };
@@ -137,7 +138,7 @@ export default {
       const result = await room.fetch(new Request(`${url.origin}/create`, { method: 'POST', body: JSON.stringify({ code }) }));
       const response = new Response(result.body, result); Object.entries(headers).forEach(([k,v]) => response.headers.set(k,v)); return response;
     }
-    const match = url.pathname.match(/\/rooms\/([A-Z0-9]{8})\/(join|socket)$/);
+    const match = url.pathname.match(/\/rooms\/([A-Z0-9]{8})\/(join|socket|status)$/);
     if (!match) return json({ error: 'Ruta no disponible.' }, 404);
     if (request.method === 'POST' && Number(request.headers.get('Content-Length') || 0) > 4096) return json({ error: 'Solicitud demasiado grande.' }, 413);
     const result = await env.MARATON_ROOMS.get(env.MARATON_ROOMS.idFromName(match[1])).fetch(request);
