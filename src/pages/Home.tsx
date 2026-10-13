@@ -127,7 +127,7 @@ export const Home: React.FC = () => {
               key={act.week}
               to={act.path || `/semana/${act.week}`}
               onClick={() => sound.click()}
-              className="ios-card"
+              className="ios-card activity-card"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -138,7 +138,7 @@ export const Home: React.FC = () => {
               }}
             >
               {/* Left Apple Symbol Badge */}
-              <div style={{
+              <div className="activity-badge" style={{
                 width: '42px',
                 height: '42px',
                 borderRadius: 'var(--radius-sm)',
@@ -181,10 +181,11 @@ export const Home: React.FC = () => {
                 </div>
 
                 <div style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
+                  fontSize: '17px',
+                  lineHeight: 1.3,
+                  fontWeight: 650,
                   color: 'var(--text-primary)',
-                  whiteSpace: 'nowrap',
+                  whiteSpace: 'normal',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis'
                 }}>
@@ -192,9 +193,9 @@ export const Home: React.FC = () => {
                 </div>
 
                 <div style={{
-                  fontSize: '12.5px',
+                  fontSize: '13px',
                   color: 'var(--text-secondary)',
-                  whiteSpace: 'nowrap',
+                  whiteSpace: 'normal',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   marginTop: '1px'

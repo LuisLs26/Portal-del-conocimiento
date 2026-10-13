@@ -30,3 +30,25 @@
 .arena-answers b{background:#e7efff;color:#2b54a5}
 .arena-feedback.correct .arena-result-icon{color:#bd8500}
 .arena-dice .pip{background:#1f4bad}
+
+/* A continuous racetrack with visible switchbacks and raised playing spaces. */
+.arena-center{top:49%;bottom:35%;left:26%;right:26%;gap:7px}
+.arena-board-title{font-size:38px;letter-spacing:7px;stroke-width:1px}
+.arena-board-subtitle{font-size:10px;letter-spacing:2px}
+.arena-tile-number{font-size:25px;fill:#fff;stroke:none}
+.arena-tile-icon{font-size:33px;fill:#ffffffb0}
+[data-tile="0"] .arena-tile-number{fill:#20365f;stroke:none;font-size:18px}
+[data-tile="40"] .arena-tile-number{fill:#fff;stroke:none;font-size:18px}
+[data-tile="40"] .arena-tile-icon{fill:#162c60;stroke:#fff;stroke-width:2px;paint-order:stroke}
+.arena-sidebar{background:#11234b80;border:1px solid #6686c830;border-radius:16px;padding:10px}
+.arena-host h2{font-size:14px}.arena-host p{font-size:10px}
+@media(min-width:1000px) and (min-height:600px){.host-screen .arena-host h2{font-size:19px}.host-screen .arena-host p{font-size:12px}}
+@media(max-height:420px),(orientation:portrait){.arena-center{gap:3px}.arena-dice{transform:scale(.7);margin:0}.arena-center-hint{font-size:8px}.arena-roll{padding:6px 14px!important}.arena-sidebar{padding:7px}.arena-host h2{font-size:12px}.arena-host>span{font-size:20px}.arena-host p{font-size:9px}.arena-host button{font-size:10px;padding:7px}}
+
+/* Keep the dice and action side by side inside the gap between the two bends. */
+.arena-center{top:41%;bottom:39%;left:45%;right:12%;flex-direction:row;gap:18px}
+.arena-center-hint{position:absolute;bottom:-6px;font-size:9px}
+.arena-center .arena-dice{flex-shrink:0;margin:0}
+.arena-center .arena-roll{flex-shrink:0}
+.host-screen .arena-center{left:46%;right:15%;flex-direction:column;gap:3px}
+@media(max-height:420px),(orientation:portrait){.arena-center{gap:9px}.arena-center-hint,.arena-key{display:none}.arena-center .arena-dice{transform:scale(.75)}.arena-roll{padding:8px 14px!important}.host-screen .arena-center{gap:0}.host-screen .arena-host>span{display:none}}

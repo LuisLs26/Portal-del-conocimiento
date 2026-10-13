@@ -66,3 +66,9 @@
 .race-podium { text-align: center; color: #7045b5; }.race-podium h2 { margin-top: 12px; }
 .race-exit { display: block; margin: 24px auto; min-height: 44px; padding: 8px 20px; border: 0; background: none; color: #765b92; font-size: 15px !important; }
 @media (prefers-reduced-motion: reduce) { .race-die.rolling { animation: none; }.race-primary:active,.race-secondary:active { transform: none; } }
+
+.maraton{background:linear-gradient(155deg,#fffaf0,#f1f6ff 65%);color:#203355}
+.race-intro h1{color:#2058ce}.race-intro h1 span{color:#203355}
+.race-primary{background:#2463eb}.race-secondary{background:#edf3ff;color:#2355b1}
+.race-card{border-color:#dfe8f7;box-shadow:0 6px 20px #244e8908}
+.race-entry{border-top:4px solid #ffce32}.race-room-tag{background:#edf3ff;color:#2355b1}

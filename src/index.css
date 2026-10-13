@@ -1,13 +1,13 @@
 :root {
   /* Apple iOS 26 Clean Daylight Palette */
-  --bg-primary: #F5F5F7;
+  --bg-primary: #F2F5FA;
   --surface: #FFFFFF;
   --surface-secondary: #F2F2F7;
   --surface-tertiary: #E5E5EA;
 
   --text-primary: #1D1D1F;
   --text-secondary: #64646B;
-  --text-tertiary: #AEAEB2;
+  --text-tertiary: #798391;
 
   --apple-blue: #007AFF;
   --apple-blue-pressed: #0062CC;
@@ -223,3 +223,15 @@ button:focus-visible { outline: 2px solid var(--apple-blue); outline-offset: 2px
 .active-word-strip button { flex: 0 0 40px; height: 46px; border: 1px solid var(--separator-dark); border-radius: 10px; background: white; color: var(--text-primary); font-size: 22px; font-weight: 600; touch-action: manipulation; }
 .active-word-strip button.selected { background: var(--apple-blue-tint); border: 2px solid var(--apple-blue); color: var(--apple-blue); }
 .crossword-input:focus { outline: 2px solid var(--apple-blue); outline-offset: 2px; }
+
+/* A consistent, readable finish across the individual activities and QR manager. */
+.ios-card{border-color:#163c7610;box-shadow:0 4px 16px #1a396408}
+.activity-card{border-left:3px solid #2463eb}
+.activity-card:nth-child(3n+2){border-left-color:#e53645}
+.activity-card:nth-child(3n){border-left-color:#e7b023}
+.activity-card:nth-child(3n+2) .activity-badge{background:#fff0f1!important}
+.activity-card:nth-child(3n+2) .activity-badge svg{color:#d52d3c!important}
+.activity-card:nth-child(3n) .activity-badge{background:#fff5cf!important}
+.activity-card:nth-child(3n) .activity-badge svg{color:#986b00!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2463eb;outline-offset:3px}
+.match.selected{box-shadow:0 0 0 1px var(--apple-blue);background:#edf4ff}

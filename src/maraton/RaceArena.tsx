@@ -6,11 +6,16 @@ import './arena.css';
 
 const colors = ['#2463eb','#e53645','#ffce32','#1847b8','#ef6540','#8b4fe8'];
 const track: [number, number][] = [];
-for (let x=0;x<12;x++) track.push([x,6]);
-for (let y=5;y>=0;y--) track.push([11,y]);
-for (let x=10;x>=0;x--) track.push([x,0]);
-for (let y=1;y<=5;y++) track.push([0,y]);
-for (let x=1;x<=7;x++) track.push([x,5]);
+// Four connected switchbacks: 41 unique, consecutive spaces from start to finish.
+for (let row=0;row<4;row++) {
+  const count=row===3?8:11;
+  for(let col=0;col<count;col++) {
+    const x=row%2?1100-col*100:100+col*100;
+    const y=[90,230,490,630][row];
+    track.push([x/100-.5,y/100-.5]);
+  }
+}
+const road='M100 90H1100C1175 90 1175 230 1100 230H100C20 230 20 490 100 490H1100C1175 490 1175 630 1100 630H400';
 const pips = [[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]];
 function Dice({ value, rolling }: {value:number;rolling:boolean}) {
   return <div className={`arena-dice ${rolling ? 'is-rolling' : ''}`} aria-label={rolling ? 'Dado girando' : `Dado: ${value}`}><div className="dice-cube" data-value={value}>{pips.map((dots,i)=><div className={`dice-face face-${i+1}`} key={i}>{Array.from({length:9},(_,j)=><i key={j} className={dots.includes(j)?'pip':''}/>)}</div>)}</div></div>;
@@ -31,11 +36,28 @@ export function RaceArena({room,you,session,connection,busy,error,send,leave}:Pr
     <header className="arena-hud"><a href="/" className="arena-brand">MARATÓN <span>DEL CONOCIMIENTO</span></a><span className={`arena-live ${connection==='live'?'online':''}`}>{connection==='live'?'● EN VIVO':'● RECONECTANDO'}</span><span className="arena-room">{room.players.length} jugadores · {room.code}</span><button onClick={()=>setRanking(true)}>🏆 Ranking</button><button onClick={leave}>Salir</button></header>
     <div className="arena-playfield">
       <div className="arena-table">
-        <svg className="arena-board" viewBox="-12 -12 1224 724" role="img" aria-label="Tablero de Maratón: recorrido en espiral, salida 0 y meta 40">
+        <svg className="arena-board" viewBox="-12 -12 1224 724" role="img" aria-label="Tablero de Maratón: recorrido serpenteante, salida 0 y meta 40">
           <defs><linearGradient id="table" x2="0" y2="1"><stop stopColor="#2148a0"/><stop offset="1" stopColor="#102a65"/></linearGradient><linearGradient id="pawn" x2="0.8" y2="1"><stop stopColor="#fff" stopOpacity=".6"/><stop offset=".5" stopColor="#fff" stopOpacity="0"/><stop offset="1" stopColor="#000" stopOpacity=".28"/></linearGradient><pattern id="finish" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#fff"/><path d="M0 0h10v10H0zm10 10h10v10H10" fill="#203248"/></pattern></defs>
           <rect x="-10" y="-10" width="1220" height="720" rx="32" fill="url(#table)" stroke="#edf3ff" strokeWidth="10"/>
-          {track.map(([x,y],i)=><g key={i} data-tile={i} className={i>=17&&i<=24?'yellow-tile':''} aria-label={`Casilla ${i}`}><rect x={x*100+3} y={y*100+3} width="94" height="94" rx="13" fill={i===40?'url(#finish)':i===0?'#fff4ba':colors[Math.floor(Math.max(0,i-1)/8)%5]} stroke="#fff" strokeOpacity=".35" strokeWidth="2"/><text x={x*100+15} y={y*100+28} className="arena-tile-number">{i===0?'SALIDA':i===40?'META':i}</text><text x={x*100+65} y={y*100+75} className="arena-tile-icon">{tileKind(i)==='bonus'?'★':tileKind(i)==='question'?'?':i===0?'➜':i===40?'⚑':'›'}</text></g>)}
-          <text x="600" y="185" textAnchor="middle" className="arena-board-title">MARATÓN</text><text x="600" y="220" textAnchor="middle" className="arena-board-subtitle">EL CONOCIMIENTO TE LLEVA A LA META</text>
+          <g aria-hidden="true">
+            <circle cx="570" cy="380" r="190" fill="#5d8be5" opacity=".08"/>
+            <circle cx="840" cy="110" r="110" fill="#fff" opacity=".035"/>
+            <path d={road} fill="none" stroke="#061943" strokeWidth="110" strokeLinecap="round" transform="translate(0,8)"/>
+            <path d={road} fill="none" stroke="#dce9ff" strokeWidth="104" strokeLinecap="round"/>
+            <path d={road} fill="none" stroke="#7496d0" strokeWidth="86" strokeLinecap="round"/>
+            <path d={road} fill="none" stroke="#e9f2ff" strokeWidth="3" strokeDasharray="8 12"/>
+            <path d="m1150 147 9 12-9 12M45 347l-9 12 9 12m1105 202 12 9-12 9" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+          </g>
+          {track.map(([x,y],i)=>{const yellow=i>=17&&i<=24,kind=tileKind(i),own=self?.position===i;return <g key={i} data-tile={i} className={`${yellow?'yellow-tile':''} ${own?'current-space':''}`} aria-label={`Casilla ${i}`}>
+            <rect x={x*100+7} y={y*100+14} width="86" height="82" rx="18" fill="#071a42" opacity=".5"/>
+            <rect x={x*100+7} y={y*100+6} width="86" height="82" rx="18" fill={i===40?'url(#finish)':i===0?'#fff4ba':colors[Math.floor(Math.max(0,i-1)/8)%5]} stroke={own?'#ffe678':'#ffffff80'} strokeWidth={own?5:2}/>
+            <path d={`M${x*100+22} ${y*100+12}h56`} stroke="#fff" strokeWidth="3" opacity=".4" strokeLinecap="round"/>
+            {(i===0||i===40)&&<rect x={x*100+12} y={y*100+11} width="76" height="24" rx="8" fill={i===40?'#162c60':'#ffe27c'}/>}
+            <text x={x*100+18} y={y*100+31} className="arena-tile-number">{i===0?'SALIDA':i===40?'META':i}</text>
+            <text x={x*100+69} y={y*100+74} className="arena-tile-icon">{kind==='bonus'?'★':kind==='question'?'?':i===0?'➜':i===40?'⚑':'›'}</text>
+          </g>;})}
+          <text x="340" y="360" textAnchor="middle" className="arena-board-title">MARATÓN</text>
+          <text x="340" y="390" textAnchor="middle" className="arena-board-subtitle">CADA RETO TE ACERCA A LA META</text>
           {room.players.map((p)=>{const [x,y]=track[p.position];const group=room.players.filter(q=>q.position===p.position).sort((a,b)=>Number(b.id===session.id)-Number(a.id===session.id)),index=group.findIndex(q=>q.id===p.id);if(index>2)return null;const dx=group.length>6?(index%6)*10-25:(index%3)*22-22,dy=Math.floor(index/(group.length>6?6:3))*9;return <g key={p.id} className={`arena-pawn ${p.id===session.id?'own-pawn':''}`} style={{transform:`translate(${x*100+50+dx}px, ${y*100+50+dy}px)`}} aria-label={`${p.name}, casilla ${p.position}`}><title>{p.name} · #{p.rank}</title><ellipse cy="20" rx="17" ry="6" fill="#000" opacity=".3"/><path d="M-14 18Q-17 12-9 3L-5-5h10l4 8q8 9 5 15Z" fill={colors[p.color]} stroke={p.id===session.id?'#fff':'#172a35'} strokeWidth={p.id===session.id?3:1}/><circle cy="-11" r="10" fill={colors[p.color]} stroke="#ffffff80"/><path d="M-14 18Q-17 12-9 3L-5-5h10l4 8q8 9 5 15Z" fill="url(#pawn)"/><text y="-7" textAnchor="middle" fill={p.color===2?'#182750':'#fff'} fontSize="11" fontWeight="900">{Array.from(p.name)[0]}</text>{index===2&&group.length>3&&<g transform="translate(10,20)"><circle r="12" fill="#142d40" stroke="#fff"/><text y="4" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900">+{group.length-3}</text></g>}</g>;})}
         </svg>
         <div className="arena-center">

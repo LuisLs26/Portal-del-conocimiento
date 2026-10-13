@@ -73,6 +73,17 @@ Las pruebas usan un solo trabajador. El servidor de `scripts/test-maraton-server
 
 ## Tablero de videojuego y vista del docente
 
-Partida horizontal contenida en la pantalla, recorrido en espiral de 40 casillas, fichas de peón, dado CSS 3D de seis caras y preguntas superpuestas. La interfaz gira visualmente en retrato; no depende del bloqueo de orientación del navegador ni requiere pantalla completa. En la laptop del docente se muestran tablero y 30 puestos simultáneamente (desde 1000 × 600). En teléfonos, la lista completa se consulta por páginas sin desplazar el tablero.
+Partida horizontal contenida en la pantalla, recorrido serpenteante de 40 casillas, fichas de peón, dado CSS 3D de seis caras y preguntas superpuestas. La interfaz gira visualmente en retrato; no depende del bloqueo de orientación del navegador ni requiere pantalla completa. En la laptop del docente se muestran tablero y 30 puestos simultáneamente (desde 1000 × 600). En teléfonos, la lista completa se consulta por páginas sin desplazar el tablero.
 
 Referencias consultadas para la técnica del cubo y la organización del tablero: [Rolling-dice](https://github.com/Vaibh31/Rolling-dice) y [Ludo-Game](https://github.com/Rony7s/Ludo-Game). La implementación es propia y no incorpora código ni recursos de esos repositorios.
+
+## Revisión visual del portal
+
+| Antes | Ahora |
+| --- | --- |
+| Casillas pegadas a un marco rectangular | Pista continua con cuatro tramos y curvas visibles |
+| Dado y controles sobre el recorrido | Zona de juego central con controles alineados |
+| Títulos recortados en el inicio | Títulos completos y tarjetas con acentos de color |
+| Entrada y juego con paletas diferentes | Entrada, preguntas y ranking coordinados en azul, rojo y amarillo |
+
+Se mantuvo el formato de teléfono en las actividades individuales. La revisión automatizada utiliza un solo navegador.
