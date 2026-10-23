@@ -211,6 +211,20 @@ export const Home: React.FC = () => {
         })}
       </div>
 
+      <section className="resource-links" aria-labelledby="resource-links-title">
+        <h2 id="resource-links-title">Webs educativas</h2>
+        {[
+          { title: 'Portal del conocimiento', url: 'https://portal-del-conocimiento.pages.dev/' },
+          { title: 'Mario · Aula Aventura', url: 'https://marioluixgame.pages.dev/' },
+          { title: 'Visor Libro', url: 'https://visorpdfpintado.pages.dev/' },
+        ].map(resource => (
+          <a key={resource.url} href={resource.url} target="_blank" rel="noopener noreferrer" className="ios-card resource-link" aria-label={`${resource.title} (abre en otra pestaña)`}>
+            <div><strong>{resource.title}</strong><span>{new URL(resource.url).hostname}</span></div>
+            <span aria-hidden="true" className="resource-link-arrow">↗</span>
+          </a>
+        ))}
+      </section>
+
       {/* Footer Link to QR Generator */}
       <div style={{ marginTop: '28px', textAlign: 'center' }}>
         <Link
