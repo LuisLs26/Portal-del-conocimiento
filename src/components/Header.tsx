@@ -8,6 +8,8 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
   const isQR = location.pathname === '/qr';
+  const isParte1 = location.pathname === '/parte-1';
+  const isParte2 = location.pathname === '/parte-2';
   
   const matchWeek = location.pathname.match(/\/semana\/(\d+)/);
   const currentWeek = matchWeek ? matchWeek[1] : null;
@@ -35,7 +37,7 @@ export const Header: React.FC = () => {
     }}>
       {/* Left Action: Native Back Chevron */}
       <div style={{ width: '80px', display: 'flex', alignItems: 'center' }}>
-        {!isHome ? (
+        {(!isHome && !isParte1) ? (
           <button
             onClick={() => {
               sound.click();
@@ -83,6 +85,14 @@ export const Header: React.FC = () => {
         ) : isQR ? (
           <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
             Códigos QR
+          </span>
+        ) : isParte2 ? (
+          <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+            Parte 2
+          </span>
+        ) : isParte1 ? (
+          <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+            Parte 1
           </span>
         ) : (
           <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>

@@ -46,6 +46,8 @@ const AppShell: React.FC = () => {
             <Routes>
               {/* Home is only shown on root / */}
               <Route path="/" element={<Home />} />
+              <Route path="/parte-1" element={<Home defaultPart={1} />} />
+              <Route path="/parte-2" element={<Home defaultPart={2} />} />
 
               {/* Direct QR scan activities - open directly into the game */}
               <Route path="/semana/1" element={<Semana1Crossword />} />

@@ -245,3 +245,78 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .resource-link div{min-width:0}.resource-link strong{display:block;font-size:16px;line-height:1.4}.resource-link div>span{display:block;margin-top:4px;font-size:12px;color:var(--text-secondary);overflow-wrap:anywhere}
 .resource-link-arrow{flex-shrink:0;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:var(--apple-blue-tint);color:var(--apple-blue);font-size:22px}
 .resource-link:active{transform:scale(.98)}
+
+/* Apple iOS Segmented Control for Part 1 & Part 2 */
+.part-switcher-container {
+  margin-bottom: 20px;
+}
+
+.part-switcher {
+  display: flex;
+  background: var(--surface-secondary);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 6px;
+  border: 1px solid var(--separator);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.part-switcher-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  min-height: 48px;
+  font-family: var(--font-ios);
+  font-size: 14.5px;
+  font-weight: 650;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 180ms var(--ease-ios);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.part-switcher-btn.active {
+  background: #FFFFFF;
+  color: var(--text-primary);
+  border-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.part-switcher-btn:active:not(.active) {
+  background: var(--surface-tertiary);
+  transform: scale(0.98);
+}
+
+.part-switcher-btn.active:active {
+  transform: scale(0.98);
+}
+
+.part-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.part-badge-tag.primary {
+  background: var(--apple-blue-tint);
+  color: var(--apple-blue);
+}
+
+.part-badge-tag.highlight {
+  background: #fff0f1;
+  color: #e53645;
+}
+
