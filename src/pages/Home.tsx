@@ -39,8 +39,8 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
     if (defaultPart) return defaultPart;
     if (queryPart === '2') return 2;
     if (queryPart === '1') return 1;
-    const saved = localStorage.getItem('portal_active_part');
-    return saved === '2' ? 2 : 1;
+    try { return localStorage.getItem('portal_active_part') === '2' ? 2 : 1; }
+    catch { return 1; }
   });
 
   const [completedWeeks, setCompletedWeeks] = useState<{ [key: number]: boolean }>({});
@@ -48,7 +48,8 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
   useEffect(() => {
     const completed: { [key: number]: boolean } = {};
     for (let i = 1; i <= 5; i++) {
-      completed[i] = localStorage.getItem(`week_${i}_completed`) === 'true';
+      try { completed[i] = localStorage.getItem(`week_${i}_completed`) === 'true'; }
+      catch { break; }
     }
     setCompletedWeeks(completed);
   }, []);

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 
 // Code-splitting with lazy loading for extreme mobile speed
@@ -12,19 +12,48 @@ const Semana5WordSearch = lazy(() => import('./pages/Semana5WordSearch').then(m 
 const Maraton = lazy(() => import('./pages/Maraton').then(m => ({ default: m.Maraton })));
 const QRManager = lazy(() => import('./pages/QRManager').then(m => ({ default: m.QRManager })));
 
+// Limit the wait for a game bundle on slow or interrupted connections.
+function lazyPartTwo(load: () => Promise<{ default: React.ComponentType }>) {
+  return lazy(() => new Promise<{ default: React.ComponentType }>((resolve, reject) => {
+    const timeout = window.setTimeout(() => reject(new Error('Tiempo de carga agotado')), 15000);
+    void load().then(resolve, reject).finally(() => window.clearTimeout(timeout));
+  }));
+}
+
+class PartTwoBoundary extends React.Component<React.PropsWithChildren, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+
+    return (
+      <section className="game" aria-labelledby="part-two-load-error">
+        <h1 id="part-two-load-error">No se pudo abrir la Parte 2</h1>
+        <p role="alert" className="game-hint">Recarga para volver a intentar.</p>
+        <button className="ios-button ios-button-primary" onClick={() => window.location.reload()}>Recargar</button>{' '}
+        <Link className="ios-button ios-button-secondary" to="/parte-2">Ver actividades</Link>
+      </section>
+    );
+  }
+}
+
 // Parte 2: Actividades lúdicas virtuales de Camila (Semana 10)
-const CamilaRuleta = lazy(() => import('./pages/parte2/CamilaRuleta').then(m => ({ default: m.CamilaRuleta })));
-const CamilaDesafio = lazy(() => import('./pages/parte2/CamilaDesafio').then(m => ({ default: m.CamilaDesafio })));
-const CamilaDetectives = lazy(() => import('./pages/parte2/CamilaDetectives').then(m => ({ default: m.CamilaDetectives })));
-const CamilaBingo = lazy(() => import('./pages/parte2/CamilaBingo').then(m => ({ default: m.CamilaBingo })));
-const CamilaCarrera = lazy(() => import('./pages/parte2/CamilaCarrera').then(m => ({ default: m.CamilaCarrera })));
-const CamilaExperto = lazy(() => import('./pages/parte2/CamilaExperto').then(m => ({ default: m.CamilaExperto })));
-const CamilaBatalla = lazy(() => import('./pages/parte2/CamilaBatalla').then(m => ({ default: m.CamilaBatalla })));
-const CamilaSemaforo = lazy(() => import('./pages/parte2/CamilaSemaforo').then(m => ({ default: m.CamilaSemaforo })));
+const CamilaRuleta = lazyPartTwo(() => import('./pages/parte2/CamilaRuleta').then(m => ({ default: m.CamilaRuleta })));
+const CamilaDesafio = lazyPartTwo(() => import('./pages/parte2/CamilaDesafio').then(m => ({ default: m.CamilaDesafio })));
+const CamilaDetectives = lazyPartTwo(() => import('./pages/parte2/CamilaDetectives').then(m => ({ default: m.CamilaDetectives })));
+const CamilaBingo = lazyPartTwo(() => import('./pages/parte2/CamilaBingo').then(m => ({ default: m.CamilaBingo })));
+const CamilaCarrera = lazyPartTwo(() => import('./pages/parte2/CamilaCarrera').then(m => ({ default: m.CamilaCarrera })));
+const CamilaExperto = lazyPartTwo(() => import('./pages/parte2/CamilaExperto').then(m => ({ default: m.CamilaExperto })));
+const CamilaBatalla = lazyPartTwo(() => import('./pages/parte2/CamilaBatalla').then(m => ({ default: m.CamilaBatalla })));
+const CamilaSemaforo = lazyPartTwo(() => import('./pages/parte2/CamilaSemaforo').then(m => ({ default: m.CamilaSemaforo })));
 
 // Parte 2: Actividades lúdicas virtuales de Leidi (Semana 9)
-const LeidiBingo = lazy(() => import('./pages/parte2/LeidiBingo').then(m => ({ default: m.LeidiBingo })));
-const LeidiDetectives = lazy(() => import('./pages/parte2/LeidiDetectives').then(m => ({ default: m.LeidiDetectives })));
+const LeidiBingo = lazyPartTwo(() => import('./pages/parte2/LeidiBingo').then(m => ({ default: m.LeidiBingo })));
+const LeidiDetectives = lazyPartTwo(() => import('./pages/parte2/LeidiDetectives').then(m => ({ default: m.LeidiDetectives })));
 
 // Minimal Apple iOS loader indicator
 const LoadingFallback = () => (
@@ -51,11 +80,8 @@ const LoadingFallback = () => (
 );
 
 const AppShell: React.FC = () => {
-  return (
-      <div className="app-container">
-        <Header />
-        
-        <main style={{ flex: 1, width: '100%' }}>
+  const { pathname } = useLocation();
+  const routes = (
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               {/* Home & Direct Part Views */}
@@ -86,6 +112,8 @@ const AppShell: React.FC = () => {
               <Route path="/parte-2/leidi/bingo" element={<LeidiBingo />} />
               <Route path="/parte-2/leidi/detectives" element={<LeidiDetectives />} />
 
+              <Route path="/parte-2/*" element={<Navigate to="/parte-2" replace />} />
+
               {/* QR Management and Book printing */}
               <Route path="/qr" element={<QRManager />} />
 
@@ -93,8 +121,16 @@ const AppShell: React.FC = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
-        </main>
-      </div>
+  );
+  return (
+    <div className="app-container">
+      <Header />
+      <main style={{ flex: 1, width: '100%' }}>
+        {pathname.startsWith('/parte-2/') ? (
+          <PartTwoBoundary key={pathname}>{routes}</PartTwoBoundary>
+        ) : routes}
+      </main>
+    </div>
   );
 };
 
