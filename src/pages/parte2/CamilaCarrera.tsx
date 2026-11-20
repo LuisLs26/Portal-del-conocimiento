@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCountdown } from './useCountdown';
 import { GameHeading } from '../../components/GameHeading';
 import { SuccessModal } from '../../components/SuccessModal';
 import { sound } from '../../utils/sound';
@@ -7,30 +8,27 @@ import { Clock, CheckCircle2, XCircle } from 'lucide-react';
 
 export const CamilaCarrera: React.FC = () => {
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(45);
   const [isGameOver, setIsGameOver] = useState(false);
   const [lastFeedback, setLastFeedback] = useState<{ correct: boolean; text: string } | null>(null);
 
   const totalQuestions = CAMILA_SPEED_QUESTIONS.length;
   const currentQ = CAMILA_SPEED_QUESTIONS[currentIdx % totalQuestions];
 
+  const { timeLeft, remaining, restart } = useCountdown(45, !isGameOver);
+
   useEffect(() => {
-    if (isGameOver) return;
-    if (timeLeft === 0) {
-      setIsGameOver(true);
-      return;
-    }
-    const timer = setTimeout(() => setTimeLeft(value => value - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [timeLeft, isGameOver]);
+    if (timeLeft === 0) setIsGameOver(true);
+  }, [timeLeft]);
 
   const handleAnswer = (choice: 'Analítica' | 'Holística') => {
-    if (isGameOver || timeLeft === 0) return;
+    if (isGameOver || remaining() === 0) return;
     const isCorrect = choice === currentQ.correctAnswer;
 
     if (isCorrect) {
+      setCorrectCount(count => count + 1);
       sound.success();
       setScore(s => s + 100 + streak * 20);
       setStreak(st => st + 1);
@@ -41,15 +39,17 @@ export const CamilaCarrera: React.FC = () => {
       setLastFeedback({ correct: false, text: `Era ${currentQ.correctAnswer}. ${currentQ.quickFeedback}` });
     }
 
-    setCurrentIdx(i => i + 1);
+    setCurrentIdx(currentIdx + 1);
+    if (currentIdx + 1 === totalQuestions) setIsGameOver(true);
   };
 
   const handleRestart = () => {
     sound.click();
     setCurrentIdx(0);
+    setCorrectCount(0);
     setScore(0);
     setStreak(0);
-    setTimeLeft(45);
+    restart();
     setIsGameOver(false);
     setLastFeedback(null);
   };
@@ -198,8 +198,8 @@ export const CamilaCarrera: React.FC = () => {
       {/* Success Modal */}
       <SuccessModal
         isOpen={isGameOver}
-        title="¡Tiempo cumplido en la Carrera!"
-        subtitle="Diferenciaste con gran agilidad las rúbricas analíticas y holísticas."
+        title={currentIdx === totalQuestions ? "¡Carrera completada!" : "Se acabó el tiempo"}
+        subtitle={`${correctCount} aciertos en ${currentIdx} respuestas.`}
         returnTo="/parte-2"
         scoreText={`Puntuación final: ${score} pts (${currentIdx} retos completados)`}
         onRetry={handleRestart}

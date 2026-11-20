@@ -77,9 +77,10 @@ export const CamilaBatalla: React.FC = () => {
   };
 
   const handleNextCriterion = () => {
+    if (!validatedCriteria.includes(currentCriterion.id)) return;
     sound.click();
     if (currentCriterionIdx < totalCriteria - 1) {
-      setCurrentCriterionIdx(c => c + 1);
+      setCurrentCriterionIdx(currentCriterionIdx + 1);
       setFeedbackMsg('');
     }
   };

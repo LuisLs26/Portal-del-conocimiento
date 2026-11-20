@@ -44,9 +44,10 @@ export const CamilaExperto: React.FC = () => {
   };
 
   const handleNextLevel = () => {
+    if (!showFeedback || selectedOption !== currentLvl.correctIndex) return;
     sound.click();
     if (currentLevelIdx < totalLevels - 1) {
-      setCurrentLevelIdx(l => l + 1);
+      setCurrentLevelIdx(currentLevelIdx + 1);
       setSelectedOption(null);
       setShowFeedback(false);
       setHiddenOptions([]);
@@ -327,7 +328,7 @@ export const CamilaExperto: React.FC = () => {
           padding: '16px'
         }}>
           <div className="ios-card" style={{ padding: '20px', width: '100%', maxWidth: '320px', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>📊 Opinión de la Clase</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>Consulta simulada a la clase</h3>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '120px', marginBottom: '16px' }}>
               {currentLvl.audienceStats.map((pct, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>

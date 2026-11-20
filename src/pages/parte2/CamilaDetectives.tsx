@@ -38,14 +38,14 @@ export const CamilaDetectives: React.FC = () => {
   };
 
   const handleNextCase = () => {
+    if (!isAudited) return;
     sound.click();
     if (currentCaseIdx < totalCases - 1) {
-      setCurrentCaseIdx(c => c + 1);
+      setCurrentCaseIdx(currentCaseIdx + 1);
       setSelectedOptionIdx(null);
       setIsAudited(false);
     } else {
       setIsSuccessOpen(true);
-      sound.fanfare();
     }
   };
 
@@ -213,10 +213,10 @@ export const CamilaDetectives: React.FC = () => {
       {/* Success Modal */}
       <SuccessModal
         isOpen={isSuccessOpen}
-        title="¡Casos Resueltos con Éxito, Detective!"
-        subtitle="Identificas con precisión los errores comunes en rúbricas y sabes cómo formular descriptores objetivos."
+        title="Auditoría terminada"
+        subtitle="Cada acierto cuenta. Puedes volver a jugar para practicar los casos."
         returnTo="/parte-2"
-        scoreText={`${totalCases} de ${totalCases} expedientes resueltos`}
+        scoreText={`${resolvedCases.length} de ${totalCases} expedientes resueltos`}
         onRetry={handleReset}
       />
     </div>

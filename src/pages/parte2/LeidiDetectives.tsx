@@ -45,14 +45,14 @@ export const LeidiDetectives: React.FC = () => {
   };
 
   const handleNextCase = () => {
+    if (!isAudited) return;
     sound.click();
     if (currentCaseIdx < totalCases - 1) {
-      setCurrentCaseIdx(c => c + 1);
+      setCurrentCaseIdx(currentCaseIdx + 1);
       setSelectedOptionIdx(null);
       setIsAudited(false);
     } else {
       setIsSuccessOpen(true);
-      sound.fanfare();
     }
   };
 
@@ -277,8 +277,8 @@ export const LeidiDetectives: React.FC = () => {
       {/* Success Modal */}
       <SuccessModal
         isOpen={isSuccessOpen}
-        title="¡Peritaje Concluido con Éxito!"
-        subtitle="Has auditado y corregido los errores frecuentes en los instrumentos de la Semana 9."
+        title="Peritaje terminado"
+        subtitle="Puedes volver a jugar para practicar la revisión de instrumentos."
         returnTo="/parte-2"
         scoreText={`${resolvedCases.length} de ${totalCases} casos periciales resueltos`}
         onRetry={handleRestart}

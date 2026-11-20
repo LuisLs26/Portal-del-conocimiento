@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCountdown } from './useCountdown';
 import { GameHeading } from '../../components/GameHeading';
 import { GameProgress } from '../../components/GameProgress';
 import { SuccessModal } from '../../components/SuccessModal';
@@ -21,26 +22,22 @@ export const CamilaDesafio: React.FC = () => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(20);
   const [isFinished, setIsFinished] = useState(false);
 
   const totalQuestions = CAMILA_DESAFIO_QUESTIONS.length;
   const currentQ = CAMILA_DESAFIO_QUESTIONS[currentIdx];
 
+  const { timeLeft, remaining, restart } = useCountdown(20, !showFeedback && !isFinished);
+
   useEffect(() => {
-    if (showFeedback || isFinished) return;
-    if (timeLeft === 0) {
-      sound.error();
-      setShowFeedback(true);
-      setStreak(0);
-      return;
-    }
-    const timer = setTimeout(() => setTimeLeft(value => value - 1), 1000);
-    return () => clearTimeout(timer);
+    if (timeLeft !== 0 || showFeedback || isFinished) return;
+    sound.error();
+    setShowFeedback(true);
+    setStreak(0);
   }, [timeLeft, showFeedback, isFinished]);
 
   const handleSelectOption = (idx: number) => {
-    if (showFeedback || timeLeft === 0) return;
+    if (showFeedback || remaining() === 0) return;
     sound.pop();
     setSelectedIdx(idx);
     setShowFeedback(true);
@@ -48,7 +45,7 @@ export const CamilaDesafio: React.FC = () => {
     const isCorrect = idx === currentQ.correctIndex;
     if (isCorrect) {
       sound.success();
-      const speedBonus = timeLeft * 10;
+      const speedBonus = remaining() * 10;
       setScore(s => s + 500 + speedBonus);
       setStreak(st => st + 1);
     } else {
@@ -63,10 +60,9 @@ export const CamilaDesafio: React.FC = () => {
       setCurrentIdx(i => i + 1);
       setSelectedIdx(null);
       setShowFeedback(false);
-      setTimeLeft(20);
+      restart();
     } else {
       setIsFinished(true);
-      sound.fanfare();
     }
   };
 
@@ -77,7 +73,7 @@ export const CamilaDesafio: React.FC = () => {
     setShowFeedback(false);
     setScore(0);
     setStreak(0);
-    setTimeLeft(20);
+    restart();
     setIsFinished(false);
   };
 
@@ -137,7 +133,7 @@ export const CamilaDesafio: React.FC = () => {
         </div>
       </div>
 
-      <GameProgress value={currentIdx + (showFeedback ? 1 : 0)} total={totalQuestions} label="Preguntas superadas" />
+      <GameProgress value={currentIdx + (showFeedback ? 1 : 0)} total={totalQuestions} label="Preguntas revisadas" />
 
       {/* Question Card */}
       <div className="ios-card" style={{

@@ -15,22 +15,19 @@ import {
   Sparkles, 
   ChevronRight
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+
+
+const boardTiles = LEIDI_BINGO_TILES.slice(0, 9);
+const boardCalls = LEIDI_BINGO_CALLS.filter(call => boardTiles.some(tile => tile.id === call.tileId));
 
 export const LeidiBingo: React.FC = () => {
-  // 9 items picked for 3x3 card
-  const [boardTiles] = useState<LeidiBingoCardTile[]>(() => {
-    return LEIDI_BINGO_TILES.slice(0, 9);
-  });
-
   const [markedIds, setMarkedIds] = useState<string[]>([]);
   const [callIndex, setCallIndex] = useState(0);
-  const [calledHistory, setCalledHistory] = useState<number[]>([0]);
   const [wrongMark, setWrongMark] = useState(false);
   const [isBingoWon, setIsBingoWon] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-  const currentCall = LEIDI_BINGO_CALLS[callIndex];
+  const currentCall = boardCalls[callIndex];
 
   // Check 3x3 winning patterns (rows, cols, diagonals)
   const checkWinCondition = (currentMarked: string[]) => {
@@ -46,16 +43,6 @@ export const LeidiBingo: React.FC = () => {
 
     if (hasWon && !isBingoWon) {
       setIsBingoWon(true);
-      sound.fanfare();
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch {
-        // Fallback if canvas-confetti is not rendered
-      }
       setIsSuccessOpen(true);
     }
   };
@@ -77,11 +64,7 @@ export const LeidiBingo: React.FC = () => {
   const handleNextCall = () => {
     setWrongMark(false);
     sound.click();
-    const nextIdx = (callIndex + 1) % LEIDI_BINGO_CALLS.length;
-    setCallIndex(nextIdx);
-    if (!calledHistory.includes(nextIdx)) {
-      setCalledHistory(h => [...h, nextIdx]);
-    }
+    setCallIndex(index => (index + 1) % boardCalls.length);
   };
 
   const handleReset = () => {
@@ -89,7 +72,6 @@ export const LeidiBingo: React.FC = () => {
     sound.click();
     setMarkedIds([]);
     setCallIndex(0);
-    setCalledHistory([0]);
     setIsBingoWon(false);
     setIsSuccessOpen(false);
   };
@@ -117,7 +99,7 @@ export const LeidiBingo: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Volume2 size={18} />
             <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Balota #{callIndex + 1} de {LEIDI_BINGO_CALLS.length}
+              Balota #{callIndex + 1} de {boardCalls.length}
             </span>
           </div>
 

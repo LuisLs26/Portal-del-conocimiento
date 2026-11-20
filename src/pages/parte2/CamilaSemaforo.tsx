@@ -21,9 +21,10 @@ export const CamilaSemaforo: React.FC = () => {
   };
 
   const handleNext = () => {
+    if (!currentSelection || isCompleted) return;
     sound.click();
     if (currentIdx < total - 1) {
-      setCurrentIdx(i => i + 1);
+      setCurrentIdx(currentIdx + 1);
     } else {
       setIsCompleted(true);
       sound.fanfare();
