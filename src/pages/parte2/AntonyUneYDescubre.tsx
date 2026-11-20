@@ -43,12 +43,15 @@ export function AntonyUneYDescubre() {
   }
 
   return (
-    <div className="part-two-game antony-game">
-      <GameHeading title="Une y descubre" hint="Elige la técnica de evaluación que corresponde a cada situación." />
+    <div className="part-two-game discovery-game discovery-antony">
+      <div className="discovery-cover">
+        <span className="discovery-cover-icon"><Link2 size={25} aria-hidden="true" /></span>
+        <div><p>Técnicas de evaluación</p><GameHeading title="Une y descubre" hint="Elige la técnica que corresponde a cada situación." /></div>
+      </div>
       <GameProgress label="Parejas correctas" value={matched.length} total={situations.length} />
       {situation ? (
         <>
-          <section className="ios-card antony-situation" aria-labelledby="antony-situation">
+          <section className="ios-card antony-situation discovery-scenario" aria-labelledby="antony-situation">
             <span><Link2 size={16} aria-hidden="true" /> Situación {step + 1} de {situations.length}</span>
             <h2 id="antony-situation">{situation.text}</h2>
           </section>
@@ -63,13 +66,13 @@ export function AntonyUneYDescubre() {
                 disabled={Boolean(correct) || matched.includes(technique.id)}
                 onClick={() => choose(technique.id)}
               >
-                <span>{technique.id}</span>{technique.title}
+                <span aria-hidden="true">{technique.id}</span>{technique.title}
                 {matched.includes(technique.id) && <Check size={18} aria-label="Pareja encontrada" />}
               </button>
             ))}
           </div>
           <p className="antony-feedback" role="status">{correct ? situation.why : wrong ? 'Esa técnica no corresponde. Prueba otra.' : ''}</p>
-          {correct && <button className="ios-button ios-button-primary" onClick={() => setStep(step + 1)}>{step + 1 === situations.length ? 'Ir a la reflexión' : 'Siguiente situación'}</button>}
+          {correct && <button className="ios-button ios-button-primary discovery-next" onClick={() => setStep(step + 1)}>{step + 1 === situations.length ? 'Ir a la reflexión' : 'Siguiente situación'}</button>}
         </>
       ) : (
         <section className="ios-card antony-reflection">

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GameHeading } from '../../components/GameHeading';
+import { GameProgress } from '../../components/GameProgress';
+import { ArrowRight, Check, Compass, Layers3, ListOrdered, Search } from 'lucide-react';
 
 const moments = ['Inicio', 'Durante el proceso', 'Final'];
 const types = ['Diagnóstica', 'Formativa', 'Sumativa'];
@@ -69,42 +71,69 @@ const activities = {
 
 export function AshleyActividad({ kind }: { kind: keyof typeof activities }) {
   const activity = activities[kind];
-  const [values, setValues] = useState<Record<number, number>>({});
+  const [step, setStep] = useState(0);
+  const [choice, setChoice] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [written, setWritten] = useState<Record<number, string>>({});
   const [showModels, setShowModels] = useState(false);
-  const score = activity.answers.filter((answer, index) => values[index] === answer).length;
-  const complete = score === activity.answers.length;
+  const total = activity.items.length;
+  const complete = step === total;
+  const correct = choice === activity.answers[step];
+  const Icon = { parejas: Layers3, secuencia: ListOrdered, tipos: Compass, detectives: Search }[kind];
+  const subject = { parejas: 'Planificación', secuencia: 'Momentos de evaluación', tipos: 'Tipos de evaluación', detectives: 'Caso de convivencia' }[kind];
 
   return (
-    <div className="part-two-game">
-      <GameHeading title={activity.title} hint={activity.hint} />
-      {kind === 'detectives' && <p className="ios-card antony-situation">{caseText}</p>}
-      {activity.items.length > 0 && (
+    <div className={`part-two-game discovery-game discovery-${kind}`}>
+      <div className="discovery-cover">
+        <span className="discovery-cover-icon"><Icon size={24} aria-hidden="true" /></span>
+        <div><p>{subject}</p><GameHeading title={activity.title} hint={activity.hint} /></div>
+      </div>
+      {kind === 'detectives' && <p className="ios-card antony-situation discovery-scenario">{caseText}</p>}
+      {total > 0 && <GameProgress label="Retos resueltos" value={step} total={total} />}
+      {!complete && (
         <>
-          <div className="ashley-fields">
-            {activity.items.map((item, index) => (
-              <label className="ios-card" key={item}>
-                <strong>{index + 1}. {item}</strong>
-                <select value={values[index] ?? ''} onChange={event => {
-                  const value = event.target.value;
-                  setValues(previous => ({ ...previous, [index]: value === '' ? -1 : Number(value) }));
-                  setChecked(false);
-                  setShowModels(false);
-                }}>
-                  <option value="">Elige una opción</option>
-                  {activity.options.map((option, choice) => <option key={option} value={choice}>{kind === 'secuencia' ? `${choice + 1}. ` : ''}{option}</option>)}
-                </select>
-                {checked && <span>{values[index] === activity.answers[index] ? '✓ Correcto' : 'Revisa esta respuesta'}</span>}
-              </label>
+          <section className="ios-card antony-situation discovery-scenario" aria-labelledby="ashley-situation">
+            <span>Reto {step + 1} de {total}</span>
+            <h2 id="ashley-situation">{activity.items[step]}</h2>
+          </section>
+          <div className="antony-options" role="group" aria-label="Opciones de respuesta">
+            {activity.options.map((option, index) => (
+              <button
+                type="button"
+                className="ios-card antony-option"
+                key={option}
+                aria-pressed={choice === index}
+                data-matched={checked && correct && choice === index}
+                data-wrong={checked && !correct && choice === index}
+                disabled={checked && correct}
+                onClick={() => { setChoice(index); setChecked(false); }}
+              >
+                <span aria-hidden="true">{kind === 'secuencia' ? index + 1 : String.fromCharCode(65 + index)}</span>
+                {option}
+                {checked && correct && choice === index && <Check size={18} aria-hidden="true" />}
+              </button>
             ))}
           </div>
-          <button className="ios-button ios-button-primary" disabled={!activity.items.every((_, index) => (values[index] ?? -1) >= 0)} onClick={() => setChecked(true)}>Comprobar</button>
-          <p role="status" className="antony-feedback">{checked ? `${score} de ${activity.items.length} correctas` : ''}</p>
+          <p className="antony-feedback" role="status">{checked ? correct ? '¡Correcto!' : 'Revisa la situación y prueba otra opción.' : ''}</p>
+          {checked && correct ? (
+            <button className="ios-button ios-button-primary discovery-next" onClick={() => { setStep(step + 1); setChoice(null); setChecked(false); }}>
+              {step + 1 < total ? 'Siguiente reto' : activity.prompts.length ? 'Continuar' : 'Ver resultado'} <ArrowRight size={17} />
+            </button>
+          ) : (
+            <button className="ios-button ios-button-primary discovery-next" disabled={choice === null || checked} onClick={() => setChecked(true)}>Comprobar</button>
+          )}
         </>
       )}
-      {(kind === 'detectives' || (checked && complete)) && activity.prompts.length > 0 && (
-        <section className="ios-card antony-reflection">
+      {complete && kind === 'tipos' && (
+        <section className="ios-card antony-reflection discovery-scenario">
+          <Check size={24} aria-hidden="true" />
+          <h2>¡Reto completado!</h2>
+          <p>Clasificaste las cinco situaciones.</p>
+          <button className="ios-button ios-button-primary" onClick={() => setStep(0)}>Volver a jugar</button>
+        </section>
+      )}
+      {complete && activity.prompts.length > 0 && (
+        <section className="ios-card antony-reflection discovery-scenario">
           <h2>{kind === 'secuencia' ? 'Completa las acciones' : 'Escribe tus respuestas'}</h2>
           {activity.prompts.map((prompt, index) => (
             <div key={prompt}>
@@ -116,7 +145,7 @@ export function AshleyActividad({ kind }: { kind: keyof typeof activities }) {
           <button className="ios-button ios-button-primary" disabled={!activity.prompts.every((_, index) => written[index]?.trim())} onClick={() => setShowModels(true)}>Ver respuestas de referencia</button>
         </section>
       )}
-      <Link className="ios-button ios-button-secondary" to="/parte-2">Volver a las actividades</Link>
+      <Link className="ios-button ios-button-secondary discovery-back" to="/parte-2">Volver a las actividades</Link>
     </div>
   );
 }

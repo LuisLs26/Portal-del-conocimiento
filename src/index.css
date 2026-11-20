@@ -403,3 +403,49 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .ashley-fields select { width: 100%; min-height: 44px; border: 1px solid #bbc9e5; border-radius: 9px; padding: 7px; font: inherit; color: #17264c; background: #f5f8ff; }
 .ashley-fields label > span { font-size: 14px; color: #374878; }
 .ashley-model { margin: 0 0 14px; padding: 11px; border-radius: 10px; background: #e4f6ed; color: #15533b; }
+
+.discovery-game {
+  --discovery-ink: #442685;
+  --discovery-tint: #f0eaff;
+  --discovery-bg: #211940;
+}
+.discovery-secuencia { --discovery-ink: #165c59; --discovery-tint: #e2f5ef; --discovery-bg: #143938; }
+.discovery-tipos { --discovery-ink: #234a95; --discovery-tint: #e5efff; --discovery-bg: #15284f; }
+.discovery-detectives { --discovery-ink: #84314f; --discovery-tint: #fbe9f1; --discovery-bg: #461d39; }
+.discovery-antony { --discovery-ink: #34428f; --discovery-tint: #eaedff; --discovery-bg: #202759; }
+.discovery-cover {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 20px 16px;
+  border-radius: 22px;
+  background: radial-gradient(ellipse at 95% 0%, var(--discovery-ink), transparent 80%), var(--discovery-bg);
+  box-shadow: 0 5px 0 var(--discovery-tint);
+  color: white;
+}
+.discovery-cover-icon {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 13px;
+  color: var(--discovery-ink);
+  background: var(--discovery-tint);
+}
+.discovery-cover > div > p { margin-bottom: 5px; color: var(--discovery-tint); font-size: 12px; font-weight: 700; }
+.discovery-game .discovery-cover .game-heading { background: none; padding: 0; margin: 0; }
+.discovery-game .discovery-cover .game-heading p { margin-top: 6px; }
+.discovery-scenario { background: var(--discovery-tint); border-left: 4px solid var(--discovery-ink); }
+.discovery-game .antony-situation > span { color: var(--discovery-ink); }
+.discovery-game .antony-options { gap: 10px; }
+.discovery-game .antony-option { padding: 11px; min-height: 52px; box-shadow: 0 2px 0 #dce5f4; }
+.discovery-game .antony-option > span { background: var(--discovery-tint); color: var(--discovery-ink); }
+.discovery-game .antony-option[aria-pressed=true] { border-color: var(--discovery-ink); box-shadow: 0 2px 0 var(--discovery-ink); }
+.discovery-game .antony-option[data-matched=true] { border-color: #428769; box-shadow: 0 2px 0 #428769; }
+.discovery-game .antony-option[data-wrong=true] { border-color: #b64d62; box-shadow: 0 2px 0 #b64d62; }
+.discovery-game .ios-button-primary { background: var(--discovery-ink); }
+.discovery-next { width: 100%; }
+.discovery-back { margin-top: 13px; }
+.discovery-game .antony-reflection textarea { background: #fff; }
