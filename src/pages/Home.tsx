@@ -11,6 +11,7 @@ import {
   Search,
   Flag,
   BookOpen,
+  Gamepad2,
   Sparkles,
   ArrowRight
 } from 'lucide-react';
@@ -328,21 +329,6 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
             </button>
           </div>
 
-          {/* Webs Educativas */}
-          <section className="resource-links" aria-labelledby="resource-links-title">
-            <h2 id="resource-links-title">Webs educativas</h2>
-            {[
-              { title: 'Portal del conocimiento', url: 'https://portal-del-conocimiento.pages.dev/' },
-              { title: 'Mario · Aula Aventura', url: 'https://marioluixgame.pages.dev/' },
-              { title: 'Visor Libro', url: 'https://visorpdfpintado.pages.dev/' },
-            ].map(resource => (
-              <a key={resource.url} href={resource.url} target="_blank" rel="noopener noreferrer" className="ios-card resource-link" aria-label={`${resource.title} (abre en otra pestaña)`}>
-                <div><strong>{resource.title}</strong><span>{new URL(resource.url).hostname}</span></div>
-                <span aria-hidden="true" className="resource-link-arrow">↗</span>
-              </a>
-            ))}
-          </section>
-
           {/* Footer Link to QR Generator */}
           <div style={{ marginTop: '28px', textAlign: 'center' }}>
             <Link
@@ -359,6 +345,20 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
       ) : (
         <Parte2Hub onSwitchToPart1={() => selectPart(1)} />
       )}
+      <section className="resource-links" aria-labelledby="resource-links-title">
+        <h2 id="resource-links-title">Webs educativas</h2>
+        {[
+          { title: 'Portal del conocimiento', description: 'Actividades interactivas del libro', url: 'https://portal-del-conocimiento.pages.dev/', icon: Grid3X3, theme: 'portal' },
+          { title: 'Mario · Aula Aventura', description: 'Aprende jugando', url: 'https://marioluixgame.pages.dev/', icon: Gamepad2, theme: 'adventure' },
+          { title: 'Visor Libro', description: 'Lee el PDF como un libro', url: 'https://visorpdfpintado.pages.dev/', icon: BookOpen, theme: 'reader' },
+        ].map(({ title, description, url, icon: Icon, theme }) => (
+          <a key={url} href={url} target="_blank" rel="noopener noreferrer" className={`ios-card resource-link resource-link--${theme}`} aria-label={`${title} (abre en otra pestaña)`}>
+            <span className="resource-link-icon" aria-hidden="true"><Icon size={30} /></span>
+            <div><strong>{title}</strong><span>{description}</span></div>
+            <span aria-hidden="true" className="resource-link-arrow">↗</span>
+          </a>
+        ))}
+      </section>
     </div>
   );
 };
