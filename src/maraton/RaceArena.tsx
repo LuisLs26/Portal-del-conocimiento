@@ -51,7 +51,7 @@ export function RaceArena({room,you,session,connection,busy,error,send,leave}:Pr
     setFeedback(false);setVisualPosition(self?.position??0);rollStarted.current=Date.now();setStage('rolling');sound.pop();send('roll');
     rollTimer.current=setTimeout(()=>{setStage('idle');setVisualPosition(null);},12000);
   }
-  const question=you?.question&&!animating?you.question:null;
+  const question=room.phase==='playing'&&connection!=='gone'&&!animating?you?.question:null;
   const modalOpen=Boolean(ranking||question||(feedback&&!animating&&room.phase==='playing'));
   useEffect(()=>{
     if(!modalOpen)return;

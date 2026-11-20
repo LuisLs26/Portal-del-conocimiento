@@ -6,7 +6,7 @@ import { sound } from '../../utils/sound';
 import { CAMILA_WHEEL_QUESTIONS, type WheelQuestion } from '../../data/parte2Data';
 import { RotateCw, CheckCircle2, XCircle, ArrowRight, BookOpen } from 'lucide-react';
 
-const SPIN_DURATION = 3800;
+const SPIN_DURATION = 5000;
 
 const SECTOR_COLORS = [
   '#007AFF', // Blue
@@ -30,9 +30,14 @@ export const CamilaRuleta: React.FC = () => {
   const totalQuestions = CAMILA_WHEEL_QUESTIONS.length;
   const degreesPerSector = 360 / totalQuestions;
   const currentRotationRef = useRef(0);
+  const wheelRef = useRef<SVGSVGElement>(null);
+  const spinAnimation = useRef<Animation | null>(null);
   const pendingQuestion = useRef<WheelQuestion | null>(null);
   const spinTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => clearTimeout(spinTimer.current), []);
+  useEffect(() => () => {
+    clearTimeout(spinTimer.current);
+    spinAnimation.current?.cancel();
+  }, []);
 
   const finishSpin = () => {
     const question = pendingQuestion.current;
@@ -54,15 +59,35 @@ export const CamilaRuleta: React.FC = () => {
     const center = (index + 0.5) * degreesPerSector;
     const current = currentRotationRef.current;
     const advance = (360 - ((current + center) % 360)) % 360;
-    const nextRotation = current + 360 + advance;
+    const nextRotation = current + 2 * 360 + advance;
 
     sound.pop();
     pendingQuestion.current = target;
     setIsSpinning(true);
-    setRotation(nextRotation);
-    currentRotationRef.current = nextRotation;
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    spinTimer.current = setTimeout(finishSpin, reducedMotion ? 0 : SPIN_DURATION + 200);
+    const land = () => {
+      currentRotationRef.current = nextRotation % 360;
+      setRotation(currentRotationRef.current);
+      finishSpin();
+    };
+
+    const wheel = wheelRef.current;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !wheel?.animate) {
+      spinTimer.current = setTimeout(land, SPIN_DURATION);
+      return;
+    }
+
+    // Drive the reveal from this spin, independently of global CSS transitions.
+    setRotation(nextRotation % 360);
+    const animation = wheel.animate(
+      [{ transform: `rotate(${current}deg)` }, { transform: `rotate(${nextRotation}deg)` }],
+      { duration: SPIN_DURATION, easing: 'ease-in-out' },
+    );
+    spinAnimation.current = animation;
+    void animation.finished.then(() => {
+      if (spinAnimation.current !== animation) return;
+      spinAnimation.current = null;
+      land();
+    }, () => { /* Leaving or restarting cancels this spin. */ });
   };
 
   const handleSelectOption = (index: number) => {
@@ -104,6 +129,8 @@ export const CamilaRuleta: React.FC = () => {
   const handleReset = () => {
     clearTimeout(spinTimer.current);
     pendingQuestion.current = null;
+    spinAnimation.current?.cancel();
+    spinAnimation.current = null;
     sound.click();
     setRotation(0);
     currentRotationRef.current = 0;
@@ -163,15 +190,8 @@ export const CamilaRuleta: React.FC = () => {
             viewBox="0 0 300 300"
             className="part-two-wheel-disc"
             data-rotation={rotation}
-            onTransitionEnd={event => {
-              if (event.target === event.currentTarget && event.propertyName === 'transform') finishSpin();
-            }}
-            style={{
-              width: '100%',
-              height: '100%',
-              transform: `rotate(${rotation}deg)`,
-              transition: isSpinning ? `transform ${SPIN_DURATION}ms ease-in-out` : 'none'
-            }}
+            ref={wheelRef}
+            style={{ width: '100%', height: '100%', transform: `rotate(${rotation}deg)` }}
           >
             {CAMILA_WHEEL_QUESTIONS.map((q, idx) => {
               const startAngle = idx * degreesPerSector;
@@ -227,7 +247,7 @@ export const CamilaRuleta: React.FC = () => {
           style={{ width: '100%', maxWidth: '280px', padding: '14px', fontSize: '15px' }}
         >
           <RotateCw size={18} className={isSpinning ? 'spin' : ''} />
-          <span>{isSpinning ? 'Girando la ruleta…' : 'Girar la ruleta'}</span>
+          <span>{isSpinning ? 'Sorteando el próximo reto…' : 'Girar la ruleta'}</span>
         </button>
       </div>
 
