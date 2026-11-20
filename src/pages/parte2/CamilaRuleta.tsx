@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GameHeading } from '../../components/GameHeading';
 import { GameProgress } from '../../components/GameProgress';
 import { SuccessModal } from '../../components/SuccessModal';
@@ -28,35 +28,39 @@ export const CamilaRuleta: React.FC = () => {
   const totalQuestions = CAMILA_WHEEL_QUESTIONS.length;
   const degreesPerSector = 360 / totalQuestions;
   const currentRotationRef = useRef(0);
+  const pendingQuestion = useRef<WheelQuestion | null>(null);
+  const spinTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(spinTimer.current), []);
+
+  const finishSpin = () => {
+    const question = pendingQuestion.current;
+    if (!question) return;
+    pendingQuestion.current = null;
+    clearTimeout(spinTimer.current);
+    setIsSpinning(false);
+    setCurrentQuestion(question);
+    sound.pop();
+  };
 
   const spinWheel = () => {
-    if (isSpinning || currentQuestion) return;
+    if (pendingQuestion.current || currentQuestion) return;
+    const remaining = CAMILA_WHEEL_QUESTIONS.filter(q => !answeredIds.includes(q.id));
+    if (!remaining.length) return;
+
+    const target = remaining[Math.floor(Math.random() * remaining.length)];
+    const index = CAMILA_WHEEL_QUESTIONS.indexOf(target);
+    const center = (index + 0.5) * degreesPerSector;
+    const current = currentRotationRef.current;
+    const advance = (360 - ((current + center) % 360)) % 360;
+    const nextRotation = current + 4 * 360 + advance;
 
     sound.pop();
+    pendingQuestion.current = target;
     setIsSpinning(true);
-    setSelectedOption(null);
-    setShowFeedback(false);
-
-    // Pick an unanswered question, or any if all answered
-    const pendingQuestions = CAMILA_WHEEL_QUESTIONS.filter(q => !answeredIds.includes(q.id));
-    const target = pendingQuestions.length > 0 
-      ? pendingQuestions[Math.floor(Math.random() * pendingQuestions.length)]
-      : CAMILA_WHEEL_QUESTIONS[Math.floor(Math.random() * CAMILA_WHEEL_QUESTIONS.length)];
-
-    const targetIndex = CAMILA_WHEEL_QUESTIONS.findIndex(q => q.id === target.id);
-    // Calculate rotation so that targetIndex lands under pointer (at top: 270 deg or 90 deg offset)
-    const extraSpins = (5 + Math.floor(Math.random() * 3)) * 360;
-    const sectorOffset = 360 - (targetIndex * degreesPerSector) - (degreesPerSector / 2);
-    const newRotation = currentRotationRef.current + extraSpins + (sectorOffset - (currentRotationRef.current % 360));
-    
-    currentRotationRef.current = newRotation;
-    setRotation(newRotation);
-
-    setTimeout(() => {
-      setIsSpinning(false);
-      sound.fanfare();
-      setCurrentQuestion(target);
-    }, 3200);
+    setRotation(nextRotation);
+    currentRotationRef.current = nextRotation;
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    spinTimer.current = setTimeout(finishSpin, reducedMotion ? 0 : 2750);
   };
 
   const handleSelectOption = (index: number) => {
@@ -80,15 +84,15 @@ export const CamilaRuleta: React.FC = () => {
     if (!answeredIds.includes(currentQuestion.id)) {
       const nextAnswered = [...answeredIds, currentQuestion.id];
       setAnsweredIds(nextAnswered);
-      if (nextAnswered.length === totalQuestions) {
-        setTimeout(() => {
-          setIsSuccessOpen(true);
-        }, 1500);
-      }
+
     }
   };
 
   const handleContinue = () => {
+    if (answeredIds.length === totalQuestions) {
+      setIsSuccessOpen(true);
+      return;
+    }
     sound.click();
     setCurrentQuestion(null);
     setSelectedOption(null);
@@ -96,6 +100,8 @@ export const CamilaRuleta: React.FC = () => {
   };
 
   const handleReset = () => {
+    clearTimeout(spinTimer.current);
+    pendingQuestion.current = null;
     sound.click();
     setRotation(0);
     currentRotationRef.current = 0;
@@ -149,36 +155,20 @@ export const CamilaRuleta: React.FC = () => {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Pointer Arrow */}
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10,
-          width: 0,
-          height: 0,
-          borderLeft: '14px solid transparent',
-          borderRight: '14px solid transparent',
-          borderTop: '24px solid #1D1D1F',
-          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
-        }} />
-
-        {/* SVG Wheel */}
-        <div style={{
-          width: '260px',
-          height: '260px',
-          position: 'relative',
-          margin: '10px 0 20px',
-          filter: 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12))'
-        }}>
+        <div className="part-two-wheel">
+          <span className="part-two-wheel-pointer" aria-hidden="true" />
           <svg
             viewBox="0 0 300 300"
+            className="part-two-wheel-disc"
+            data-rotation={rotation}
+            onTransitionEnd={event => {
+              if (event.target === event.currentTarget && event.propertyName === 'transform') finishSpin();
+            }}
             style={{
               width: '100%',
               height: '100%',
               transform: `rotate(${rotation}deg)`,
-              transition: isSpinning ? 'transform 3.2s cubic-bezier(0.15, 0.9, 0.2, 1)' : 'none'
+              transition: isSpinning ? 'transform 2.6s cubic-bezier(0.15, 0.8, 0.25, 1)' : 'none'
             }}
           >
             {CAMILA_WHEEL_QUESTIONS.map((q, idx) => {
@@ -200,7 +190,7 @@ export const CamilaRuleta: React.FC = () => {
               const isCompleted = answeredIds.includes(q.id);
 
               return (
-                <g key={q.id}>
+                <g key={q.id} data-sector={q.label}>
                   <path
                     d={`M 150 150 L ${x1} ${y1} A 140 140 0 0 1 ${x2} ${y2} Z`}
                     fill={isCompleted ? '#C7C7CC' : SECTOR_COLORS[idx % SECTOR_COLORS.length]}
@@ -215,7 +205,7 @@ export const CamilaRuleta: React.FC = () => {
                     fontWeight="700"
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    transform={`rotate(${textAngle + 90}, ${tx}, ${ty})`}
+                    transform={`rotate(${textAngle > 180 ? textAngle + 90 : textAngle - 90}, ${tx}, ${ty})`}
                   >
                     {q.label}
                   </text>
@@ -248,7 +238,7 @@ export const CamilaRuleta: React.FC = () => {
           marginBottom: '20px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-            <span className="part-badge-tag primary">{currentQuestion.label}</span>
+            <span className="part-badge-tag primary" data-wheel-result>{currentQuestion.label}</span>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Reto formativo</span>
           </div>
 
@@ -367,7 +357,7 @@ export const CamilaRuleta: React.FC = () => {
         isOpen={isSuccessOpen}
         title="¡Completaste La Ruleta del Saber!"
         subtitle="Has explorado todos los criterios, descriptores y niveles de logro esenciales."
-        weekNumber={1}
+        returnTo="/parte-2"
         scoreText={`Puntaje final: ${score} puntos`}
         onRetry={handleReset}
       />

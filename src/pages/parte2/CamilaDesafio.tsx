@@ -249,7 +249,7 @@ export const CamilaDesafio: React.FC = () => {
         isOpen={isFinished}
         title="¡Completaste el Desafío de Conocimientos!"
         subtitle="Demostraste tu rapidez y solidez en conceptos de construcción de instrumentos."
-        weekNumber={2}
+        returnTo="/parte-2"
         scoreText={`Puntaje final: ${score} puntos`}
         onRetry={handleRestart}
       />

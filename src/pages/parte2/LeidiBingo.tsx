@@ -26,6 +26,7 @@ export const LeidiBingo: React.FC = () => {
   const [markedIds, setMarkedIds] = useState<string[]>([]);
   const [callIndex, setCallIndex] = useState(0);
   const [calledHistory, setCalledHistory] = useState<number[]>([0]);
+  const [wrongMark, setWrongMark] = useState(false);
   const [isBingoWon, setIsBingoWon] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
@@ -55,13 +56,14 @@ export const LeidiBingo: React.FC = () => {
       } catch {
         // Fallback if canvas-confetti is not rendered
       }
-      setTimeout(() => {
-        setIsSuccessOpen(true);
-      }, 900);
+      setIsSuccessOpen(true);
     }
   };
 
   const handleTileClick = (tile: LeidiBingoCardTile) => {
+    if (isBingoWon) return;
+    if (!markedIds.includes(tile.id) && tile.id !== currentCall.tileId) { sound.error(); setWrongMark(true); return; }
+    setWrongMark(false);
     sound.pop();
     if (markedIds.includes(tile.id)) {
       setMarkedIds(prev => prev.filter(id => id !== tile.id));
@@ -73,6 +75,7 @@ export const LeidiBingo: React.FC = () => {
   };
 
   const handleNextCall = () => {
+    setWrongMark(false);
     sound.click();
     const nextIdx = (callIndex + 1) % LEIDI_BINGO_CALLS.length;
     setCallIndex(nextIdx);
@@ -82,6 +85,7 @@ export const LeidiBingo: React.FC = () => {
   };
 
   const handleReset = () => {
+    setWrongMark(false);
     sound.click();
     setMarkedIds([]);
     setCallIndex(0);
@@ -97,6 +101,7 @@ export const LeidiBingo: React.FC = () => {
         hint="Semana 9: Escucha la balota cantada y marca los instrumentos y propiedades en tu cartón 3×3." 
       />
 
+      {wrongMark && <p role="status" className="part-two-error">Esa casilla no corresponde a la pista actual.</p>}
       <GameProgress value={markedIds.length} total={9} label="Casillas marcadas en cartón" />
 
       {/* Caller (Balotero de Instrumentos) */}
@@ -159,7 +164,7 @@ export const LeidiBingo: React.FC = () => {
       {/* 3x3 Interactive Bingo Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
         gap: '9px',
         marginBottom: '16px'
       }}>
@@ -270,7 +275,7 @@ export const LeidiBingo: React.FC = () => {
         isOpen={isSuccessOpen}
         title="¡BINGO! Experta en instrumentos"
         subtitle="Identificas con precisión los 5 instrumentos de evaluación y sus propiedades de la Semana 9."
-        weekNumber={9}
+        returnTo="/parte-2"
         scoreText={`${markedIds.length} casillas marcadas con éxito`}
         onRetry={handleReset}
       />

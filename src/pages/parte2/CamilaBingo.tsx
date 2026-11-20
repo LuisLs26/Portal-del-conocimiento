@@ -11,12 +11,16 @@ export const CamilaBingo: React.FC = () => {
   const [boardItems] = useState<BingoCardItem[]>(() => CAMILA_BINGO_TERMS.slice(0, 9));
   const [markedIds, setMarkedIds] = useState<number[]>([]);
   const [calledDefinitionIdx, setCalledDefinitionIdx] = useState(0);
+  const [wrongMark, setWrongMark] = useState(false);
   const [isBingoWon, setIsBingoWon] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-  const currentCalled = CAMILA_BINGO_TERMS[calledDefinitionIdx];
+  const currentCalled = boardItems[calledDefinitionIdx];
 
   const handleToggleCell = (item: BingoCardItem) => {
+    if (isBingoWon) return;
+    if (!markedIds.includes(item.id) && item.id !== currentCalled.id) { sound.error(); setWrongMark(true); return; }
+    setWrongMark(false);
     sound.pop();
     if (markedIds.includes(item.id)) {
       setMarkedIds(prev => prev.filter(id => id !== item.id));
@@ -42,18 +46,18 @@ export const CamilaBingo: React.FC = () => {
     if (hasWonLine && !isBingoWon) {
       sound.fanfare();
       setIsBingoWon(true);
-      setTimeout(() => {
-        setIsSuccessOpen(true);
-      }, 1000);
+      setIsSuccessOpen(true);
     }
   };
 
   const handleNextDefinition = () => {
+    setWrongMark(false);
     sound.click();
-    setCalledDefinitionIdx(prev => (prev + 1) % CAMILA_BINGO_TERMS.length);
+    setCalledDefinitionIdx(prev => (prev + 1) % boardItems.length);
   };
 
   const handleReset = () => {
+    setWrongMark(false);
     sound.click();
     setMarkedIds([]);
     setCalledDefinitionIdx(0);
@@ -68,6 +72,7 @@ export const CamilaBingo: React.FC = () => {
         hint="Escucha o lee las definiciones y marca los conceptos correspondientes en tu cartón 3×3." 
       />
 
+      {wrongMark && <p role="status" className="part-two-error">Esa casilla no corresponde a la pista actual.</p>}
       <GameProgress value={markedIds.length} total={9} label="Conceptos marcados" />
 
       {/* Caller / Definition announcer banner */}
@@ -115,7 +120,7 @@ export const CamilaBingo: React.FC = () => {
       {/* 3x3 Bingo Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
         gap: '8px',
         marginBottom: '16px'
       }}>
@@ -128,7 +133,9 @@ export const CamilaBingo: React.FC = () => {
               onClick={() => handleToggleCell(item)}
               className="ios-card"
               style={{
-                aspectRatio: '1',
+                minWidth: 0,
+                minHeight: '86px',
+                overflowWrap: 'anywhere',
                 padding: '8px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -204,7 +211,7 @@ export const CamilaBingo: React.FC = () => {
         isOpen={isSuccessOpen}
         title="¡BINGO! Eres un maestro en conceptos"
         subtitle="Identificas con precisión criterios, evidencias, descriptores y rúbricas."
-        weekNumber={4}
+        returnTo="/parte-2"
         scoreText={`${markedIds.length} casillas marcadas con éxito`}
         onRetry={handleReset}
       />

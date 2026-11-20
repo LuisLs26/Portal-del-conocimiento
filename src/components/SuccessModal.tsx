@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { CheckCircle2, RotateCcw, ArrowRight, Home } from 'lucide-react';
@@ -8,7 +9,8 @@ interface SuccessModalProps {
   isOpen: boolean;
   title?: string;
   subtitle?: string;
-  weekNumber: number;
+  weekNumber?: number;
+  returnTo?: string;
   scoreText?: string;
   onRetry: () => void;
 }
@@ -18,6 +20,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   title = '¡Excelente trabajo!',
   subtitle = 'Has completado con éxito la actividad.',
   weekNumber,
+  returnTo = "/",
   scoreText,
   onRetry
 }) => {
@@ -28,7 +31,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       sound.fanfare();
-      try { localStorage.setItem(`week_${weekNumber}_completed`, 'true'); } catch { /* Completion still works without storage. */ }
+      try { if (weekNumber !== undefined) localStorage.setItem(`week_${weekNumber}_completed`, 'true'); } catch { /* Completion still works without storage. */ }
 
       try {
         confetti({
@@ -46,9 +49,9 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 
   if (!isOpen) return null;
 
-  const nextWeek = weekNumber < 5 ? weekNumber + 1 : null;
+  const nextWeek = weekNumber !== undefined && weekNumber < 5 ? weekNumber + 1 : null;
 
-  return (
+  return createPortal(
     <div role="dialog" aria-modal="true" aria-label={title} style={{
       position: 'fixed',
       inset: 0,
@@ -153,13 +156,13 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             <button
               onClick={() => {
                 sound.click();
-                navigate('/');
+                navigate(returnTo);
               }}
               className="ios-button ios-button-primary"
               style={{ width: '100%', padding: '14px', fontSize: '15px' }}
             >
               <Home size={16} />
-              <span>Volver a la Portada</span>
+              <span>{returnTo === "/" ? "Volver a la Portada" : "Volver a las actividades"}</span>
             </button>
           )}
 
@@ -190,20 +193,21 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
               <span>Volver a jugar</span>
             </button>
 
-            <button
+            {returnTo === "/" && (            <button
               onClick={() => {
                 sound.click();
-                navigate('/');
+                navigate(returnTo);
               }}
               className="ios-button ios-button-secondary"
               style={{ flex: 1, padding: '12px', fontSize: '14px' }}
             >
               <Home size={15} />
               <span>Inicio</span>
-            </button>
+            </button>)}
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

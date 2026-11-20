@@ -205,7 +205,7 @@ export const CamilaCarrera: React.FC = () => {
         isOpen={isGameOver}
         title="¡Tiempo cumplido en la Carrera!"
         subtitle="Diferenciaste con gran agilidad las rúbricas analíticas y holísticas."
-        weekNumber={5}
+        returnTo="/parte-2"
         scoreText={`Puntuación final: ${score} pts (${currentIdx} retos completados)`}
         onRetry={handleRestart}
       />

@@ -306,7 +306,7 @@ export const CamilaBatalla: React.FC = () => {
         isOpen={isSuccessOpen}
         title="¡Rúbrica Analítica Construida con Éxito!"
         subtitle="Construiste coherentemente los 3 criterios y 4 niveles de logro para la prevención del acoso escolar."
-        weekNumber={7}
+        returnTo="/parte-2"
         scoreText="Rúbrica 100% Coherente y Aprobada"
         onRetry={handleReset}
       />

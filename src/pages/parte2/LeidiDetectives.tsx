@@ -279,7 +279,7 @@ export const LeidiDetectives: React.FC = () => {
         isOpen={isSuccessOpen}
         title="¡Peritaje Concluido con Éxito!"
         subtitle="Has auditado y corregido los errores frecuentes en los instrumentos de la Semana 9."
-        weekNumber={9}
+        returnTo="/parte-2"
         scoreText={`${resolvedCases.length} de ${totalCases} casos periciales resueltos`}
         onRetry={handleRestart}
       />

@@ -386,7 +386,7 @@ export const CamilaExperto: React.FC = () => {
         isOpen={isGameWon}
         title="¡Felicidades, Experto en Evaluación!"
         subtitle="Alcanzaste el último nivel respondiendo con éxito la pregunta final sobre construcción de rúbricas."
-        weekNumber={6}
+        returnTo="/parte-2"
         scoreText="Nivel Máximo de Experto Alcanzado"
         onRetry={handleRestart}
       />

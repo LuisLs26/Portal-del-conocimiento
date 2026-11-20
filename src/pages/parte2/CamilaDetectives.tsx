@@ -215,7 +215,7 @@ export const CamilaDetectives: React.FC = () => {
         isOpen={isSuccessOpen}
         title="¡Casos Resueltos con Éxito, Detective!"
         subtitle="Identificas con precisión los errores comunes en rúbricas y sabes cómo formular descriptores objetivos."
-        weekNumber={3}
+        returnTo="/parte-2"
         scoreText={`${totalCases} de ${totalCases} expedientes resueltos`}
         onRetry={handleReset}
       />

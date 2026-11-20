@@ -166,7 +166,6 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
           >
             <Sparkles size={18} strokeWidth={2.2} />
             <span>Parte 2</span>
-            <span className="part-badge-tag highlight">Nuevo</span>
           </button>
         </div>
       </div>
@@ -343,7 +342,7 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
           </div>
         </div>
       ) : (
-        <Parte2Hub onSwitchToPart1={() => selectPart(1)} />
+        <Parte2Hub />
       )}
       <section className="resource-links" aria-labelledby="resource-links-title">
         <h2 id="resource-links-title">Webs educativas</h2>
