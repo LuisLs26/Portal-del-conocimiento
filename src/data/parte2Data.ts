@@ -626,3 +626,357 @@ export const CAMILA_SEMAFORO_DIMENSIONS: SemaforoDimension[] = [
     }
   }
 ];
+/* =========================================================================
+   9. LEIDI: EL BINGO DE LOS INSTRUMENTOS (Semana 9 - Págs. 84-93)
+   ========================================================================= */
+export interface LeidiBingoCardTile {
+  id: string;
+  name: string;
+  category: 'instrumento' | 'propiedad' | 'cita';
+  shortDesc: string;
+}
+
+export const LEIDI_BINGO_TILES: LeidiBingoCardTile[] = [
+  {
+    id: 'lista-cotejo',
+    name: 'Lista de Cotejo',
+    category: 'instrumento',
+    shortDesc: 'Matriz dicotómica que verifica presencia o ausencia (Sí / No).'
+  },
+  {
+    id: 'escala-valoracion',
+    name: 'Escala de Valoración',
+    category: 'instrumento',
+    shortDesc: 'Listado de rasgos graduados en intensidad o frecuencia.'
+  },
+  {
+    id: 'guia-observacion',
+    name: 'Guía de Observación',
+    category: 'instrumento',
+    shortDesc: 'Focaliza la mirada docente en tiempo real durante actuaciones.'
+  },
+  {
+    id: 'rubrica-analitica',
+    name: 'Rúbrica Analítica',
+    category: 'instrumento',
+    shortDesc: 'Articula criterios independientes con descriptores por nivel.'
+  },
+  {
+    id: 'rubrica-holistica',
+    name: 'Rúbrica Holística',
+    category: 'instrumento',
+    shortDesc: 'Juicio cualitativo global del desempeño en su totalidad.'
+  },
+  {
+    id: 'portafolio',
+    name: 'Portafolio Pedagógico',
+    category: 'instrumento',
+    shortDesc: 'Colección procesual y longitudinal con reflexión metacognitiva.'
+  },
+  {
+    id: 'dicotomico',
+    name: 'Carácter Dicotómico',
+    category: 'propiedad',
+    shortDesc: 'Respuestas cerradas excluyentes como «Cumple» o «No cumple».'
+  },
+  {
+    id: 'frecuencia-gradual',
+    name: 'Graduación Sistemática',
+    category: 'propiedad',
+    shortDesc: 'Niveles de frecuencia: Siempre, Casi siempre, A veces, Nunca.'
+  },
+  {
+    id: 'focalizacion-mirada',
+    name: 'Focalización Docente',
+    category: 'propiedad',
+    shortDesc: 'Evita la dispersión u observación improvisada en el aula.'
+  },
+  {
+    id: 'tiempo-real',
+    name: 'Registro en Vivo',
+    category: 'propiedad',
+    shortDesc: 'Aplicación mientras los estudiantes ejecutan la actividad.'
+  },
+  {
+    id: 'reflexion-metacognitiva',
+    name: 'Reflexión Metacognitiva',
+    category: 'propiedad',
+    shortDesc: 'El alumno analiza qué aprendió y qué dificultades superó.'
+  },
+  {
+    id: 'matriz-doble-entrada',
+    name: 'Matriz Doble Entrada',
+    category: 'propiedad',
+    shortDesc: 'Estructura que cruza criterios con opciones o niveles.'
+  }
+];
+
+export interface LeidiBingoCall {
+  id: number;
+  tileId: string;
+  announcement: string;
+  sourceCitation: string;
+  pedagogicalNote: string;
+}
+
+export const LEIDI_BINGO_CALLS: LeidiBingoCall[] = [
+  {
+    id: 1,
+    tileId: 'lista-cotejo',
+    announcement: '«Herramienta estructurada de matriz de doble entrada que registra la presencia o ausencia de acciones específicas con Sí o No»',
+    sourceCitation: 'Garcia et al. (2026) / UNAM CUAED (Pág. 84)',
+    pedagogicalNote: 'Permite comprobar rápidamente si un requisito o criterio concreto se cumple o no.'
+  },
+  {
+    id: 2,
+    tileId: 'escala-valoracion',
+    announcement: '«Instrumento que contiene un listado de conductas graduando la intensidad, frecuencia o calidad del desempeño (Siempre, A veces, Nunca)»',
+    sourceCitation: 'Orellana et al. (2025) (Pág. 85)',
+    pedagogicalNote: 'Permite emitir un juicio gradual sin necesidad de redactar descripciones extensas para cada casilla.'
+  },
+  {
+    id: 3,
+    tileId: 'guia-observacion',
+    announcement: '«Instrumento basado en afirmaciones o preguntas que orienta el trabajo de observación dentro del aula señalando aspectos relevantes a mirar»',
+    sourceCitation: 'Evaluación Docente MINEDU (2024) (Pág. 87)',
+    pedagogicalNote: 'Focaliza la mirada en tiempo real durante debates, experimentos o trabajo en equipo.'
+  },
+  {
+    id: 4,
+    tileId: 'rubrica-analitica',
+    announcement: '«Cuadro de doble entrada que articula criterios de evaluación con escalas descriptivas por niveles de desempeño independientes»',
+    sourceCitation: 'Artime y Domínguez (2022) / Neil et al. (2022) (Pág. 89)',
+    pedagogicalNote: 'Facilita retroalimentación precisa al evaluar cada dimensión del aprendizaje por separado.'
+  },
+  {
+    id: 5,
+    tileId: 'rubrica-holistica',
+    announcement: '«Instrumento que integra los aspectos evaluados en una descripción general para realizar una valoración global e integral del desempeño»',
+    sourceCitation: 'Moreno (2016) (Pág. 89, 107)',
+    pedagogicalNote: 'Ideal cuando se requiere valorar la calidad total de un producto o actuación en menor tiempo.'
+  },
+  {
+    id: 6,
+    tileId: 'portafolio',
+    announcement: '«Instrumento procesual y longitudinal que documenta la trayectoria completa del aprendizaje, reflejando decisiones y errores superados»',
+    sourceCitation: 'Cisneros et al. (2023) (Pág. 91-92)',
+    pedagogicalNote: 'Exige reflexión crítica periódica y suele articularse con rúbricas de evaluación.'
+  },
+  {
+    id: 7,
+    tileId: 'dicotomico',
+    announcement: '«Tipo de respuesta cerrada con solo dos opciones mutuamente excluyentes (cumple / no cumple) característico de la lista de cotejo»',
+    sourceCitation: 'Página 84 del libro',
+    pedagogicalNote: 'Es ideal para verificar evidencias puntuales donde no hay términos medios.'
+  },
+  {
+    id: 8,
+    tileId: 'frecuencia-gradual',
+    announcement: '«Conjunto de categorías progresivas como "Siempre", "Casi siempre", "A veces" y "Nunca" para medir hábitos y actitudes»',
+    sourceCitation: 'Orellana et al. (2025) (Pág. 86-87)',
+    pedagogicalNote: 'Requiere que los niveles estén claramente diferenciados para evitar ambigüedades.'
+  },
+  {
+    id: 9,
+    tileId: 'focalizacion-mirada',
+    announcement: '«Cualidad primordial que evita que la observación del docente en el aula sea dispersa o improvisada»',
+    sourceCitation: 'MINEDU (2024) (Pág. 87)',
+    pedagogicalNote: 'Centra la atención en conductas específicas de la competencia.'
+  },
+  {
+    id: 10,
+    tileId: 'tiempo-real',
+    announcement: '«Característica metodológica de aplicarse en vivo mientras los estudiantes ejecutan la acción o debaten en clase»',
+    sourceCitation: 'Página 87-88 del libro',
+    pedagogicalNote: 'Evalúa el proceso de actuación real y no solo el documento en papel entregado al final.'
+  },
+  {
+    id: 11,
+    tileId: 'reflexion-metacognitiva',
+    announcement: '«Proceso obligatorio en el portafolio donde el alumno responde: ¿Qué aprendí?, ¿Qué dificultades tuve?, ¿Cómo lo superé?»',
+    sourceCitation: 'Página 91-92 del libro',
+    pedagogicalNote: 'Convierte el archivador en una verdadera herramienta de autoevaluación y autorregulación.'
+  },
+  {
+    id: 12,
+    tileId: 'matriz-doble-entrada',
+    announcement: '«Formato de tabla que organiza criterios en las filas y niveles de logro u opciones de verificación en las columnas»',
+    sourceCitation: 'Garcia et al. (2026) y Artime (2022)',
+    pedagogicalNote: 'Estructura compartida por listas de cotejo y rúbricas analíticas.'
+  }
+];
+
+/* =========================================================================
+   10. LEIDI: DETECTIVES DE ERRORES (Semana 9 - Págs. 84-94)
+   ========================================================================= */
+export interface LeidiDetectiveCase {
+  id: number;
+  instrumentName: string;
+  badge: string;
+  defectiveInstrumentText: {
+    title: string;
+    description: string;
+    problematicSnippet: string;
+  };
+  interrogationPrompt: string;
+  options: {
+    text: string;
+    isCorrect: boolean;
+    diagnosis: string;
+  }[];
+  expertFeedback: string;
+  citation: string;
+}
+
+export const LEIDI_DETECTIVE_CASES: LeidiDetectiveCase[] = [
+  {
+    id: 1,
+    instrumentName: 'Lista de cotejo',
+    badge: 'Caso 1: Indicador No Observable',
+    defectiveInstrumentText: {
+      title: 'Lista de cotejo para Trabajo Grupal en DPCC',
+      description: 'El docente pretende verificar la convivencia en el aula durante un debate sobre resolución de conflictos.',
+      problematicSnippet: 'Ítem 3: [ ] Sí  [ ] No  → "¿El estudiante tiene buen corazón, es empático de pensamiento y tiene muchas ganas de ser mejor persona?"'
+    },
+    interrogationPrompt: '¿Qué error técnico presenta este indicador de la lista de cotejo?',
+    options: [
+      {
+        text: 'Plantea intenciones internas subjetivas que no son observables ni concretas en la actuación del estudiante.',
+        isCorrect: true,
+        diagnosis: '¡Caso resuelto! Una lista de cotejo solo comprueba conductas observables (Garcia et al., 2026). Debe cambiarse por: "Escucha con respeto las opiniones contrarias sin ofender y cumple los turnos de diálogo".'
+      },
+      {
+        text: 'El casillero de Sí / No debería cambiarse por un examen escrito de 20 preguntas.',
+        isCorrect: false,
+        diagnosis: 'Incorrecto. La lista de cotejo es un instrumento excelente para observar actuaciones si los indicadores están bien formulados.'
+      },
+      {
+        text: 'Debería agregarse una tercera opción que diga "A veces tiene buen corazón".',
+        isCorrect: false,
+        diagnosis: 'Incorrecto. Mezclar intenciones subjetivas con una escala no vuelve observable al indicador.'
+      }
+    ],
+    expertFeedback: 'Según Garcia et al. (2026) y UNAM (Pág. 84), los indicadores de una lista de cotejo deben ser concretos, cerrados y directamente observables en la evidencia o actuación.',
+    citation: 'Garcia et al. (2026) - Libro Semana 9, Pág. 84'
+  },
+  {
+    id: 2,
+    instrumentName: 'Escala de valoración',
+    badge: 'Caso 2: Escala Caótica',
+    defectiveInstrumentText: {
+      title: 'Escala de valoración de Hábitos de Escucha',
+      description: 'Se busca medir con qué frecuencia los estudiantes respetan las normas de diálogo.',
+      problematicSnippet: 'Categorías de la escala: [ 1. Excelente ]  [ 2. A veces ]  [ 3. Bonito ]  [ 4. Nunca ]'
+    },
+    interrogationPrompt: '¿Qué falla metodológica cometió el docente al estructurar las opciones de la escala?',
+    options: [
+      {
+        text: 'Mezcló categorías de calidad («Excelente», «Bonito») con categorías de frecuencia («A veces», «Nunca»), rompiendo la graduación sistemática.',
+        isCorrect: true,
+        diagnosis: '¡Exacto! Orellana et al. (2025) señalan que una escala debe ser homogénea y gradual. Debe usar: "Siempre / Casi siempre / A veces / Nunca".'
+      },
+      {
+        text: 'Las escalas nunca deben tener más de dos opciones.',
+        isCorrect: false,
+        diagnosis: 'Falso. Las escalas justamente se caracterizan por graduar la intensidad o frecuencia en 3, 4 o más niveles diferenciados.'
+      },
+      {
+        text: 'Debió sustituir todas las opciones por una nota numérica secreta.',
+        isCorrect: false,
+        diagnosis: 'Erróneo. En el enfoque formativo las categorías deben ser transparentes para que el estudiante autorregule su conducta.'
+      }
+    ],
+    expertFeedback: 'Orellana et al. (2025) explican que las escalas de valoración requieren niveles graduales claramente diferenciados que guarden una misma lógica métrica (frecuencia, intensidad o dominio).',
+    citation: 'Orellana et al. (2025) - Libro Semana 9, Pág. 85-86'
+  },
+  {
+    id: 3,
+    instrumentName: 'Guía de observación',
+    badge: 'Caso 3: Sobrecarga Inviable',
+    defectiveInstrumentText: {
+      title: 'Guía de observación en el Aula de Secundaria',
+      description: 'Durante una sesión de 45 minutos con 38 estudiantes organizados en 7 equipos.',
+      problematicSnippet: 'Diseño: 26 indicadores independientes por estudiante sobre caligrafía, postura física, respiración, tono vocal, conocimientos históricos y valores morales.'
+    },
+    interrogationPrompt: '¿Por qué esta guía es inaplicable en la práctica docente?',
+    options: [
+      {
+        text: 'Carece de focalización de la mirada docente: es inviable registrar 26 aspectos por alumno en tiempo real en una sesión de 45 minutos.',
+        isCorrect: true,
+        diagnosis: '¡Brillante dictamen! Según MINEDU (2024), la guía debe focalizar entre 4 y 6 conductas clave para que la observación sea rigurosa y no dispersa.'
+      },
+      {
+        text: 'Porque las guías de observación solo están permitidas para directores de colegio.',
+        isCorrect: false,
+        diagnosis: 'Falso. Las guías de observación son instrumentos clave del docente para la evaluación en vivo.'
+      },
+      {
+        text: 'Porque debería pedirse a los 38 alumnos que se queden en silencio absoluto toda la clase.',
+        isCorrect: false,
+        diagnosis: 'Absurdo. La observación formativa evalúa el desenvolvimiento natural en actividades auténticas.'
+      }
+    ],
+    expertFeedback: 'La característica central de la guía de observación es la "Focalización de la mirada docente" (MINEDU, 2024, Pág. 87), garantizando viabilidad y profundidad en las anotaciones cualitativas.',
+    citation: 'Evaluación Docente MINEDU (2024) - Libro Semana 9, Pág. 87'
+  },
+  {
+    id: 4,
+    instrumentName: 'Rúbrica de evaluación',
+    badge: 'Caso 4: Sesgo Formal vs Competencia',
+    defectiveInstrumentText: {
+      title: 'Rúbrica de Exposición: Alternativas de Solución al Acoso Escolar',
+      description: 'Se evalúa la competencia ciudadana de convivencia democrática.',
+      problematicSnippet: 'Distribución de criterios: 40% Puntualidad al ingresar al salón, 40% Color y uniformidad de las cartulinas, 20% Propuesta de solución al acoso.'
+    },
+    interrogationPrompt: '¿Cuál es la anomalía pedagógica más grave en la distribución de esta rúbrica?',
+    options: [
+      {
+        text: 'Prioriza formalismos accesorios (cartulina, puntualidad) otorgándoles el 80% del peso, relegando la argumentación y el aprendizaje sustantivo.',
+        isCorrect: true,
+        diagnosis: '¡Caso resuelto! Artime y Domínguez (2022) recuerdan que la rúbrica debe articular los resultados de aprendizaje esenciales de la competencia, no el decorado.'
+      },
+      {
+        text: 'El afiche debió haberse impreso en imprenta profesional.',
+        isCorrect: false,
+        diagnosis: 'Eso agravaría el sesgo socioeconómico y no aporta nada al valor pedagógico de la solución.'
+      },
+      {
+        text: 'La rúbrica no tiene errores; la puntualidad es la única competencia ciudadana que importa.',
+        isCorrect: false,
+        diagnosis: 'Incorrecto. La competencia requiere análisis del conflicto, empatía, argumentación y propuestas viables.'
+      }
+    ],
+    expertFeedback: 'La pertinencia y coherencia del instrumento (Pág. 89-90) exigen que los criterios representen el núcleo de la competencia (identificación del conflicto, propuestas fundamentadas y diálogo respetuoso).',
+    citation: 'Artime y Domínguez (2022) - Libro Semana 9, Pág. 89-90'
+  },
+  {
+    id: 5,
+    instrumentName: 'Portafolio pedagógico',
+    badge: 'Caso 5: Archivador Hueco',
+    defectiveInstrumentText: {
+      title: 'Evaluación de Portafolio Trimestral',
+      description: 'El docente solicita un portafolio de evidencias sobre convivencia escolar.',
+      problematicSnippet: 'Evidencia entregada: Archivador de palanca con 45 fotocopias acumuladas sin ninguna ficha de autoevaluación, sin notas de reflexión ni revisión de errores.'
+    },
+    interrogationPrompt: '¿Por qué este trabajo no califica como un auténtico portafolio formativo?',
+    options: [
+      {
+        text: 'Porque es una simple acumulación pasiva de papeles: carece de la reflexión metacognitiva obligatoria del estudiante sobre su trayectoria y mejoras.',
+        isCorrect: true,
+        diagnosis: '¡Dictamen exacto! Cisneros et al. (2023) señalan que el portafolio documenta el proceso del aprendizaje a través de reflexiones críticas sobre fortalezas y errores superados.'
+      },
+      {
+        text: 'Porque debió entregarse en una caja de madera barnizada.',
+        isCorrect: false,
+        diagnosis: 'El envoltorio físico no cambia la naturaleza pedagógica del instrumento.'
+      },
+      {
+        text: 'Porque los estudiantes nunca deben guardar sus trabajos pasados.',
+        isCorrect: false,
+        diagnosis: 'Todo lo contrario. La revisión longitudinal de trabajos pasados es lo que permite apreciar el progreso y la superación.'
+      }
+    ],
+    expertFeedback: 'El portafolio exige reflexión metacognitiva periódica: ¿Qué aprendí?, ¿Qué dificultades tuve?, ¿Cómo aplicaré lo aprendido? (Pág. 91-92). Sin autorreflexión, solo es un almacén de hojas.',
+    citation: 'Cisneros et al. (2023) - Libro Semana 9, Pág. 91-92'
+  }
+];

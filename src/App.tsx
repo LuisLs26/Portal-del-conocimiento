@@ -12,7 +12,7 @@ const Semana5WordSearch = lazy(() => import('./pages/Semana5WordSearch').then(m 
 const Maraton = lazy(() => import('./pages/Maraton').then(m => ({ default: m.Maraton })));
 const QRManager = lazy(() => import('./pages/QRManager').then(m => ({ default: m.QRManager })));
 
-// Parte 2: Actividades lúdicas virtuales de Camila
+// Parte 2: Actividades lúdicas virtuales de Camila (Semana 10)
 const CamilaRuleta = lazy(() => import('./pages/parte2/CamilaRuleta').then(m => ({ default: m.CamilaRuleta })));
 const CamilaDesafio = lazy(() => import('./pages/parte2/CamilaDesafio').then(m => ({ default: m.CamilaDesafio })));
 const CamilaDetectives = lazy(() => import('./pages/parte2/CamilaDetectives').then(m => ({ default: m.CamilaDetectives })));
@@ -21,6 +21,10 @@ const CamilaCarrera = lazy(() => import('./pages/parte2/CamilaCarrera').then(m =
 const CamilaExperto = lazy(() => import('./pages/parte2/CamilaExperto').then(m => ({ default: m.CamilaExperto })));
 const CamilaBatalla = lazy(() => import('./pages/parte2/CamilaBatalla').then(m => ({ default: m.CamilaBatalla })));
 const CamilaSemaforo = lazy(() => import('./pages/parte2/CamilaSemaforo').then(m => ({ default: m.CamilaSemaforo })));
+
+// Parte 2: Actividades lúdicas virtuales de Leidi (Semana 9)
+const LeidiBingo = lazy(() => import('./pages/parte2/LeidiBingo').then(m => ({ default: m.LeidiBingo })));
+const LeidiDetectives = lazy(() => import('./pages/parte2/LeidiDetectives').then(m => ({ default: m.LeidiDetectives })));
 
 // Minimal Apple iOS loader indicator
 const LoadingFallback = () => (
@@ -77,6 +81,10 @@ const AppShell: React.FC = () => {
               <Route path="/parte-2/camila/experto" element={<CamilaExperto />} />
               <Route path="/parte-2/camila/batalla" element={<CamilaBatalla />} />
               <Route path="/parte-2/camila/semaforo" element={<CamilaSemaforo />} />
+
+              {/* Parte 2: Actividades de Leidi */}
+              <Route path="/parte-2/leidi/bingo" element={<LeidiBingo />} />
+              <Route path="/parte-2/leidi/detectives" element={<LeidiDetectives />} />
 
               {/* QR Management and Book printing */}
               <Route path="/qr" element={<QRManager />} />

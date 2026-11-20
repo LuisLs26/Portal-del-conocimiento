@@ -23,23 +23,26 @@ export const Header: React.FC = () => {
     '6': 'Maratón'
   };
 
-  const isCamilaActivity = location.pathname.startsWith('/parte-2/camila');
-  const camilaTitles: { [key: string]: string } = {
-    'ruleta': 'La ruleta del saber',
-    'desafio': '¡Desafío de conocimientos!',
-    'detectives': 'Detectives digitales',
-    'bingo': 'Bingo de conceptos',
-    'carrera': 'Carrera contra el tiempo',
-    'experto': 'Experto en evaluación',
-    'batalla': 'Construye la rúbrica',
-    'semaforo': 'El semáforo virtual'
+  const isParte2Activity = location.pathname.startsWith('/parte-2/');
+  
+  const parte2Info: { [key: string]: { author: string; title: string } } = {
+    '/parte-2/camila/ruleta': { author: 'Camila', title: 'La ruleta del saber' },
+    '/parte-2/camila/desafio': { author: 'Camila', title: '¡Desafío de conocimientos!' },
+    '/parte-2/camila/detectives': { author: 'Camila', title: 'Detectives digitales' },
+    '/parte-2/camila/bingo': { author: 'Camila', title: 'Bingo virtual de conceptos' },
+    '/parte-2/camila/carrera': { author: 'Camila', title: 'Carrera contra el tiempo' },
+    '/parte-2/camila/experto': { author: 'Camila', title: 'Experto en evaluación' },
+    '/parte-2/camila/batalla': { author: 'Camila', title: 'Construye la rúbrica' },
+    '/parte-2/camila/semaforo': { author: 'Camila', title: 'El semáforo virtual' },
+    '/parte-2/leidi/bingo': { author: 'Leidi', title: 'El bingo de los instrumentos' },
+    '/parte-2/leidi/detectives': { author: 'Leidi', title: 'Detectives de errores!' }
   };
-  const camilaKey = isCamilaActivity ? location.pathname.split('/').pop() || '' : '';
-  const camilaTitle = camilaTitles[camilaKey] || 'Actividad';
+
+  const currentParte2Activity = parte2Info[location.pathname];
 
   const handleBack = () => {
     sound.click();
-    if (isCamilaActivity) {
+    if (isParte2Activity) {
       navigate('/?parte=2');
     } else {
       navigate('/');
@@ -74,7 +77,7 @@ export const Header: React.FC = () => {
             }}
           >
             <ChevronLeft size={22} strokeWidth={2.2} />
-            <span>{isCamilaActivity ? 'Parte 2' : 'Inicio'}</span>
+            <span>{isParte2Activity ? 'Parte 2' : 'Inicio'}</span>
           </button>
         ) : (
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
@@ -100,13 +103,13 @@ export const Header: React.FC = () => {
               {weekTitles[currentWeek]}
             </span>
           </div>
-        ) : isCamilaActivity ? (
+        ) : isParte2Activity && currentParte2Activity ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-              Camila
+              {currentParte2Activity.author}
             </span>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-              {camilaTitle}
+              {currentParte2Activity.title}
             </span>
           </div>
         ) : location.pathname === '/maraton' ? (
