@@ -343,7 +343,12 @@ export const Home: React.FC<HomeProps> = ({ defaultPart }) => {
           </div>
         </div>
       ) : (
-        <Parte2Hub />
+        <>
+          <Parte2Hub />
+          <Link to="/qr?parte=2" className="ios-button ios-button-secondary" style={{ width: '100%', marginTop: 24 }}>
+            <QrCode size={16} /> Ver Códigos QR (Parte 2)
+          </Link>
+        </>
       )}
       <section className="resource-links" aria-labelledby="resource-links-title">
         <h2 id="resource-links-title">Webs educativas</h2>

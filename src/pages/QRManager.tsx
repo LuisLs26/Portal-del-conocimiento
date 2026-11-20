@@ -1,3 +1,5 @@
+import { Link, useSearchParams } from 'react-router-dom';
+import { parte2Info } from '../data/parte2Routes';
 import { publicBaseUrl } from '../data/qrData';
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
@@ -15,12 +17,13 @@ import {
 
 interface ActivityQRInfo {
   week: number;
+  author?: string;
   name: string;
   topic: string;
   path: string;
 }
 
-const ACTIVITIES_QR: ActivityQRInfo[] = [
+const PART_ONE_QR: ActivityQRInfo[] = [
   {
     week: 1,
     name: 'Crucigrama',
@@ -54,7 +57,26 @@ const ACTIVITIES_QR: ActivityQRInfo[] = [
   { week: 6, name: 'Maratón', topic: 'Crea una sala y comparte su QR para jugar en vivo', path: '/maraton' }
 ];
 
+const PART_TWO_QR = Object.entries(parte2Info).map(([path, activity], index): ActivityQRInfo => ({
+  week: index + 7,
+  name: activity.title,
+  topic: 'Parte 2',
+  author: activity.author,
+  path,
+}));
+
+function activityLabel(activity: ActivityQRInfo) {
+  return activity.author ?? `Semana ${activity.week}`;
+}
+
+function fileLabel(activity: ActivityQRInfo) {
+  return `${activityLabel(activity)}_${activity.name}`.replace(/[^\p{L}\p{N}_-]+/gu, '_');
+}
+
 export const QRManager: React.FC = () => {
+  const [params] = useSearchParams();
+  const part = params.get('parte') === '2' ? 2 : 1;
+  const activities = part === 2 ? PART_TWO_QR : PART_ONE_QR;
   const [domain, setDomain] = useState<string>(() => {
     const saved = localStorage.getItem('cf_custom_domain');
     return (saved && publicBaseUrl(saved)) || window.location.origin;
@@ -77,14 +99,14 @@ export const QRManager: React.FC = () => {
   };
 
   const cleanBaseUrl = publicBaseUrl(domain);
-  const ready = !!cleanBaseUrl && readyBase === cleanBaseUrl;
+  const ready = !!cleanBaseUrl && readyBase === `${part}:${cleanBaseUrl}`;
 
   useEffect(() => {
     let cancelled = false;
     setReadyBase(null); setQrSvgMap({}); setError('');
     if (!cleanBaseUrl) return;
     const options = { width: 1000, margin: 4, color: { dark: '#000000', light: '#FFFFFF' }, errorCorrectionLevel: 'H' as const };
-    const timer = setTimeout(() => { Promise.all(ACTIVITIES_QR.map(async act => {
+    const timer = setTimeout(() => { Promise.all(activities.map(async act => {
       const url = `${cleanBaseUrl}${act.path}`;
       const canvas = document.createElement('canvas');
       await QRCode.toCanvas(canvas, url, options);
@@ -98,11 +120,11 @@ export const QRManager: React.FC = () => {
         if (target) { target.width = canvas.width; target.height = canvas.height; target.getContext('2d')?.drawImage(canvas, 0, 0); }
         map[act.week] = svg;
       }
-      setQrSvgMap(map); setReadyBase(cleanBaseUrl);
+      setQrSvgMap(map); setReadyBase(`${part}:${cleanBaseUrl}`);
     }).catch(() => { if (!cancelled) setError('No se pudieron generar los códigos. Revisa el dominio e intenta nuevamente.'); });
     }, 180);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [cleanBaseUrl]);
+  }, [cleanBaseUrl, activities, part]);
 
   const handleCopyLink = async (week: number, fullUrl: string) => {
     if (!ready) return;
@@ -126,7 +148,7 @@ export const QRManager: React.FC = () => {
     const dataUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataUrl;
-    a.download = `QR_Semana_${act.week}_${act.name.replace(/\s+/g, '_')}_1000px.png`;
+    a.download = `QR_${fileLabel(act)}_1000px.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -142,7 +164,7 @@ export const QRManager: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `QR_Semana_${act.week}_${act.name.replace(/\s+/g, '_')}.svg`;
+    a.download = `QR_${fileLabel(act)}.svg`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -158,22 +180,22 @@ export const QRManager: React.FC = () => {
       const folderPng = zip.folder('QR_PNG_1000px');
       const folderSvg = zip.folder('QR_SVG_Vector');
 
-      for (const act of ACTIVITIES_QR) {
+      for (const act of activities) {
         const canvas = canvasRefs.current[act.week];
         if (canvas && folderPng) {
           const dataUrl = canvas.toDataURL('image/png');
           const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
-          folderPng.file(`Semana_${act.week}_${act.name.replace(/\s+/g, '_')}.png`, base64Data, { base64: true });
+          folderPng.file(`${fileLabel(act)}.png`, base64Data, { base64: true });
         }
 
         const svgStr = qrSvgMap[act.week];
         if (svgStr && folderSvg) {
-          folderSvg.file(`Semana_${act.week}_${act.name.replace(/\s+/g, '_')}.svg`, svgStr);
+          folderSvg.file(`${fileLabel(act)}.svg`, svgStr);
         }
       }
 
-      const manifest = ACTIVITIES_QR.map(
-        (a) => `Semana ${a.week}: ${a.name} -> ${cleanBaseUrl}${a.path}`
+      const manifest = activities.map(
+        (a) => `${activityLabel(a)}: ${a.name} -> ${cleanBaseUrl}${a.path}`
       ).join('\n');
       zip.file('ENLACES_LIBRO.txt', manifest);
 
@@ -181,7 +203,7 @@ export const QRManager: React.FC = () => {
       const url = URL.createObjectURL(content);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Codigos_QR_Libro_Evaluacion.zip';
+      a.download = part === 2 ? 'Codigos_QR_Parte_2.zip' : 'Codigos_QR_Libro_Evaluacion.zip';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -202,12 +224,17 @@ export const QRManager: React.FC = () => {
             Impresión Editorial
           </span>
           <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
-            Códigos QR del Libro
+            Códigos QR del Libro · Parte {part}
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             Cada código abre directamente su actividad (sin pasar por el inicio).
           </p>
         </div>
+
+        <nav aria-label="Parte del libro" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <Link className={`ios-button ios-button-${part === 1 ? 'primary' : 'secondary'}`} to="/qr" aria-current={part === 1 ? 'page' : undefined}>Parte 1</Link>
+          <Link className={`ios-button ios-button-${part === 2 ? 'primary' : 'secondary'}`} to="/qr?parte=2" aria-current={part === 2 ? 'page' : undefined}>Parte 2</Link>
+        </nav>
 
         {/* Domain Configuration Card */}
         <div className="ios-card" style={{ padding: '16px 14px', marginBottom: '18px' }}>
@@ -238,7 +265,7 @@ export const QRManager: React.FC = () => {
             }}
           />
 
-          <p role="status">{!cleanBaseUrl ? 'Introduce una dirección completa: https://tu-dominio.com' : error || (!ready ? 'Generando códigos…' : 'Seis códigos listos para descargar.')}</p>
+          <p role="status">{!cleanBaseUrl ? 'Introduce una dirección completa: https://tu-dominio.com' : error || (!ready ? 'Generando códigos…' : `${activities.length} códigos listos para descargar.`)}</p>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={handleDownloadZIP}
@@ -247,7 +274,7 @@ export const QRManager: React.FC = () => {
               style={{ flex: 1, padding: '10px', fontSize: '13px' }}
             >
               <FileArchive size={14} />
-              <span>{isZipping ? 'Generando...' : 'Descargar ZIP (6 QR)'}</span>
+              <span>{isZipping ? 'Generando...' : `Descargar ZIP (${activities.length} QR)`}</span>
             </button>
 
             <button
@@ -265,9 +292,9 @@ export const QRManager: React.FC = () => {
           </div>
         </div>
 
-        {/* 6 QR Cards List */}
+        {/* QR Cards List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {ACTIVITIES_QR.map((act) => {
+          {activities.map((act) => {
             const fullUrl = cleanBaseUrl ? `${cleanBaseUrl}${act.path}` : '';
             const isCopied = copiedWeek === act.week;
 
@@ -293,7 +320,7 @@ export const QRManager: React.FC = () => {
                   color: 'var(--apple-blue)',
                   marginBottom: '6px'
                 }}>
-                  SEMANA {act.week}
+                  {activityLabel(act).toUpperCase()}
                 </div>
 
                 <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -418,6 +445,7 @@ export const QRManager: React.FC = () => {
           @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
+            .print-only svg { display: block; width: 100%; height: 100%; }
             header { display: none !important; }
             .app-container { max-width: none !important; min-height: auto !important; }
             body { background: #FFFFFF !important; color: #000000 !important; }
@@ -430,12 +458,12 @@ export const QRManager: React.FC = () => {
             Evaluación de los aprendizajes
           </h1>
           <p style={{ fontSize: '11pt', color: '#666666' }}>
-            Códigos QR de Acceso Directo por Semana
+            Códigos QR de acceso directo · Parte {part}
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-          {ACTIVITIES_QR.map((act) => {
+          {activities.map((act) => {
             const svgContent = qrSvgMap[act.week];
             return (
               <div
@@ -448,7 +476,7 @@ export const QRManager: React.FC = () => {
                 }}
               >
                 <div style={{ fontSize: '11pt', fontWeight: 'bold' }}>
-                  Semana {act.week}: {act.name}
+                  {activityLabel(act)}: {act.name}
                 </div>
                 <div style={{ fontSize: '8pt', color: '#666666', marginBottom: '8pt' }}>
                   {act.topic}
@@ -457,7 +485,7 @@ export const QRManager: React.FC = () => {
                   style={{ width: '150px', height: '150px', margin: '0 auto 6pt' }}
                   dangerouslySetInnerHTML={{ __html: svgContent || '' }}
                 />
-                <div style={{ fontSize: '7pt', color: '#333333' }}>
+                <div style={{ fontSize: '7pt', color: '#333333', overflowWrap: 'anywhere' }}>
                   {cleanBaseUrl}{act.path}
                 </div>
               </div>
