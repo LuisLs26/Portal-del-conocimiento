@@ -18,21 +18,16 @@ export const CamilaCarrera: React.FC = () => {
 
   useEffect(() => {
     if (isGameOver) return;
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          setIsGameOver(true);
-          sound.fanfare();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isGameOver]);
+    if (timeLeft === 0) {
+      setIsGameOver(true);
+      return;
+    }
+    const timer = setTimeout(() => setTimeLeft(value => value - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [timeLeft, isGameOver]);
 
   const handleAnswer = (choice: 'Analítica' | 'Holística') => {
-    if (isGameOver) return;
+    if (isGameOver || timeLeft === 0) return;
     const isCorrect = choice === currentQ.correctAnswer;
 
     if (isCorrect) {
@@ -60,9 +55,9 @@ export const CamilaCarrera: React.FC = () => {
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. Carrera contra el tiempo ⏱️" 
+        title="Carrera contra el tiempo"
         hint="Clasifica a contrarreloj si cada situación corresponde a una Rúbrica Analítica o Holística." 
       />
 

@@ -366,3 +366,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .part-two-wheel { position: relative; width: min(100%, 270px); aspect-ratio: 1; margin: 10px 0 20px; border-radius: 50%; background: #17264c; box-shadow: 0 6px 0 #101f41, 0 12px 22px #182b5933; }
 .part-two-wheel-pointer { position: absolute; z-index: 1; top: -6px; left: 50%; transform: translateX(-50%); border: 12px solid transparent; border-top: 23px solid #17264c; filter: drop-shadow(0 2px 1px white); }
 .part-two-wheel-disc { display: block; }
+
+.part-two-game { max-width: 440px; margin: 0 auto; padding: 16px 16px 64px; overflow-wrap: anywhere; }
+.part-two-game .game-heading {
+  padding: 20px 17px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at top right, #425396, transparent 75%), #17264c;
+  color: #fff;
+}
+.part-two-game .game-heading h1 { color: inherit; font-size: clamp(22px, 6.5vw, 29px); line-height: 1.15; }
+.part-two-game .game-heading p { color: #e1e9ff; margin-bottom: 0; font-size: 14px; line-height: 1.45; }
+.part-two-game .ios-card { min-width: 0; border-color: #dce5f4; }
+.part-two-game .ios-button { min-height: 44px; }
+.part-two-game .ios-button-primary { background: #2452b3; }
+.part-two-game .game-progress { margin-bottom: 14px; }
+.part-two-game button, .part-two-game select { max-width: 100%; }

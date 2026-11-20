@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
             }}
           >
             <ChevronLeft size={22} strokeWidth={2.2} />
-            <span>{isParte2Activity ? 'Parte 2' : 'Inicio'}</span>
+            <span style={{ whiteSpace: 'nowrap' }}>{isParte2Activity ? 'Parte 2' : 'Inicio'}</span>
           </button>
         ) : (
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>

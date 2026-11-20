@@ -43,9 +43,9 @@ export const CamilaSemaforo: React.FC = () => {
   const redCount = Object.values(selections).filter(c => c === 'red').length;
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. El semáforo virtual 🚦" 
+        title="El semáforo virtual"
         hint="Autoevalúa honestamente tu comprensión para identificar qué temas dominas y cuáles reforzar." 
       />
 

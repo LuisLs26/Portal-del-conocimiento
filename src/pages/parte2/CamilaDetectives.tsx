@@ -59,9 +59,9 @@ export const CamilaDetectives: React.FC = () => {
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. Detectives digitales 🔎" 
+        title="Detectives digitales"
         hint="Inspecciona instrumentos de evaluación con defectos y descubre los errores pedagógicos." 
       />
 

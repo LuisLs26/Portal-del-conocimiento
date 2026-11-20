@@ -6,6 +6,8 @@ import { sound } from '../../utils/sound';
 import { CAMILA_WHEEL_QUESTIONS, type WheelQuestion } from '../../data/parte2Data';
 import { RotateCw, CheckCircle2, XCircle, ArrowRight, BookOpen } from 'lucide-react';
 
+const SPIN_DURATION = 3800;
+
 const SECTOR_COLORS = [
   '#007AFF', // Blue
   '#FF9500', // Orange
@@ -52,7 +54,7 @@ export const CamilaRuleta: React.FC = () => {
     const center = (index + 0.5) * degreesPerSector;
     const current = currentRotationRef.current;
     const advance = (360 - ((current + center) % 360)) % 360;
-    const nextRotation = current + 4 * 360 + advance;
+    const nextRotation = current + 360 + advance;
 
     sound.pop();
     pendingQuestion.current = target;
@@ -60,7 +62,7 @@ export const CamilaRuleta: React.FC = () => {
     setRotation(nextRotation);
     currentRotationRef.current = nextRotation;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    spinTimer.current = setTimeout(finishSpin, reducedMotion ? 0 : 2750);
+    spinTimer.current = setTimeout(finishSpin, reducedMotion ? 0 : SPIN_DURATION + 200);
   };
 
   const handleSelectOption = (index: number) => {
@@ -115,9 +117,9 @@ export const CamilaRuleta: React.FC = () => {
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. La ruleta del saber 🎡" 
+        title="La ruleta del saber"
         hint="Gira la ruleta y responde sobre criterios, descriptores y niveles de logro." 
       />
 
@@ -168,7 +170,7 @@ export const CamilaRuleta: React.FC = () => {
               width: '100%',
               height: '100%',
               transform: `rotate(${rotation}deg)`,
-              transition: isSpinning ? 'transform 2.6s cubic-bezier(0.15, 0.8, 0.25, 1)' : 'none'
+              transition: isSpinning ? `transform ${SPIN_DURATION}ms ease-in-out` : 'none'
             }}
           >
             {CAMILA_WHEEL_QUESTIONS.map((q, idx) => {
@@ -194,8 +196,8 @@ export const CamilaRuleta: React.FC = () => {
                   <path
                     d={`M 150 150 L ${x1} ${y1} A 140 140 0 0 1 ${x2} ${y2} Z`}
                     fill={isCompleted ? '#C7C7CC' : SECTOR_COLORS[idx % SECTOR_COLORS.length]}
-                    stroke="#FFFFFF"
-                    strokeWidth="3"
+                    stroke={currentQuestion?.id === q.id ? '#ffe18a' : '#ffffff'}
+                    strokeWidth={currentQuestion?.id === q.id ? 5 : 3}
                   />
                   <text
                     x={tx}
@@ -344,7 +346,7 @@ export const CamilaRuleta: React.FC = () => {
                 className="ios-button ios-button-primary"
                 style={{ width: '100%', padding: '10px', fontSize: '14px' }}
               >
-                <span>Girar nuevamente</span>
+                <span>{answeredIds.length === totalQuestions ? 'Ver resultados' : 'Preparar siguiente giro'}</span>
                 <ArrowRight size={15} />
               </button>
             </div>

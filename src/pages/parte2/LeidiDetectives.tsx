@@ -68,9 +68,9 @@ export const LeidiDetectives: React.FC = () => {
   const selectedOption = selectedOptionIdx !== null ? currentCase.options[selectedOptionIdx] : null;
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Leidi. Detectives de errores! 🔎" 
+        title="Detectives de errores!"
         hint="Semana 9: Audita los instrumentos de evaluación defectuosos e identifica el error metodológico." 
       />
 

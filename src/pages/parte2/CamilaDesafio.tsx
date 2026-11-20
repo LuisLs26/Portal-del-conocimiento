@@ -29,26 +29,18 @@ export const CamilaDesafio: React.FC = () => {
 
   useEffect(() => {
     if (showFeedback || isFinished) return;
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          handleTimeOut();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [currentIdx, showFeedback, isFinished]);
-
-  const handleTimeOut = () => {
-    sound.error();
-    setShowFeedback(true);
-    setStreak(0);
-  };
+    if (timeLeft === 0) {
+      sound.error();
+      setShowFeedback(true);
+      setStreak(0);
+      return;
+    }
+    const timer = setTimeout(() => setTimeLeft(value => value - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [timeLeft, showFeedback, isFinished]);
 
   const handleSelectOption = (idx: number) => {
-    if (showFeedback) return;
+    if (showFeedback || timeLeft === 0) return;
     sound.pop();
     setSelectedIdx(idx);
     setShowFeedback(true);
@@ -90,9 +82,9 @@ export const CamilaDesafio: React.FC = () => {
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. ¡Desafío de conocimientos! 🏆" 
+        title="¡Desafío de conocimientos!"
         hint="Responde contra el reloj y demuestra tu dominio en construcción de instrumentos." 
       />
 
@@ -166,7 +158,7 @@ export const CamilaDesafio: React.FC = () => {
       </div>
 
       {/* Kahoot 4-Grid Buttons */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '10px', marginBottom: '16px' }}>
         {currentQ.options.map((opt, idx) => {
           const isSelected = selectedIdx === idx;
           const isCorrect = idx === currentQ.correctIndex;

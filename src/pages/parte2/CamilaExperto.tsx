@@ -36,7 +36,7 @@ export const CamilaExperto: React.FC = () => {
       sound.success();
       if (currentLevelIdx === totalLevels - 1) {
         sound.fanfare();
-        setTimeout(() => setIsGameWon(true), 1200);
+        setIsGameWon(true);
       }
     } else {
       sound.error();
@@ -58,6 +58,7 @@ export const CamilaExperto: React.FC = () => {
     sound.click();
     setUsedFiftyFifty(true);
     setHiddenOptions(currentLvl.fiftyFiftyRemove);
+    if (selectedOption !== null && currentLvl.fiftyFiftyRemove.includes(selectedOption)) setSelectedOption(null);
   };
 
   const useAudienceLifeline = () => {
@@ -89,9 +90,9 @@ export const CamilaExperto: React.FC = () => {
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. ¿Quién quiere ser un experto en evaluación? 🎤" 
+        title="¿Quién quiere ser un experto en evaluación?"
         hint="Responde retos de dificultad progresiva y utiliza comodines para alcanzar el Nivel Experto." 
       />
 

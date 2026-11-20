@@ -95,9 +95,9 @@ export const LeidiBingo: React.FC = () => {
   };
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Leidi. El bingo de los instrumentos 🎯" 
+        title="El bingo de los instrumentos"
         hint="Semana 9: Escucha la balota cantada y marca los instrumentos y propiedades en tu cartón 3×3." 
       />
 

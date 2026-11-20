@@ -29,6 +29,7 @@ export const CamilaBatalla: React.FC = () => {
   };
 
   const handleAssignDescriptor = (level: 'C' | 'B' | 'A' | 'AD', descriptorId: string) => {
+    if (validatedCriteria.includes(currentCriterion.id)) return;
     sound.pop();
     setAssignments(prev => {
       const current = { ...(prev[currentCriterion.id] || {}) };
@@ -65,7 +66,7 @@ export const CamilaBatalla: React.FC = () => {
         const next = [...validatedCriteria, currentCriterion.id];
         setValidatedCriteria(next);
         if (next.length === totalCriteria) {
-          setTimeout(() => setIsSuccessOpen(true), 1200);
+          setIsSuccessOpen(true);
         }
       }
       setFeedbackMsg('¡Excelente! Descriptores graduados con perfecta coherencia.');
@@ -95,9 +96,9 @@ export const CamilaBatalla: React.FC = () => {
   const isCurrentValidated = validatedCriteria.includes(currentCriterion.id);
 
   return (
-    <div className="ios-animate-enter" style={{ padding: '20px 16px 80px', maxWidth: '440px', margin: '0 auto' }}>
+    <div className="part-two-game ios-animate-enter">
       <GameHeading 
-        title="Camila. Batalla de equipos: construye la rúbrica ⚔️" 
+        title="Batalla de equipos: construye la rúbrica"
         hint="Construye una rúbrica analítica contra el acoso escolar ordenando los 4 niveles de logro." 
       />
 
