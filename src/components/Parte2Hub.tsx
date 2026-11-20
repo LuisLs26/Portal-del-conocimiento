@@ -1,145 +1,150 @@
 import React from 'react';
-import { Sparkles, Layers, ArrowLeft, CheckCircle2, PlusCircle, Compass } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { 
+  RotateCw, 
+  Trophy, 
+  Search, 
+  Target, 
+  Clock, 
+  Mic, 
+  Swords, 
+  Compass, 
+  ChevronRight,
+  ArrowLeft,
+  Users
+} from 'lucide-react';
 import { sound } from '../utils/sound';
 
 interface Parte2HubProps {
   onSwitchToPart1: () => void;
 }
 
+interface CamilaActivity {
+  id: string;
+  name: string;
+  purpose: string;
+  icon: React.ReactNode;
+  path: string;
+  color: string;
+  tag: string;
+}
+
 export const Parte2Hub: React.FC<Parte2HubProps> = ({ onSwitchToPart1 }) => {
+  const camilaActivities: CamilaActivity[] = [
+    {
+      id: 'ruleta',
+      name: 'Camila. La ruleta del saber 🎡',
+      purpose: 'Reconocer criterios, descriptores y niveles de logro (C, B, A, AD).',
+      icon: <RotateCw size={20} color="#007AFF" strokeWidth={2.2} />,
+      path: '/parte-2/camila/ruleta',
+      color: '#007AFF',
+      tag: 'Ruleta Interactiva'
+    },
+    {
+      id: 'desafio',
+      name: 'Camila. ¡Desafío de conocimientos! 🏆',
+      purpose: 'Reforzar conceptos de construcción de instrumentos contra el reloj.',
+      icon: <Trophy size={20} color="#FF9500" strokeWidth={2.2} />,
+      path: '/parte-2/camila/desafio',
+      color: '#FF9500',
+      tag: 'Estilo Kahoot'
+    },
+    {
+      id: 'detectives',
+      name: 'Camila. Detectives digitales 🔎',
+      purpose: 'Auditar e identificar errores pedagógicos en rúbricas defectuosas.',
+      icon: <Search size={20} color="#AF52DE" strokeWidth={2.2} />,
+      path: '/parte-2/camila/detectives',
+      color: '#AF52DE',
+      tag: 'Caso de Peritaje'
+    },
+    {
+      id: 'bingo',
+      name: 'Camila. Bingo virtual de conceptos 🎯',
+      purpose: 'Identificar y marcar en el cartón digital los conceptos clave cantados.',
+      icon: <Target size={20} color="#FF2D55" strokeWidth={2.2} />,
+      path: '/parte-2/camila/bingo',
+      color: '#FF2D55',
+      tag: 'Bingo 3×3'
+    },
+    {
+      id: 'carrera',
+      name: 'Camila. Carrera contra el tiempo ⏱️',
+      purpose: 'Diferenciar con agilidad rúbricas analíticas y holísticas en situaciones de aula.',
+      icon: <Clock size={20} color="#34C759" strokeWidth={2.2} />,
+      path: '/parte-2/camila/carrera',
+      color: '#34C759',
+      tag: 'Rápido 45s'
+    },
+    {
+      id: 'experto',
+      name: 'Camila. ¿Quién quiere ser un experto en evaluación? 🎤',
+      purpose: 'Preguntas de dificultad progresiva con 3 comodines hasta el nivel final.',
+      icon: <Mic size={20} color="#5856D6" strokeWidth={2.2} />,
+      path: '/parte-2/camila/experto',
+      color: '#5856D6',
+      tag: 'Nivel Experto'
+    },
+    {
+      id: 'batalla',
+      name: 'Camila. Batalla de equipos: construye la rúbrica ⚔️',
+      purpose: 'Construir colaborativamente una rúbrica analítica contra el acoso escolar.',
+      icon: <Swords size={20} color="#FF9500" strokeWidth={2.2} />,
+      path: '/parte-2/camila/batalla',
+      color: '#FF9500',
+      tag: 'Construcción'
+    },
+    {
+      id: 'semaforo',
+      name: 'Camila. El semáforo virtual 🚦',
+      purpose: 'Autoevaluación formativa con semáforo (Verde, Amarillo, Rojo) y ruta de refuerzo.',
+      icon: <Compass size={20} color="#007AFF" strokeWidth={2.2} />,
+      path: '/parte-2/camila/semaforo',
+      color: '#007AFF',
+      tag: 'Autoevaluación'
+    }
+  ];
+
   return (
     <div className="ios-animate-enter" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* iOS Section Title */}
-      <div style={{
-        fontSize: '13px',
-        fontWeight: 600,
-        color: 'var(--text-secondary)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.04em',
-        paddingLeft: '4px',
+      {/* Contributor Section Banner */}
+      <div className="ios-card" style={{
+        padding: '16px 14px',
+        background: 'linear-gradient(135deg, #F8FAFE 0%, #EFF4FE 100%)',
+        border: '1px solid rgba(0, 122, 255, 0.15)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        gap: '12px'
       }}>
-        <span>Parte 2 · Segunda Fase</span>
-        <span style={{
-          fontSize: '11px',
-          fontWeight: 700,
-          color: 'var(--apple-blue)',
-          background: 'var(--apple-blue-tint)',
-          padding: '2px 8px',
-          borderRadius: 'var(--radius-pill)'
-        }}>
-          Nueva Sección
-        </span>
-      </div>
-
-      {/* Main Status Apple Card */}
-      <div className="ios-card" style={{
-        padding: '22px 18px',
-        background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFE 100%)',
-        border: '1px solid rgba(0, 122, 255, 0.15)',
-        boxShadow: 'var(--shadow-card)'
-      }}>
-        <div style={{
-          width: '46px',
-          height: '46px',
-          borderRadius: 'var(--radius-sm)',
-          background: 'var(--apple-blue-tint)',
-          color: 'var(--apple-blue)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: '14px'
-        }}>
-          <Sparkles size={24} strokeWidth={2.2} />
-        </div>
-
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: 700,
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.01em',
-          marginBottom: '6px'
-        }}>
-          Parte 2 preparada e independizada
-        </h2>
-
-        <p style={{
-          fontSize: '14px',
-          color: 'var(--text-secondary)',
-          lineHeight: 1.5,
-          marginBottom: '16px'
-        }}>
-          La <strong>Parte 1</strong> (las 5 actividades semanales, Maratón multijugador y sus códigos QR) ha quedado 
-          completamente protegida y aislada. Esta sección está lista para comenzar a construir las nuevas actividades y dinámicas.
-        </p>
-
-        {/* Feature bullets */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-          padding: '12px 14px',
-          background: 'var(--surface-secondary)',
-          borderRadius: 'var(--radius-sm)',
-          fontSize: '13px',
-          color: 'var(--text-primary)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={16} color="var(--apple-green)" strokeWidth={2.5} style={{ flexShrink: 0 }} />
-            <span>Parte 1 resguardada en su propio espacio sin alteraciones.</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            background: 'var(--apple-blue)',
+            color: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '16px',
+            fontWeight: 800,
+            flexShrink: 0
+          }}>
+            C
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Layers size={16} color="var(--apple-blue)" strokeWidth={2.5} style={{ flexShrink: 0 }} />
-            <span>Espacio limpio y modular para las actividades de la Parte 2.</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Compass size={16} color="#7a52de" strokeWidth={2.5} style={{ flexShrink: 0 }} />
-            <span>Navegación instantánea entre Parte 1 y Parte 2 desde el inicio.</span>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                Camila
+              </span>
+              <span className="part-badge-tag primary">8 actividades</span>
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Actividades lúdicas virtuales de evaluación
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Workshop / Next Activities Placeholder Card */}
-      <div className="ios-card" style={{
-        padding: '20px 16px',
-        border: '1.5px dashed rgba(0, 122, 255, 0.35)',
-        background: '#FFFFFF',
-        textAlign: 'center'
-      }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          margin: '0 auto 10px',
-          borderRadius: '50%',
-          background: 'var(--apple-blue-tint)',
-          color: 'var(--apple-blue)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <PlusCircle size={22} strokeWidth={2.2} />
-        </div>
-
-        <h3 style={{
-          fontSize: '16px',
-          fontWeight: 650,
-          color: 'var(--text-primary)',
-          marginBottom: '4px'
-        }}>
-          Listo para tus instrucciones
-        </h3>
-
-        <p style={{
-          fontSize: '13px',
-          color: 'var(--text-secondary)',
-          lineHeight: 1.45,
-          maxWidth: '320px',
-          margin: '0 auto 16px'
-        }}>
-          Dime qué actividades, temas, juegos o formatos deseas agregar a esta <strong>Parte 2</strong> y los programamos de inmediato.
-        </p>
 
         <button
           onClick={() => {
@@ -147,11 +152,112 @@ export const Parte2Hub: React.FC<Parte2HubProps> = ({ onSwitchToPart1 }) => {
             onSwitchToPart1();
           }}
           className="ios-button ios-button-secondary"
-          style={{ width: '100%', padding: '12px', fontSize: '14px' }}
+          style={{ padding: '6px 10px', fontSize: '12px' }}
         >
-          <ArrowLeft size={16} />
-          <span>Volver a las actividades de la Parte 1</span>
+          <ArrowLeft size={13} />
+          <span>Parte 1</span>
         </button>
+      </div>
+
+      {/* Activities List */}
+      <div style={{
+        fontSize: '13px',
+        fontWeight: 600,
+        color: 'var(--text-secondary)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        paddingLeft: '4px'
+      }}>
+        Juegos Interactivos de Camila
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {camilaActivities.map((act) => (
+          <Link
+            key={act.id}
+            to={act.path}
+            onClick={() => sound.click()}
+            className="ios-card activity-card"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '16px 14px',
+              textDecoration: 'none',
+              color: 'inherit',
+              gap: '14px',
+              borderLeftColor: act.color
+            }}
+          >
+            {/* Badge Icon */}
+            <div className="activity-badge" style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--surface-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              {act.icon}
+            </div>
+
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                <span style={{
+                  fontSize: '10.5px',
+                  fontWeight: 700,
+                  color: act.color,
+                  textTransform: 'uppercase',
+                  background: 'var(--surface-secondary)',
+                  padding: '1px 6px',
+                  borderRadius: 'var(--radius-pill)'
+                }}>
+                  {act.tag}
+                </span>
+              </div>
+
+              <div style={{
+                fontSize: '16px',
+                lineHeight: 1.3,
+                fontWeight: 650,
+                color: 'var(--text-primary)',
+                marginBottom: '2px'
+              }}>
+                {act.name}
+              </div>
+
+              <div style={{
+                fontSize: '12.5px',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.35
+              }}>
+                {act.purpose}
+              </div>
+            </div>
+
+            <ChevronRight size={18} color="var(--text-tertiary)" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          </Link>
+        ))}
+      </div>
+
+      {/* Ready for more contributors placeholder */}
+      <div className="ios-card" style={{
+        padding: '16px',
+        border: '1.5px dashed var(--separator-dark)',
+        background: '#FFFFFF',
+        borderRadius: '16px',
+        textAlign: 'center',
+        marginTop: '8px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+          <Users size={16} />
+          <strong style={{ fontSize: '13px' }}>Más actividades en camino</strong>
+        </div>
+        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+          Este módulo está listo para recibir las actividades de los siguientes autores en cuanto las compartas.
+        </p>
       </div>
     </div>
   );

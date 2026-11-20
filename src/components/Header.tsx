@@ -23,6 +23,29 @@ export const Header: React.FC = () => {
     '6': 'Maratón'
   };
 
+  const isCamilaActivity = location.pathname.startsWith('/parte-2/camila');
+  const camilaTitles: { [key: string]: string } = {
+    'ruleta': 'La ruleta del saber',
+    'desafio': '¡Desafío de conocimientos!',
+    'detectives': 'Detectives digitales',
+    'bingo': 'Bingo de conceptos',
+    'carrera': 'Carrera contra el tiempo',
+    'experto': 'Experto en evaluación',
+    'batalla': 'Construye la rúbrica',
+    'semaforo': 'El semáforo virtual'
+  };
+  const camilaKey = isCamilaActivity ? location.pathname.split('/').pop() || '' : '';
+  const camilaTitle = camilaTitles[camilaKey] || 'Actividad';
+
+  const handleBack = () => {
+    sound.click();
+    if (isCamilaActivity) {
+      navigate('/?parte=2');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <header className="ios-nav-blur" style={{
       position: 'sticky',
@@ -39,10 +62,7 @@ export const Header: React.FC = () => {
       <div style={{ width: '80px', display: 'flex', alignItems: 'center' }}>
         {(!isHome && !isParte1) ? (
           <button
-            onClick={() => {
-              sound.click();
-              navigate('/');
-            }}
+            onClick={handleBack}
             className="ios-button"
             style={{
               padding: '6px 8px',
@@ -54,7 +74,7 @@ export const Header: React.FC = () => {
             }}
           >
             <ChevronLeft size={22} strokeWidth={2.2} />
-            <span>Inicio</span>
+            <span>{isCamilaActivity ? 'Parte 2' : 'Inicio'}</span>
           </button>
         ) : (
           <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
@@ -78,6 +98,15 @@ export const Header: React.FC = () => {
             </span>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
               {weekTitles[currentWeek]}
+            </span>
+          </div>
+        ) : isCamilaActivity ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+              Camila
+            </span>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+              {camilaTitle}
             </span>
           </div>
         ) : location.pathname === '/maraton' ? (

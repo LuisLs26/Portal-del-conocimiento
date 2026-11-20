@@ -12,6 +12,16 @@ const Semana5WordSearch = lazy(() => import('./pages/Semana5WordSearch').then(m 
 const Maraton = lazy(() => import('./pages/Maraton').then(m => ({ default: m.Maraton })));
 const QRManager = lazy(() => import('./pages/QRManager').then(m => ({ default: m.QRManager })));
 
+// Parte 2: Actividades lúdicas virtuales de Camila
+const CamilaRuleta = lazy(() => import('./pages/parte2/CamilaRuleta').then(m => ({ default: m.CamilaRuleta })));
+const CamilaDesafio = lazy(() => import('./pages/parte2/CamilaDesafio').then(m => ({ default: m.CamilaDesafio })));
+const CamilaDetectives = lazy(() => import('./pages/parte2/CamilaDetectives').then(m => ({ default: m.CamilaDetectives })));
+const CamilaBingo = lazy(() => import('./pages/parte2/CamilaBingo').then(m => ({ default: m.CamilaBingo })));
+const CamilaCarrera = lazy(() => import('./pages/parte2/CamilaCarrera').then(m => ({ default: m.CamilaCarrera })));
+const CamilaExperto = lazy(() => import('./pages/parte2/CamilaExperto').then(m => ({ default: m.CamilaExperto })));
+const CamilaBatalla = lazy(() => import('./pages/parte2/CamilaBatalla').then(m => ({ default: m.CamilaBatalla })));
+const CamilaSemaforo = lazy(() => import('./pages/parte2/CamilaSemaforo').then(m => ({ default: m.CamilaSemaforo })));
+
 // Minimal Apple iOS loader indicator
 const LoadingFallback = () => (
   <div style={{
@@ -44,20 +54,29 @@ const AppShell: React.FC = () => {
         <main style={{ flex: 1, width: '100%' }}>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
-              {/* Home is only shown on root / */}
+              {/* Home & Direct Part Views */}
               <Route path="/" element={<Home />} />
               <Route path="/parte-1" element={<Home defaultPart={1} />} />
               <Route path="/parte-2" element={<Home defaultPart={2} />} />
 
-              {/* Direct QR scan activities - open directly into the game */}
+              {/* Parte 1: Direct QR scan activities */}
               <Route path="/semana/1" element={<Semana1Crossword />} />
               <Route path="/semana/2" element={<Semana2Quiz />} />
               <Route path="/semana/3" element={<Semana3Matching />} />
               <Route path="/semana/4" element={<Semana4Cloze />} />
               <Route path="/semana/5" element={<Semana5WordSearch />} />
-
               <Route path="/maraton" element={<Maraton />} />
               <Route path="/semana/6" element={<Maraton />} />
+
+              {/* Parte 2: Actividades de Camila */}
+              <Route path="/parte-2/camila/ruleta" element={<CamilaRuleta />} />
+              <Route path="/parte-2/camila/desafio" element={<CamilaDesafio />} />
+              <Route path="/parte-2/camila/detectives" element={<CamilaDetectives />} />
+              <Route path="/parte-2/camila/bingo" element={<CamilaBingo />} />
+              <Route path="/parte-2/camila/carrera" element={<CamilaCarrera />} />
+              <Route path="/parte-2/camila/experto" element={<CamilaExperto />} />
+              <Route path="/parte-2/camila/batalla" element={<CamilaBatalla />} />
+              <Route path="/parte-2/camila/semaforo" element={<CamilaSemaforo />} />
 
               {/* QR Management and Book printing */}
               <Route path="/qr" element={<QRManager />} />
