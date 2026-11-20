@@ -382,3 +382,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .part-two-game .ios-button-primary { background: #2452b3; }
 .part-two-game .game-progress { margin-bottom: 14px; }
 .part-two-game button, .part-two-game select { max-width: 100%; }
+
+.part-two-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.antony-situation, .antony-reflection { padding: 17px; margin-bottom: 14px; background: #f0ebff; }
+.antony-situation > span { display: flex; align-items: center; gap: 7px; color: #50409c; font-size: 13px; font-weight: 750; }
+.antony-situation h2, .antony-reflection h2 { margin-top: 7px; font-size: 18px; line-height: 1.35; }
+.antony-options { display: grid; gap: 8px; }
+.antony-option { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 9px; color: #17264c; background: #fff; text-align: left; font: inherit; border-radius: 13px; cursor: pointer; }
+.antony-option > span { display: grid; place-items: center; flex: 0 0 30px; height: 30px; border-radius: 9px; background: #e9efff; color: #26488f; font-weight: 750; }
+.antony-option[data-matched=true] { background: #e4f6ed; color: #155c40; border-color: #86c7a9; opacity: 1; }
+.antony-option[data-wrong=true] { background: #fff0f2; border-color: #cf586d; }
+.antony-feedback { min-height: 22px; margin: 10px 0; color: #374878; font-size: 14px; }
+.antony-reflection > svg { color: #8b6204; }
+.antony-reflection label { display: block; margin: 8px 0; }
+.antony-reflection textarea { display: block; width: 100%; margin-bottom: 14px; padding: 10px; border: 1px solid #aaa0ce; border-radius: 10px; font: inherit; resize: vertical; }
+
+.part-two-filters { grid-template-columns: repeat(auto-fit, minmax(59px, 1fr)); }
+.ashley-fields { display: grid; gap: 10px; margin-bottom: 14px; }
+.ashley-fields label { display: grid; gap: 8px; padding: 13px; }
+.ashley-fields select { width: 100%; min-height: 44px; border: 1px solid #bbc9e5; border-radius: 9px; padding: 7px; font: inherit; color: #17264c; background: #f5f8ff; }
+.ashley-fields label > span { font-size: 14px; color: #374878; }
+.ashley-model { margin: 0 0 14px; padding: 11px; border-radius: 10px; background: #e4f6ed; color: #15533b; }

@@ -55,6 +55,10 @@ const CamilaSemaforo = lazyPartTwo(() => import('./pages/parte2/CamilaSemaforo')
 const LeidiBingo = lazyPartTwo(() => import('./pages/parte2/LeidiBingo').then(m => ({ default: m.LeidiBingo })));
 const LeidiDetectives = lazyPartTwo(() => import('./pages/parte2/LeidiDetectives').then(m => ({ default: m.LeidiDetectives })));
 
+const AntonyUneYDescubre = lazyPartTwo(() => import('./pages/parte2/AntonyUneYDescubre').then(m => ({ default: m.AntonyUneYDescubre })));
+
+const AshleyActividad = lazy(() => import('./pages/parte2/AshleyActividad').then(m => ({ default: m.AshleyActividad })));
+
 // Minimal Apple iOS loader indicator
 const LoadingFallback = () => (
   <div style={{
@@ -112,6 +116,10 @@ const AppShell: React.FC = () => {
               <Route path="/parte-2/leidi/bingo" element={<LeidiBingo />} />
               <Route path="/parte-2/leidi/detectives" element={<LeidiDetectives />} />
 
+              <Route path="/parte-2/antony/une-y-descubre" element={<AntonyUneYDescubre />} />
+              {(['parejas', 'secuencia', 'tipos', 'detectives'] as const).map(kind => (
+                <Route key={kind} path={`/parte-2/ashley/${kind}`} element={<AshleyActividad key={kind} kind={kind} />} />
+              ))}
               <Route path="/parte-2/*" element={<Navigate to="/parte-2" replace />} />
 
               {/* QR Management and Book printing */}
