@@ -29,21 +29,15 @@ export const CamilaRuleta: React.FC = () => {
 
   const totalQuestions = CAMILA_WHEEL_QUESTIONS.length;
   const degreesPerSector = 360 / totalQuestions;
-  const currentRotationRef = useRef(0);
-  const wheelRef = useRef<SVGSVGElement>(null);
-  const spinAnimation = useRef<Animation | null>(null);
+  const wheelRef = useRef<SVGGElement>(null);
+  const spinFrame = useRef(0);
   const pendingQuestion = useRef<WheelQuestion | null>(null);
-  const spinTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => {
-    clearTimeout(spinTimer.current);
-    spinAnimation.current?.cancel();
-  }, []);
+  useEffect(() => () => cancelAnimationFrame(spinFrame.current), []);
 
   const finishSpin = () => {
     const question = pendingQuestion.current;
     if (!question) return;
     pendingQuestion.current = null;
-    clearTimeout(spinTimer.current);
     setIsSpinning(false);
     setCurrentQuestion(question);
     sound.pop();
@@ -57,37 +51,35 @@ export const CamilaRuleta: React.FC = () => {
     const target = remaining[Math.floor(Math.random() * remaining.length)];
     const index = CAMILA_WHEEL_QUESTIONS.indexOf(target);
     const center = (index + 0.5) * degreesPerSector;
-    const current = currentRotationRef.current;
-    const advance = (360 - ((current + center) % 360)) % 360;
-    const nextRotation = current + 2 * 360 + advance;
+    const wheel = wheelRef.current;
+    if (!wheel) return;
+
+    const advance = (360 - ((rotation + center) % 360)) % 360;
+    const turns = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 3;
+    const distance = turns * 360 + advance;
 
     sound.pop();
     pendingQuestion.current = target;
     setIsSpinning(true);
-    const land = () => {
-      currentRotationRef.current = nextRotation % 360;
-      setRotation(currentRotationRef.current);
+    const startedAt = performance.now();
+
+    const frame = (now: number) => {
+      const progress = Math.min(1, Math.max(0, (now - startedAt) / SPIN_DURATION));
+      // Smooth acceleration and braking, with no abrupt change at either end.
+      const eased = progress * progress * (3 - 2 * progress);
+      if (progress < 1) {
+        wheel.setAttribute('transform', `rotate(${rotation + distance * eased} 150 150)`);
+        spinFrame.current = requestAnimationFrame(frame);
+        return;
+      }
+
+      const landed = (rotation + distance) % 360;
+      wheel.setAttribute('transform', `rotate(${landed} 150 150)`);
+      setRotation(landed);
       finishSpin();
     };
 
-    const wheel = wheelRef.current;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !wheel?.animate) {
-      spinTimer.current = setTimeout(land, SPIN_DURATION);
-      return;
-    }
-
-    // Drive the reveal from this spin, independently of global CSS transitions.
-    setRotation(nextRotation % 360);
-    const animation = wheel.animate(
-      [{ transform: `rotate(${current}deg)` }, { transform: `rotate(${nextRotation}deg)` }],
-      { duration: SPIN_DURATION, easing: 'ease-in-out' },
-    );
-    spinAnimation.current = animation;
-    void animation.finished.then(() => {
-      if (spinAnimation.current !== animation) return;
-      spinAnimation.current = null;
-      land();
-    }, () => { /* Leaving or restarting cancels this spin. */ });
+    spinFrame.current = requestAnimationFrame(frame);
   };
 
   const handleSelectOption = (index: number) => {
@@ -127,13 +119,11 @@ export const CamilaRuleta: React.FC = () => {
   };
 
   const handleReset = () => {
-    clearTimeout(spinTimer.current);
     pendingQuestion.current = null;
-    spinAnimation.current?.cancel();
-    spinAnimation.current = null;
+    cancelAnimationFrame(spinFrame.current);
+    wheelRef.current?.setAttribute('transform', 'rotate(0 150 150)');
     sound.click();
     setRotation(0);
-    currentRotationRef.current = 0;
     setIsSpinning(false);
     setCurrentQuestion(null);
     setSelectedOption(null);
@@ -190,9 +180,9 @@ export const CamilaRuleta: React.FC = () => {
             viewBox="0 0 300 300"
             className="part-two-wheel-disc"
             data-rotation={rotation}
-            ref={wheelRef}
-            style={{ width: '100%', height: '100%', transform: `rotate(${rotation}deg)` }}
+            style={{ width: '100%', height: '100%' }}
           >
+            <g ref={wheelRef} transform={`rotate(${rotation} 150 150)`}>
             {CAMILA_WHEEL_QUESTIONS.map((q, idx) => {
               const startAngle = idx * degreesPerSector;
               const endAngle = (idx + 1) * degreesPerSector;
@@ -234,6 +224,7 @@ export const CamilaRuleta: React.FC = () => {
                 </g>
               );
             })}
+            </g>
             <circle cx="150" cy="150" r="28" fill="#FFFFFF" stroke="#E5E5EA" strokeWidth="3" />
             <circle cx="150" cy="150" r="14" fill="var(--apple-blue)" />
           </svg>
